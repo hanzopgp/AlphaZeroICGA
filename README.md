@@ -43,10 +43,10 @@ Links :
 
 First you need to clone Luddi and JPY repositories, then download C++ build and java JDK if you don't have it yet. Apache Maven is also required to build JPY. Once everything is installed go to the JPY folder and run :
 
-> SET VS100COMNTOOLS=<visual-studio-tools-folder>
-> SET JDK_HOME=<your-jdk-dir>
-> SET PATH=<maven-bin-dir>
-> python setup.py build maven bdist_wheel
+>SET VS100COMNTOOLS=<visual-studio-tools-folder>
+>SET JDK_HOME=<your-jdk-dir>
+>SET PATH=<maven-bin-dir>
+>python setup.py build maven bdist_wheel
 
 If everything worked, you should have a build directory. Copy the content of the lib directory into the Ludii directory in a folder called `/LudiiPythonAI/libs/`. The Ludii jar file should also be moved to the libs directory.
 

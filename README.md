@@ -1,8 +1,10 @@
-# Presentation
+# AlphaZeroICGA
+
+## Presentation
 
 Implementing deep reinforcement learning algorithms for the ICGA competition.
 
-# Competition
+## Competition
 
 ```
 The Ludii AI Competition involves general game playing events focussed on developing agents that can play a wide variety of board games. The events use the Ludii general game system to provide the necessary games and API. Games will be provided in the Ludii game description format (*.lud). The version used for this competition (1.3.2) of Ludii includes over 1,000 games.
@@ -17,7 +19,7 @@ Each event will run if at least 3 participants take part in it.
 
 Link : https://github.com/Ludeme/LudiiAICompetition
 
-# Environnment
+## Environnment
 
 The games are hosted on the Ludii software which is in java. Since we use python for our algorithms we will need a java-python bridge such as **JPY**, we also need the **Ludii** software.
 
@@ -25,7 +27,7 @@ Links :
 - https://github.com/Ludeme/LudiiPythonAI
 - https://github.com/jpy-consortium/jpy
 
-# Algorithms
+## Baseline
 
 We use deep reinforcement learning algorithms for this competition and we start with AlphaZero as a baseline. AlphaGo is an algorithm which can play Go at a super-human level using supervised learning and reinforcement learning. AlphaGo Zero can basically do the same but starting from scratch, hence the "Zero" in its name. AlphaZero does the same but it is able to play different games such as Chess and Shogi.
 

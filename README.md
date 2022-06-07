@@ -9,7 +9,7 @@
 
 ## Presentation
 
-<p align="center"><img width="500" src="img.jpg"></p>
+<p align="center"><img width="800" src="img.jpg"></p>
 
 Implementing deep reinforcement learning algorithms for the ICGA competition.
 

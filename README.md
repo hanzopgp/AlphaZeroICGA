@@ -28,13 +28,27 @@ Here we focus on the learning event.
 
 Link : https://github.com/Ludeme/LudiiAICompetition
 
-## Environment
+## Environment & Setup
 
-The games are hosted on the Ludii software, which is in java. Since we use python for our algorithms we will need a java-python bridge such as **JPY**, we also need the **Ludii** software.
+The games are hosted on the Ludii software, which is in java. Since we use python for our algorithms we will need a java-python bridge such as **JPY**. Microsoft Visual C++ 14.0 and Java JDK 7.0 are required to build JPY.
+We also need the **Ludii** software to run our algorithms in the environment.
 
 Links : 
 - https://github.com/Ludeme/LudiiPythonAI
 - https://github.com/jpy-consortium/jpy
+- https://visualstudio.microsoft.com/visual-cpp-build-tools/
+- https://www.oracle.com/java/technologies/downloads/
+- https://maven.apache.org/download.cgi
+- https://ludii.games/download.php
+
+First you need to clone Luddi and JPY repositories, then download C++ build and java JDK if you don't have it yet. Apache Maven is also required to build JPY. Once everything is installed go to the JPY folder and run :
+
+> SET VS100COMNTOOLS=<visual-studio-tools-folder>
+> SET JDK_HOME=<your-jdk-dir>
+> SET PATH=<maven-bin-dir>
+> python setup.py build maven bdist_wheel
+
+If everything worked, you should have a build directory. Copy the content of the lib directory into the Ludii directory in a folder called `/LudiiPythonAI/libs/`. The Ludii jar file should also be moved to the libs directory.
 
 ## Baseline
 

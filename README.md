@@ -32,6 +32,7 @@ Link : https://github.com/Ludeme/LudiiAICompetition
 
 The games are hosted on the Ludii software, which is in java. Since we use python for our algorithms we will need a java-python bridge such as **JPY**. Microsoft Visual C++ 14.0 and Java JDK 7.0 are required to build JPY.
 We also need the **Ludii** software to run our algorithms in the environment.
+We compile a jar file in order to export our AI on Ludii thanks to ant so it is also required even though you can do it otherwise.
 
 Links : 
 - https://github.com/Ludeme/LudiiPythonAI
@@ -39,16 +40,17 @@ Links :
 - https://visualstudio.microsoft.com/visual-cpp-build-tools/
 - https://www.oracle.com/java/technologies/downloads/
 - https://maven.apache.org/download.cgi
+- https://ant.apache.org/bindownload.cgi
 - https://ludii.games/download.php
 
 First you need to clone Luddi and JPY repositories, then download C++ build and java JDK if you don't have it yet. Apache Maven is also required to build JPY. Once everything is installed go to the JPY folder and run :
 
->SET VS100COMNTOOLS=<visual-studio-tools-folder>
->SET JDK_HOME=<your-jdk-dir>
->SET PATH=<maven-bin-dir>
->python setup.py build maven bdist_wheel
+`SET VS100COMNTOOLS=<visual-studio-tools-folder>
+SET JDK_HOME=<your-jdk-dir>
+SET PATH=<maven-bin-dir>
+python setup.py build maven bdist_wheel`
 
-If everything worked, you should have a build directory. Copy the content of the lib directory into the Ludii directory in a folder called `/LudiiPythonAI/libs/`. The Ludii jar file should also be moved to the libs directory.
+If everything worked, you should have a build directory. Copy the content of the lib directory into the Ludii directory in a folder called `/LudiiPythonAI/libs/`. The Ludii jar file should also be moved to the libs directory. Finaly, you can build the jar file thanks to ant and the xml file, then export it in Ludii.
 
 ## Baseline
 

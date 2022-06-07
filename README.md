@@ -11,7 +11,7 @@
 
 <p align="center"><img width="800" src="img.jpg"></p>
 
-Implementing deep reinforcement learning algorithms for the ICGA competition.
+Implementing deep reinforcement learning algorithms for the ICGA competition. This project is carried out for my 1st year of master internship at the LIP6 (Laboratoire d'Informatique de Paris 6/ Sorbonne University / CNRS).
 
 ## Competition
 

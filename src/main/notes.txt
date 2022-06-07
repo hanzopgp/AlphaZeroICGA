@@ -1,0 +1,36 @@
+rewards : -1 for losing, 0 for draw, 1 for winning
+
+============================================================================
+
+states : n_position * n_features
+Both depends on the game and features can be : enemy presence, ally presence, type of pawn...
+states are reversed depending the current player
+
+============================================================================
+
+algorithms :
+
+- value network 
+	- input : states
+	- output : value between -1 (bad state for current player) and 1 (good state)
+	- training : simulate games until win following a policy (init random), when game is over, label the states of the winner by a reward of 1 and the state of the loser by a reward of -1. Then we shuffle all the states and train a neural network in order to estimate the value.
+	- settings : MSE + sigmoid
+	- backbone : ResNet CNN
+
+- policy network
+	- input : states
+	- output : policy vector (distribution on moves), need to mask out the unvalid moves + renormalize afterwards.
+	- training : simulate games using MCTS and the estimated policy, it gives us a policy which will be used to build our labels. Then we shuffle the states and train a neural network in order to estimate the new policy. The new policy is now used during the MCTS, thus becoming a circular dependency.
+	- settings : CCE + softmax
+	- backbone : ResNet CNN
+
+- monte carlo tree search
+	- input : init state of the game, current player and number of simulations
+	- external values used : policy from the policy network & values from the value network & UCB score which depends on the prior probabilty of the states, the value of the state and the number of time we visited that state. 
+	- output : 
+	- working : simulate the board and search in the tree of valid moves. Build the tree The best move is the one which is the most visited.
+	- 
+
+VIDEO : 17:12
+
+============================================================================

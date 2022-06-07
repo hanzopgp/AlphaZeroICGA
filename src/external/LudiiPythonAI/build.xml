@@ -37,7 +37,7 @@
 		<jar destfile="LudiiPythonAI.jar" basedir="bin" duplicate="preserve">
 			<zipgroupfileset dir="${LudiiPythonAI.location}/libs" includes="**/*.jar" >
 				<exclude name="Ludii-1.3.4.jar" />
-				<exclude name="Ludii-javadoc.jar" />
+				<exclude name="Ludii-javadoc.jar" /<name />
 			</zipgroupfileset>
 		</jar>
 	</target>

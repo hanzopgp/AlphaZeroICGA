@@ -1,0 +1,20 @@
+language: java
+version: ~> 1.0
+
+branches:
+  only:
+  - master
+  
+before_script:
+  - sudo apt-get install ant-optional
+  - sudo chown -R travis ./travis/download_ludii.sh
+  - sudo chmod +x ./travis/download_ludii.sh
+  
+script:
+  - ./travis/download_ludii.sh
+  - travis_wait ant clean test
+  
+notifications:
+  email:
+    recipients:
+      - d.soemers@gmail.com

@@ -1,2 +1,0 @@
-Inspecting Trials and States
-============================

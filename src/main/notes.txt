@@ -77,23 +77,53 @@ architecture :
 
 TODO :
 
-- get game lib infos
-	- state : build state
-	- reward : future reward function
-	- action : valid moves function
-- code MCTS
-	- node class
-	- MCTS class
-- code data acquisition
-	- dataframe containing
-		- game state
-		- MCTS search prob
-		- future rewards
-- code tensorflow two-headed CNN
-	- architecture
-	- custom loss
-- code main dojo
-	- MCTS > network train > evaluate model
+Figure out how to train : 
+	- java : init random policy
+	- java : MCTS running on the Ludii game and building a dataset (starting from random policy)
+	- java : build csv file dataset
+	- python : train NN on dataset & quantitative evaluation
+	- python : create AI agent using the NN policy
+	- java : use the python AI agent in trials for qualitative evaluation
+	- java : if the python AI agent performs better, use its policy on MCTS and build a new dataset
+	- repeat ...
+	
+	- python : init random policy
+	- python : create AI MCTS agent
+	- java : run and observe MCTS agent
+	- java : build csv file dataset
+	- python : train NN on dataset & quantitative evaluation
+	- python : create AI agent using the NN policy
+	- java : use the python AI agent in trials for qualitative evaluation
+	- java : if the python AI agent performs better, use its policy on MCTS and build a new dataset
+	- repeat ...
+	
+PYTHON-SIDE :
+	- get game lib infos
+		- state : build state
+		- reward : future reward function
+		- action : valid moves function
+	- code MCTS
+		- node class
+		- MCTS class
+	- code data acquisition
+		- dataframe containing
+			- game state
+			- MCTS search prob
+			- future rewards
+	- code tensorflow two-headed CNN
+		- architecture
+		- custom loss
+	- code main dojo
+		- MCTS > network train > evaluate model
+		
+============================================================================
+
+Ludii notes :
+	
+- 
+- initialisation and cleanup can be usefull before running the AI agent (for instance if we need to load weights etc...)
+- there is a function to create a pass moves if needed
+- state.owned() & state.mover() for state representation
 
 
 

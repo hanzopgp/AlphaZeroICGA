@@ -60,4 +60,10 @@
 			<classpath refid="LudiiTutorials.classpath"/>
 		</junit>
 	</target>
+	
+	<target name="run" depends="build">
+	    	<java classname="ludii_tutorials.RunningTrials" fork="true">
+	      		<classpath refid="LudiiTutorials.classpath"/>
+	    	</java>
+	</target>
 </project>

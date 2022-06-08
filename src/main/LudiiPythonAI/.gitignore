@@ -1,5 +1,3 @@
-external/
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -129,3 +127,26 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+/bin/
+
+# The Ludii.jar file and files it creates
+/libs/Ludii.jar
+/libs/ludii_preferences.json
+/libs/ludii.trl
+/libs/Ludii-javadoc.jar
+
+# The JPY jar file
+/libs/jpy-0.10.0-SNAPSHOT.jar
+
+# JPY config properties
+/libs/jpyconfig.properties
+
+# Eclipse project files
+.classpath
+.project
+
+# PyCharm project files
+.idea
+
+# The JAR file we build
+LudiiPythonAI.jar

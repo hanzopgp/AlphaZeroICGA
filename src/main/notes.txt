@@ -1,10 +1,12 @@
+representation :
+
+states : - n_rows * n_cols * (m+1)_stacks
+		- m/2 stacks for last m/2 moves of player0 (need to do that because the states doesn't have markov property)
+		- m/2 stacks for last m/2 moves of player1
+		- 1 stack for the current player (0 or 1)
+		- (might add some features later such as pawn type etc...)
+actions : valid moves from ludii lib
 rewards : -1 for losing, 0 for draw, 1 for winning
-
-============================================================================
-
-states : n_position * n_features
-Both depends on the game and features can be : enemy presence, ally presence, type of pawn...
-states are reversed depending the current player
 
 ============================================================================
 
@@ -27,10 +29,93 @@ algorithms :
 - monte carlo tree search
 	- input : init state of the game, current player and number of simulations
 	- external values used : policy from the policy network & values from the value network & UCB score which depends on the prior probabilty of the states, the value of the state and the number of time we visited that state. 
-	- output : 
+	- output : the root of the tree (a new policy)
 	- working : simulate the board and search in the tree of valid moves. Build the tree The best move is the one which is the most visited.
-	- 
-
-VIDEO : 17:12
+	
+- UCB (Upper Confidence Bound)
+	- MCTS alone struggle when there is a lot of possible moves
+	- UCB helps MCTS chose better moves while simulating games
+	- balance exploration and exploitation
+	- v = s/n + C * sqrt(ln(N)/n); with v as the value, s the aggregate score of the move, n the number of visit, N the number of games simulated, C a exploration constant
+	
+- AlphaZero
+	- start with a random policy
+	- both players play with MCTS + UCB + random policy
+	- at each move we store
+		- the game state
+		- the MCTS policy
+		- future reward (-1,0,+1)
+	- after getting our training set
+		- optimise neural network
+			- input : game state
+			- output : MCTS policy & future reward
+		- after 1000 training loops, evaluate the network
+			- play against the latest network 400 games and check if it wins > 55% 
+	- after several self-play games we train both neural networks
+	- then we start another game but with the policy estimated by the policy network & the values estimated by the value network
+	- repeat until convergence
 
 ============================================================================
+
+architecture :
+
+- dojo
+	- train
+		- model.py
+		- MCTS.py
+		- train.py
+	- tmp_models
+	- final_models	
+	
+- inference
+	- ludii python file
+	- ludii java file
+	- ludii jar
+	-...
+	
+============================================================================
+
+TODO :
+
+- get game lib infos
+	- state : build state
+	- reward : future reward function
+	- action : valid moves function
+- code MCTS
+	- node class
+	- MCTS class
+- code data acquisition
+	- dataframe containing
+		- game state
+		- MCTS search prob
+		- future rewards
+- code tensorflow two-headed CNN
+	- architecture
+	- custom loss
+- code main dojo
+	- MCTS > network train > evaluate model
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

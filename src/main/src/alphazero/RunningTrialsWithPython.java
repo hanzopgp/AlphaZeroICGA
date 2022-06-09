@@ -9,7 +9,10 @@ import org.jpy.PyModule;
 import org.jpy.PyObject;
 
 import game.Game;
+import other.trial.Trial;
+import other.context.Context;
 import other.GameLoader;
+import utils.RandomAI;
 
 
 public class RunningTrialsWithPython{
@@ -23,15 +26,13 @@ public class RunningTrialsWithPython{
 
 	public static void main(String[] args){
 		initJPY();
-		Game game = initGame("Tic-Tac-Toe.lud");
-		run(game);	
+		final Game game = GameLoader.loadGameFromName("Tic-Tac-Toe.lud");
+		final Trial trial = new Trial(game);
+		final Context context = new Context(game, trial);
+		
+		run(game, trial, context, new RandomAI(), new RandomAI());	
 	}
 	
-	public static Game initGame(String game_str){
-		final Game game = GameLoader.loadGameFromName(game_str);
-		return game;
-	}
-
 	public static void initJPY(){
 		if (!initialisedJpy){
 			// We always expect this AI class to be in a JAR file. Let's find out where our JAR file is
@@ -58,7 +59,7 @@ public class RunningTrialsWithPython{
 		pythonTrial = pythonTrialModule.call("RunningTrials");
 	}
 	
-	public static void run(final Game game){
-		System.out.println(pythonTrial.call("run", game));
+	public static void run(final Game game, final Trial trial, final Context context, final RandomAI ai1, final RandomAI ai2){
+		pythonTrial.call("run", game, trial, context, ai1, ai2);
 	}
 }

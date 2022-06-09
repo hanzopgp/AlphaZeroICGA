@@ -1,4 +1,4 @@
-package ludii_tutorials;
+package alphazero;
 
 import java.io.File;
 import java.util.Arrays;

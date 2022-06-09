@@ -1,4 +1,4 @@
-package ludii_tutorials;
+package alphazero;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;

@@ -1,4 +1,4 @@
-package ludii_tutorials;
+package alphazero;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +10,12 @@ import other.context.Context;
 import other.model.Model;
 import other.trial.Trial;
 import utils.RandomAI;
+
+import org.jpy.PyLib;
+import org.jpy.PyModule;
+import org.jpy.PyObject;
+import ludii_python_ai.LudiiPythonAI;
+
 
 public class RunningTrials{
 	
@@ -23,9 +29,11 @@ public class RunningTrials{
 		
 		final List<AI> ais = new ArrayList<AI>();
 		ais.add(null);
-		for (int p = 1; p <= game.players().count(); ++p){
+		/*for (int p = 1; p <= game.players().count(); ++p){
 			ais.add(new RandomAI());
-		}
+		}*/
+		ais.add(new RandomAI());
+		ais.add(new LudiiPythonAI());
 		
 
 		for (int i = 0; i < NUM_TRIALS; ++i){

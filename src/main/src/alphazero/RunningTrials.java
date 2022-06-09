@@ -13,9 +13,6 @@ import other.trial.Trial;
 import other.location.Location;
 import utils.RandomAI;
 
-import org.jpy.PyLib;
-import org.jpy.PyModule;
-import org.jpy.PyObject;
 import ludii_python_ai.LudiiPythonAI;
 
 

@@ -83,8 +83,6 @@ public class LudiiPythonAI extends AI
 			
 			// Set JPY config property relative to this JAR path
 			System.setProperty("jpy.config", jarPath + "/libs/jpyconfig.properties");
-			
-			System.out.println("=====================================================" + jarPath);
 
 			// Make sure that Python is running
 			if (!PyLib.isPythonRunning()) 

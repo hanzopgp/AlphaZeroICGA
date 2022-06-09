@@ -40,8 +40,7 @@ public class RunningTrials{
 			game.start(context);
 			System.out.println("Starting a new trial!");
 	
-			for (int p = 1; p <= game.players().count(); ++p)
-			{
+			for (int p = 1; p <= game.players().count(); ++p){
 				ais.get(p).initAI(game, p);
 			}
 			
@@ -49,25 +48,42 @@ public class RunningTrials{
 				
 			// Checking context representation to understand how to represent states
 			while (!trial.over()){
+				model.startNewStep(context, ais, 0.1);
+			
 				System.out.println("===================== state functions =====================");
 				int mover = context.state().mover();
+				int opp_mover = (mover==1 ? 2 : 1);
 				System.out.println("Mover: " + mover);
+				System.out.println("Opponent: " + opp_mover);
+				
 				List<? extends Location>[] map_pos = context.state().owned().positions(mover);
-				System.out.println("Map positions :");
+				List<? extends Location>[] map_pos_opp = context.state().owned().positions(opp_mover);
+				System.out.println("Map positions for mover:");
 				for(int j=0; j<map_pos.length; j++){
-					System.out.println(map_pos[j]);
+					for(int k=0; k<map_pos[j].size(); k++){
+						System.out.print(map_pos[j].get(k).site() + " ");
+					}
+					System.out.println();
 				}
+				System.out.println("Map positions for opponent:");
+				for(int j=0; j<map_pos_opp.length; j++){
+					for(int k=0; k<map_pos_opp[j].size(); k++){
+						System.out.print(map_pos_opp[j].get(k).site() + " ");
+					}
+					System.out.println();
+				}
+				
 				/*System.out.println("StateHash: " + context.state().stateHash());
+				
 				System.out.println("===================== game functions =====================");
 				System.out.println("Legal moves: " + context.game().moves(context).moves());
+				
 				System.out.println("===================== trial functions =====================");
 				Iterator it = context.trial().reverseMoveIterator();
-				System.out.println("Reverse move iterator: " + it);
 				while(it.hasNext()){
 					System.out.println(it.next())	;
 				}*/
 				
-				model.startNewStep(context, ais, 1.0);
 				System.out.println("**********************************************************************");
 			}
 			

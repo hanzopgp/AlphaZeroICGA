@@ -66,7 +66,7 @@ class RunningTrials:
 			model = context.model()
 			
 			while not trial.over():
-				print("====================NEW MOVE====================")
+				#print("====================NEW MOVE====================")
 			
 				# Plays whole game until the end
 				#game.playout(context,
@@ -89,18 +89,23 @@ class RunningTrials:
 				#context.game().apply(context, move)
 				
 				# Move with custom python AI and save the move distribution
-				# Apply softmax on the visit count to get a distribution from the MCTS
 				#print("Mover:", mover)
 				if mover == 1:
 					#move = ais.get(mover).selectAction(game, context)
+					
+					# Get the optimal move and number of visits per move
 					move, tmp_arr_move1 = mcts1.select_action(game, context, 0.1, -1, -1)
-					final_move_arr1.append(tmp_arr_move1)
+					# Sort moves by their number 
+					tmp_arr_move1 = tmp_arr_move1[tmp_arr_move1[:, 0].argsort()]
+					# Apply softmax on the visit count to get a distribution from the MCTS
 					tmp_arr_move1[:,1] = softmax(tmp_arr_move1[:,1])
+					final_move_arr1.append(tmp_arr_move1)
 				else:
 					move, tmp_arr_move2 = mcts2.select_action(game, context, 0.1, -1, -1)
-					final_move_arr2.append(tmp_arr_move2)
+					tmp_arr_move2 = tmp_arr_move2[tmp_arr_move2[:, 0].argsort()]
 					tmp_arr_move2[:,1] = softmax(tmp_arr_move2[:,1])
-				#print("Move played:", move)				
+					final_move_arr2.append(tmp_arr_move2)
+				print("Move played:", move)				
 				context.game().apply(context, move)
 				#print("*"*30)
 					

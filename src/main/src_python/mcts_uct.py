@@ -37,6 +37,10 @@ class MCTS_UCT:
 		# Init an empty node which will be our root
 		root = Node(None, None, context)
 		num_players = game.players().count()
+		
+		# Init our visit counter for that move in order to normalize
+		# the visit counts per child
+		self.total_visit_count = 0
 
 		# Use max_seconds and max_iterations if a value is set
 		# else if we get -1 the max is infinity
@@ -87,6 +91,7 @@ class MCTS_UCT:
 			while current is not None:
 				# visit_count variable for each nodes in order to compute UCB scores
 				current.visit_count += 1
+				current.total_visit_count += 1
 				# score_sums variable for each nodes in order to compute UCB scores
 				for p in range(1, num_players+1):
 					current.score_sums[p] += utils[p]
@@ -157,6 +162,7 @@ class MCTS_UCT:
 		best_visit_count = -math.inf
 		num_best_found = 0
 		num_children = len(root_node.children)
+		total_visit_count = root_node.total_visit_count
 		
 		# Array to store the move, the number of visits per move and the future reward
 		move_array = np.zeros((9,3))
@@ -172,7 +178,7 @@ class MCTS_UCT:
 			#move_dict[child.move_from_parent] = visit_count
 			# Currently we have the move number, the number of visit of that move
 			# and we put 0 for the reward since we don't know who will win yet
-			move_array[i] = [child.move_from_parent.to(), visit_count, 0]
+			move_array[i] = [child.move_from_parent.to(), visit_count/total_visit_count, 0]
 			
 			# Keep track of the best child according to the number of visits
 			if visit_count > best_visit_count:
@@ -200,6 +206,9 @@ class Node:
 
 		# Variables for MCTS decision
 		self.visit_count = 0
+		
+		# Variables for normalization
+		self.total_visit_count = 0
 
 		# Variables for UCB score computation
 		self.move_from_parent = move_from_parent

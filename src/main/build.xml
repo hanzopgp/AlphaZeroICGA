@@ -16,7 +16,7 @@
 	<target name="init">
 		<mkdir dir="bin"/>
 		<copy includeemptydirs="false" todir="bin">
-			<fileset dir="src">
+			<fileset dir="src_java">
 	 		<exclude name="**/*.launch"/>
 	       	<exclude name="**/*.java"/>
 	  		</fileset>
@@ -31,7 +31,7 @@
 	<target name="build" depends="init">
 		<echo message="${ant.project.name}: ${ant.file}"/>
 		<javac debug="true" debuglevel="${debuglevel}" destdir="bin" includeantruntime="false" source="${source}" target="${target}" compiler="javac1.8" encoding="UTF-8">
-			<src path="src"/>
+			<src path="src_java"/>
 			<classpath refid="AlphaZero.classpath"/>
 		</javac>
 	</target>

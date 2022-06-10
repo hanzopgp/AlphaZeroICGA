@@ -1,46 +1,16 @@
-"""
-Example UCT implementation in Python, which (with a Java wrapper) can be used
-to play in the Ludii general game system.
-
-The implementation is based on our Example UCT implementation in Java
-(see: https://github.com/Ludeme/LudiiExampleAI/blob/master/src/mcts/ExampleUCT.java)
-
-NOTE: because we don't extend the abstract AI class from Java, we can't inherit
-the "wantsInterrupt" flag and hence can't make our AI automatically stop
-when the Pause button is pressed in the GUI.
-
-@author Dennis Soemers
-"""
-
 import math
-import numpy as np
 import random
 import time
+import numpy as np
 
 
 def rank_to_util(rank, num_players):
-    """
-    Helper method to convert a rank into a utility value
-    (copied from AIUtils in the Ludii Java code)
-
-    :param rank:
-    :param num_players:
-    :return:
-    """
     if num_players == 1:
         return 2.0 * rank - 1.0
     else:
         return 1.0 - ((rank - 1.0) * (2.0 / (num_players - 1)))
 
-
 def utilities(context):
-    """
-    Helper method to compute an array of utility values for a given
-    Ludii context object (copied from AIUtils in the Ludii Java code)
-
-    :param context:
-    :return:
-    """
     ranking = context.trial().ranking()
     utils = np.zeros(len(ranking))
     num_players = len(ranking) - 1
@@ -55,24 +25,11 @@ def utilities(context):
     return utils
 
 
-class UCT:
-    """
-    UCT class in Python, implements Ludii's (Java) abstract class "AI"
-    """
-
+class MCTS_UCT:
     def __init__(self):
-        """
-        Constructor
-        """
         self._player_id = -1
 
     def init_ai(self, game, player_id):
-        """
-        Initialises the AI
-
-        :param game:
-        :param player_id:
-        """
         self._player_id = player_id
 
     def select_action(self,
@@ -81,16 +38,7 @@ class UCT:
                       max_seconds,
                       max_iterations,
                       max_depth):
-        """
-        Returns an action to play
-
-        :param game:
-        :param context:
-        :param max_seconds:
-        :param max_iterations:
-        :param max_depth:
-        :return:
-        """
+                      
         # Start out by creating a new root node (no tree reuse in this example)
         root = Node(None, None, context)
         num_players = game.players().count()

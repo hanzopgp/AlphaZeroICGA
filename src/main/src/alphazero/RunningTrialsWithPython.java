@@ -1,5 +1,8 @@
 package alphazero;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import java.io.File;
 import java.net.URL;
 import java.util.regex.Pattern;
@@ -13,6 +16,7 @@ import other.trial.Trial;
 import other.context.Context;
 import other.GameLoader;
 import utils.RandomAI;
+import other.AI;
 
 
 public class RunningTrialsWithPython{
@@ -29,8 +33,12 @@ public class RunningTrialsWithPython{
 		final Game game = GameLoader.loadGameFromName("Tic-Tac-Toe.lud");
 		final Trial trial = new Trial(game);
 		final Context context = new Context(game, trial);
+		final List<AI> ais = new ArrayList<AI>();
+		ais.add(null);
+		ais.add(new RandomAI());
+		ais.add(new RandomAI());
 		
-		run(game, trial, context, new RandomAI(), new RandomAI());	
+		run(game, trial, context, ais);	
 	}
 	
 	public static void initJPY(){
@@ -59,7 +67,7 @@ public class RunningTrialsWithPython{
 		pythonTrial = pythonTrialModule.call("RunningTrials");
 	}
 	
-	public static void run(final Game game, final Trial trial, final Context context, final RandomAI ai1, final RandomAI ai2){
-		pythonTrial.call("run", game, trial, context, ai1, ai2);
+	public static void run(final Game game, final Trial trial, final Context context, final List<AI> ais){
+		pythonTrial.call("run", game, trial, context, ais);
 	}
 }

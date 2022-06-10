@@ -8,41 +8,45 @@ class RunningTrials:
 	def __init__(self):
 		pass
 		
+	# Need to give a Java List object here, if we give 2 ais and make it a python array
+	# it won't work and we get no java overload error
 	def run(self, game, trial, context, ais):
 		num_trials = 10
 		thinking_time = 1.0
-		ais.remove(0) # Remove null since we can't use it in python
+		
+		# Remove null since we can't use it in python
+		# if we don't remove then we need to avoid the init on first element
+		#ais.remove(0) 
 		
 		for i in range(num_trials):
 			game.start(context)
 			print("Starting a new trial!")
 			
-			for p in range(game.players().count()):
+			# Avoiding error since we can't init a nonetype object in python
+			for p in range(1, game.players().count()):
 				ais.get(p).initAI(game, p)
 			model = context.model()
 			
 			while not trial.over():
-				# Doesn't work if we send ais
+			
+				# Plays whole game until the end
 				#game.playout(context,
-				#             None, # ais
+				#             ais, # ais
 				#             1.0,  # thinking_time
 				#             None, # playoutMoveSelector
 				#             0,    # max_num_biased_actions
 				#             -1,   # max_num_playout_actions
 				#             None) # random
 				             
-				# Doesn't work if we send ais	
-				print(ais.get(0))
-				print(ais.get(1))
-				model.startNewStep(context, ais, game.players().count())
+				# Plays step by step
+				#model.startNewStep(context, ais, game.players().count())
 				
-				# Doesn't work if we use ais
-				#mover = context.state().mover()
-				#opp_mover = 2 if mover==1 else 2
-				#print("Mover: ", mover)
-				#print("Opponent: ", opp_mover)
-				#move = ais.get(mover).selectAction(game, context, thinking_time)
-				#context.game().apply(context, move)
+				# Move per move
+				mover = context.state().mover()
+				opp_mover = 2 if mover==1 else 2
+				# Here thinking_time doesn't work, maybe because it isn't a type double
+				move = ais.get(mover).selectAction(game, context)
+				context.game().apply(context, move)
 				
 				#print("===================== state functions =====================")
 				#map_pos = context.state().owned().positions(mover)

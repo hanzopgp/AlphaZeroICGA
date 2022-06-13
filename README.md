@@ -4,7 +4,7 @@
 
 1. [Presentation](#presentation-)
 2. [Competition](#competition-)
-3. [Environment](#environment-)
+3. [Environment & Setup](#environment-&-setup-)
 4. [Baseline](#baseline-)
 
 ## Presentation
@@ -24,7 +24,7 @@ Three events are proposed :
 - Learning: A set of games are announced months before the actual competition, the agents are invited to learn before competing.
 Each event will run if at least 3 participants take part in it."
 
-Here we focus on the learning event.
+**Here we focus on the learning event.**
 
 Links : 
 - https://icga.org/?page_id=3468

@@ -22,6 +22,51 @@ def utilities(context):
 		utils[p] = rank_to_util(rank) # Compute utility value per player
 	return utils
 	
+# Returns the opponent of the mover as an int
+def opp(mover):
+	return 2 if mover ==1 else 1
+
+# Create a numpy array from the java owned positions
+def format_positions(positions):
+	# A position is a n_row*n_col board
+	res = np.zeros(9)
+	for pos in positions:
+		for i in range(pos.size()):
+			# We create a boolean in order to build a presence map
+			res[pos.get(i).site()] = 1
+	# Reshape it as a 2D board because we are going to use a CNN
+	return res.reshape(3, 3)
+
+# Build the input of the NN for AlphaZero algorithm thanks to the context object
+def format_state(context, n_time_step):
+	# Shape is n_rows, n_cols, n_time_step
+	# We multiply per 2 because we have 2 state per time step
+	res = np.zeros((n_time_step*2, 3, 3))
+	# Here we copy the state since we are going to need to undo moves
+	context_copy = context.deepCopy()
+	# Get some objects thanks to our copy context object
+	trial = context_copy.trial()
+	game = context_copy.game()
+	# We iterate n_time_step*2 time
+	for i in range(0, n_time_step*2, 2):
+		# Get the current state
+		state = context_copy.state()
+		# Get the owned object and the mover
+		owned = state.owned()
+		mover = state.mover()
+		# We get the state information (who owns the pieces on the board)
+		res[i] = format_positions(owned.positions(mover))
+		res[i+1] = format_positions(owned.positions(opp(mover)))
+		# Then we undo one move to get the previous states. The try except allows us
+		# to avoid an error of we can't undo the last move (in case we are at the start
+		# of the game.
+		try:
+			game.undo(context_copy)
+		except: 
+			break	
+	print(res)
+	return res
+	
 ######### Here are the main classes to run the MCTS simulation #########
 
 class MCTS_UCT:
@@ -108,6 +153,12 @@ class MCTS_UCT:
 	def select(self, current):
 		# If we have some moves to expand
 		if len(current.unexpanded_moves) > 0:
+			# Here we usualy chose a random move but in the AlphaZero algorithm we are going to
+			# chose a move depending the current policy. For that we need to do a forward pass
+			# on the neural network, using the state as an input
+			state = format_state(current.context, 3)
+			print("*"*30)
+			#move = network(state)
 			# We randomly chose an unexpanded move, can pop it since it's already shuffled
 			move = current.unexpanded_moves.pop()
 			# We copy the context to play in a simulation

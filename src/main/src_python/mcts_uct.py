@@ -3,6 +3,8 @@ import random
 import time
 import numpy as np
 
+from src_python.config import * 
+
 	
 ######### Here are the utility function to run the MCTS simulation #########
 	
@@ -28,27 +30,25 @@ def opp(mover):
 
 # Create a numpy array from the java owned positions
 def format_positions(positions):
-	# A position is a n_row*n_col board
-	res = np.zeros(9)
+	res = np.zeros(N_ROW*N_COL)
 	for pos in positions:
 		for i in range(pos.size()):
 			# We create a boolean in order to build a presence map
 			res[pos.get(i).site()] = 1
 	# Reshape it as a 2D board because we are going to use a CNN
-	return res.reshape(3, 3)
+	return res.reshape(N_ROW, N_COL)
 
 # Build the input of the NN for AlphaZero algorithm thanks to the context object
-def format_state(context, n_time_step):
-	# Shape is n_rows, n_cols, n_time_step
+def format_state(context):
 	# We multiply per 2 because we have 2 state per time step
-	res = np.zeros((n_time_step*2, 3, 3))
+	res = np.zeros((N_TIME_STEP*2, N_ROW, N_COL))
 	# Here we copy the state since we are going to need to undo moves
 	context_copy = context.deepCopy()
 	# Get some objects thanks to our copy context object
 	trial = context_copy.trial()
 	game = context_copy.game()
-	# We iterate n_time_step*2 time
-	for i in range(0, n_time_step*2, 2):
+	# We iterate N_TIME_STEP*2 time
+	for i in range(0, N_TIME_STEP*2, 2):
 		# Get the current state
 		state = context_copy.state()
 		# Get the owned object and the mover
@@ -155,7 +155,7 @@ class MCTS_UCT:
 			# Here we usualy chose a random move but in the AlphaZero algorithm we are going to
 			# chose a move depending the current policy. For that we need to do a forward pass
 			# on the neural network, using the state as an input
-			state = format_state(current.context, n_time_step=3)
+			state = format_state(current.context)
 			#move = network(state)
 			# We randomly chose an unexpanded move, can pop it since it's already shuffled
 			move = current.unexpanded_moves.pop()
@@ -214,7 +214,7 @@ class MCTS_UCT:
 		total_visit_count = root_node.total_visit_count
 		
 		# Array to store the move, the number of visits per move and the future reward
-		move_array = np.zeros((9,2))
+		move_array = np.zeros((N_ROW*N_COL, 2))
 
 		# For each children of the root, so for each legal moves
 		for i in range(num_children):
@@ -243,7 +243,7 @@ class MCTS_UCT:
 				num_best_found += 1
 				
 		# Get the representation of the current state for the future NN training
-		state = format_state(root_node.context, n_time_step=3)
+		state = format_state(root_node.context)
 				
 		# Returns the move to play in the real game and the moves
 		# associated to their probability distribution

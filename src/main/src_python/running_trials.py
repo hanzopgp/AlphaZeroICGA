@@ -1,5 +1,6 @@
 import numpy as np
 
+from src_python.config import * 
 from src_python.mcts_uct import MCTS_UCT
 
 
@@ -29,16 +30,13 @@ def softmax(x):
 ######### Here is the class called in the java file to run trials #########	
 
 class RunningTrials:
-	def __init__(self):
-		self.NUM_TRIALS = 10
-		
 	# Need to give a Java List object here, if we give 2 ais and make it a python array
 	# it won't work and we get no java overload error
 	def run(self, game, trial, context, ais):
 		mcts1 = MCTS_UCT()
 		mcts2 = MCTS_UCT()
-		mcts1.init_ai(game, 1)
-		mcts2.init_ai(game, 2)
+		mcts1.init_ai(game, PLAYER1)
+		mcts2.init_ai(game, PLAYER2)
 		
 		ai1_win = 0
 		ai2_win = 0
@@ -46,16 +44,12 @@ class RunningTrials:
 		total = 0
 		
 		idx_sample = 0
-		max_sample = self.NUM_TRIALS * 100 # Can't be more than 9 moves per trial
-		n_time_step = 3
-		n_row = 3
-		n_col = 3
-		X = np.zeros((max_sample, 2*n_time_step, n_row, n_col))
-		X_mover = np.zeros((max_sample))
-		y_distrib = np.zeros((max_sample, n_row*n_col, 2)) # 2 because moves -> softmax
-		y_values = np.zeros((max_sample))
+		X = np.zeros((MAX_SAMPLE, 2*N_TIME_STEP, N_ROW, N_COL))
+		X_mover = np.zeros((MAX_SAMPLE))
+		y_distrib = np.zeros((MAX_SAMPLE, N_ROW*N_COL, 2)) # 2 because moves -> softmax
+		y_values = np.zeros((MAX_SAMPLE))
 		
-		for i in range(self.NUM_TRIALS):
+		for i in range(NUM_TRIALS):
 			game.start(context)
 			model = context.model()
 			
@@ -85,7 +79,12 @@ class RunningTrials:
 					# Uncomment next line if using Ludii AI object
 					#move = ais.get(mover).selectAction(game, context)
 					# Get the optimal move and number of visits per move
-					move, state, tmp_arr_move = mcts1.select_action(game, context, 0.1, -1, -1)
+					move, state, tmp_arr_move = mcts1.select_action(game, context, THINKING_TIME_AGENT1, -1, -1)
+				else:
+					move, state, tmp_arr_move = mcts2.select_action(game, context, THINKING_TIME_AGENT2, -1, -1)
+					
+				if not move.isForced(): # Avoid to add useless moves when games is over
+					#print(move)
 					# Save X state
 					X[idx_sample] = state
 					# Sort moves by their number 
@@ -93,14 +92,7 @@ class RunningTrials:
 					# Apply softmax on the visit count to get a distribution from the MCTS
 					tmp_arr_move[:,1] = softmax(tmp_arr_move[:,1])
 					y_distrib[idx_sample] = tmp_arr_move
-				else:
-					move, state, tmp_arr_move = mcts2.select_action(game, context, 0.1, -1, -1)
-					X[idx_sample] = state
-					tmp_arr_move = tmp_arr_move[tmp_arr_move[:, 0].argsort()]
-					tmp_arr_move[:,1] = softmax(tmp_arr_move[:,1])
-					y_distrib[idx_sample] = tmp_arr_move
-				
-				idx_sample += 1	
+					idx_sample += 1	
 				
 				#print("Move played:", move)				
 				context.game().apply(context, move)
@@ -111,11 +103,11 @@ class RunningTrials:
 			# Check who won and print some stats + rewards
 			reward1 = 0
 			reward2 = 0
-			if ranking[1] > ranking[2]:
+			if ranking[int(PLAYER1)] > ranking[int(PLAYER2)]:
 				reward1 = -1
 				reward2 = 1
 				ai2_win += 1
-			elif ranking[1] < ranking[2]:
+			elif ranking[int(PLAYER1)] < ranking[int(PLAYER2)]:
 				reward1 = 1
 				reward2 = -1
 				ai1_win += 1
@@ -127,12 +119,13 @@ class RunningTrials:
 			
 			# Use reward as labels for our dataset
 			for j in range(X_mover.shape[0]):
-				if X_mover[j] == 1.0:
+				if X_mover[j] == PLAYER1:
 					y_values[j] = reward1
-				elif X_mover[j] == 2.0:
+				elif X_mover[j] == PLAYER2:
 					y_values[j] = reward2
 			
-		# Keep the interesting values only		
+		# Keep the interesting values only
+		# TOO MUCH SAMPLE NEED TO FIX THAT		
 		X = X[:idx_sample]
 		y_values = y_values[:idx_sample]
 		y_distrib = y_distrib[:idx_sample]
@@ -145,7 +138,7 @@ class RunningTrials:
 		print("y_values", y_values.shape)
 		print("y_distrib", y_distrib.shape)
 		
-		# Print some stats
+		# Print some trial stats
 		print("AI1 winrate:", ai1_win/total)
 		print("AI2 winrate:", ai2_win/total)
 		print("Draws:", draw/total)

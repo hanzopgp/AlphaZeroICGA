@@ -18,7 +18,7 @@ def track_values():
 	pass
 	
 def build_dataset(visit_count_arr):
-	move_distrib = softmax(visit_count_arr)
+	pass
 	
 def export_dataset_csv():
 	pass
@@ -30,22 +30,14 @@ def softmax(x):
 
 class RunningTrials:
 	def __init__(self):
-		self.NUM_TRIALS = 1
+		self.NUM_TRIALS = 10
 		
 	# Need to give a Java List object here, if we give 2 ais and make it a python array
 	# it won't work and we get no java overload error
 	def run(self, game, trial, context, ais):
-		# Remove null since we can't use it in python
-		# if we don't remove then we need to avoid the init on first element
-		#ais.remove(0) 
-		
-		# Can't do that since our python object can't be in a java object list
-		#ais.remove(2)
-		#ais.add(MCTS_UCT())
-		
 		mcts1 = MCTS_UCT()
-		mcts1.init_ai(game, 1)
 		mcts2 = MCTS_UCT()
+		mcts1.init_ai(game, 1)
 		mcts2.init_ai(game, 2)
 		
 		ai1_win = 0
@@ -53,26 +45,18 @@ class RunningTrials:
 		draw = 0
 		total = 0
 		
-		# Need to think about a break somewhere when sample is full
 		idx_sample = 0
-		n_sample = 100
+		max_sample = self.NUM_TRIALS * 100 # Can't be more than 9 moves per trial
 		n_time_step = 3
 		n_row = 3
 		n_col = 3
-		X = np.zeros((n_sample, 2*n_time_step, n_row, n_col))
-		#y_distrib = np.zeros((n_sample, n_row*n_col))
-		#y_values = np.zeros((n_sample))
-		
-		final_move_arr1 = []
-		final_move_arr2 = []
+		X = np.zeros((max_sample, 2*n_time_step, n_row, n_col))
+		X_mover = np.zeros((max_sample))
+		y_distrib = np.zeros((max_sample, n_row*n_col, 2)) # 2 because moves -> softmax
+		y_values = np.zeros((max_sample))
 		
 		for i in range(self.NUM_TRIALS):
 			game.start(context)
-			
-			# Avoiding error since we can't init a nonetype object in python
-			#for p in range(1, game.players().count()):
-			#	ais.get(p).initAI(game, p)
-			
 			model = context.model()
 			
 			while not trial.over():
@@ -92,80 +76,41 @@ class RunningTrials:
 				
 				# Move per move
 				mover = context.state().mover()
-				#opp_mover = 2 if mover==1 else 2
-				# Here thinking_time doesn't work, maybe because it isn't a type double
-				#move = ais.get(mover).selectAction(game, context, thinking_time)
-				#move = ais.get(mover).selectAction(game, context)
-				#context.game().apply(context, move)
+				
+				# Keep track of the mover
+				X_mover[idx_sample] = mover
 				
 				# Move with custom python AI and save the move distribution
-				#print("Mover:", mover)
 				if mover == 1:
+					# Uncomment next line if using Ludii AI object
 					#move = ais.get(mover).selectAction(game, context)
-					
 					# Get the optimal move and number of visits per move
-					move, state1, tmp_arr_move1 = mcts1.select_action(game, context, 0.1, -1, -1)
-					# Save X
-					print("*"*20)
-					print("state1",state1.shape)
-					print("X",X.shape)
-					X[idx_sample] = state1
-					idx_sample += 1
+					move, state, tmp_arr_move = mcts1.select_action(game, context, 0.1, -1, -1)
+					# Save X state
+					X[idx_sample] = state
 					# Sort moves by their number 
-					tmp_arr_move1 = tmp_arr_move1[tmp_arr_move1[:, 0].argsort()]
+					tmp_arr_move = tmp_arr_move[tmp_arr_move[:, 0].argsort()]
 					# Apply softmax on the visit count to get a distribution from the MCTS
-					tmp_arr_move1[:,1] = softmax(tmp_arr_move1[:,1])
-					final_move_arr1.append(tmp_arr_move1)
+					tmp_arr_move[:,1] = softmax(tmp_arr_move[:,1])
+					y_distrib[idx_sample] = tmp_arr_move
 				else:
-					move, state2, tmp_arr_move2 = mcts2.select_action(game, context, 0.1, -1, -1)
-					print("*"*20)
-					print("state1",state1.shape)
-					print("X",X.shape)
-					X[idx_sample] = state2
-					idx_sample += 1
-					tmp_arr_move2 = tmp_arr_move2[tmp_arr_move2[:, 0].argsort()]
-					tmp_arr_move2[:,1] = softmax(tmp_arr_move2[:,1])
-					final_move_arr2.append(tmp_arr_move2)
-				print("Move played:", move)				
-				context.game().apply(context, move)
-				#print("*"*30)
-					
-				#print("===================== state functions =====================")
-				#map_pos = context.state().owned().positions(mover)
-				#map_pos_opp = context.state().owned().positions(opp_mover)
-				#print("Map positions for mover:")
-				#for j in range(len(map_pos)):
-				#	for k in range(map_pos[j].size()):
-				#		print(map_pos[j].get(k).site(), " ")
-				#	print("\n")
-				#print("Map positions for opponent:")
-				#for j in range(len(map_pos_opp)):
-				#	for k in range(map_pos_opp[j].size()):
-				#		print(map_pos_opp[j].get(k).site(), " ")
-				#	print("\n")
-
-				#print("===================== game functions =====================")
-				#print("Legal moves: ", context.game().moves(context).moves())
+					move, state, tmp_arr_move = mcts2.select_action(game, context, 0.1, -1, -1)
+					X[idx_sample] = state
+					tmp_arr_move = tmp_arr_move[tmp_arr_move[:, 0].argsort()]
+					tmp_arr_move[:,1] = softmax(tmp_arr_move[:,1])
+					y_distrib[idx_sample] = tmp_arr_move
 				
-				#print("===================== trial functions =====================")
-				#it = context.trial().reverseMoveIterator()
-				#while it.hasNext():
-				#	print(it.next())
-
-				#print("**********************************************************************")
+				idx_sample += 1	
+				
+				#print("Move played:", move)				
+				context.game().apply(context, move)
 	
+			# Compute ranking
 			ranking = trial.ranking()
 			
-			#for p in range(game.players().count()):
-				# Need to use p+1 because we removed the null object at index 0 in our ais array
-			#	print("Agent ", context.state().playerToAgent(p+1), " achieved rank: ", ranking[p+1])
-			#print("\n")
-			
-			# Generate rewards for both players
+			# Check who won and print some stats + rewards
 			reward1 = 0
 			reward2 = 0
-		
-			# Check who won and print some stats
 			if ranking[1] > ranking[2]:
 				reward1 = -1
 				reward2 = 1
@@ -180,30 +125,29 @@ class RunningTrials:
 				draw += 1
 			total += 1
 			
-			#y_value[idx_sample] = reward
-			#y_distrib[idx_sample = 
+			# Use reward as labels for our dataset
+			for j in range(X_mover.shape[0]):
+				if X_mover[j] == 1.0:
+					y_values[j] = reward1
+				elif X_mover[j] == 2.0:
+					y_values[j] = reward2
 			
-			# Update the rewards to build the dataset
-			final_move_arr1 = np.array(final_move_arr1)
-			final_move_arr2 = np.array(final_move_arr2)
-			
-			# Do no think I should reshape here because we want to keep the distribution per state
-			#final_move_arr1 = final_move_arr1.reshape(-1, 3)
-			#final_move_arr2 = final_move_arr2.reshape(-1, 3)
-			
-			#print(final_move_arr1.shape)
-			#print(final_move_arr2.shape)
-			final_move_arr1[:,:,2] = reward1
-			final_move_arr2[:,:,2] = reward2
+		# Keep the interesting values only		
+		X = X[:idx_sample]
+		y_values = y_values[:idx_sample]
+		y_distrib = y_distrib[:idx_sample]
+		#print(X)
+		#print(y_values)
+		#print(y_distrib)
+		
+		# Print our generated dataset shapes
+		print("X", X.shape)			
+		print("y_values", y_values.shape)
+		print("y_distrib", y_distrib.shape)
 		
 		# Print some stats
-		#print("AI1 winrate:", ai1_win/total)
-		#print("AI2 winrate:", ai2_win/total)
-		#print("Draws:", draw/total)
-
-		#print("DATASET GENERATED FOR PLAYER 1")
-		#print(final_move_arr1)
-		#print("DATASET GENERATED FOR PLAYER 2")
-		#print(final_move_arr2)
+		print("AI1 winrate:", ai1_win/total)
+		print("AI2 winrate:", ai2_win/total)
+		print("Draws:", draw/total)
 
 		

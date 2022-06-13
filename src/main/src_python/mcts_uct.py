@@ -214,7 +214,7 @@ class MCTS_UCT:
 		total_visit_count = root_node.total_visit_count
 		
 		# Array to store the move, the number of visits per move and the future reward
-		move_array = np.zeros((9,3))
+		move_array = np.zeros((9,2))
 
 		# For each children of the root, so for each legal moves
 		for i in range(num_children):
@@ -227,7 +227,7 @@ class MCTS_UCT:
 			#move_dict[child.move_from_parent] = visit_count
 			# Currently we have the move number, the number of visit of that move
 			# and we put 0 for the reward since we don't know who will win yet
-			move_array[i] = [child.move_from_parent.to(), visit_count/total_visit_count, 0]
+			move_array[i] = [child.move_from_parent.to(), visit_count/total_visit_count]
 			
 			# Keep track of the best child according to the number of visits
 			if visit_count > best_visit_count:

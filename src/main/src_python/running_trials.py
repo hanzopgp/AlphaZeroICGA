@@ -53,6 +53,16 @@ class RunningTrials:
 		draw = 0
 		total = 0
 		
+		# Need to think about a break somewhere when sample is full
+		idx_sample = 0
+		n_sample = 100
+		n_time_step = 3
+		n_row = 3
+		n_col = 3
+		X = np.zeros((n_sample, 2*n_time_step, n_row, n_col))
+		#y_distrib = np.zeros((n_sample, n_row*n_col))
+		#y_values = np.zeros((n_sample))
+		
 		final_move_arr1 = []
 		final_move_arr2 = []
 		
@@ -67,7 +77,7 @@ class RunningTrials:
 			
 			while not trial.over():
 				#print("====================NEW MOVE====================")
-			
+				
 				# Plays whole game until the end
 				#game.playout(context,
 				#             ais, # ais
@@ -94,14 +104,25 @@ class RunningTrials:
 					#move = ais.get(mover).selectAction(game, context)
 					
 					# Get the optimal move and number of visits per move
-					move, tmp_arr_move1 = mcts1.select_action(game, context, 0.1, -1, -1)
+					move, state1, tmp_arr_move1 = mcts1.select_action(game, context, 0.1, -1, -1)
+					# Save X
+					print("*"*20)
+					print("state1",state1.shape)
+					print("X",X.shape)
+					X[idx_sample] = state1
+					idx_sample += 1
 					# Sort moves by their number 
 					tmp_arr_move1 = tmp_arr_move1[tmp_arr_move1[:, 0].argsort()]
 					# Apply softmax on the visit count to get a distribution from the MCTS
 					tmp_arr_move1[:,1] = softmax(tmp_arr_move1[:,1])
 					final_move_arr1.append(tmp_arr_move1)
 				else:
-					move, tmp_arr_move2 = mcts2.select_action(game, context, 0.1, -1, -1)
+					move, state2, tmp_arr_move2 = mcts2.select_action(game, context, 0.1, -1, -1)
+					print("*"*20)
+					print("state1",state1.shape)
+					print("X",X.shape)
+					X[idx_sample] = state2
+					idx_sample += 1
 					tmp_arr_move2 = tmp_arr_move2[tmp_arr_move2[:, 0].argsort()]
 					tmp_arr_move2[:,1] = softmax(tmp_arr_move2[:,1])
 					final_move_arr2.append(tmp_arr_move2)
@@ -159,6 +180,9 @@ class RunningTrials:
 				draw += 1
 			total += 1
 			
+			#y_value[idx_sample] = reward
+			#y_distrib[idx_sample = 
+			
 			# Update the rewards to build the dataset
 			final_move_arr1 = np.array(final_move_arr1)
 			final_move_arr2 = np.array(final_move_arr2)
@@ -173,13 +197,13 @@ class RunningTrials:
 			final_move_arr2[:,:,2] = reward2
 		
 		# Print some stats
-		print("AI1 winrate:", ai1_win/total)
-		print("AI2 winrate:", ai2_win/total)
-		print("Draws:", draw/total)
+		#print("AI1 winrate:", ai1_win/total)
+		#print("AI2 winrate:", ai2_win/total)
+		#print("Draws:", draw/total)
 
-		print("DATASET GENERATED FOR PLAYER 1")
-		print(final_move_arr1)
-		print("DATASET GENERATED FOR PLAYER 2")
-		print(final_move_arr2)
+		#print("DATASET GENERATED FOR PLAYER 1")
+		#print(final_move_arr1)
+		#print("DATASET GENERATED FOR PLAYER 2")
+		#print(final_move_arr2)
 
 		

@@ -64,7 +64,6 @@ def format_state(context, n_time_step):
 			game.undo(context_copy)
 		except: 
 			break	
-	print(res)
 	return res
 	
 ######### Here are the main classes to run the MCTS simulation #########
@@ -156,8 +155,7 @@ class MCTS_UCT:
 			# Here we usualy chose a random move but in the AlphaZero algorithm we are going to
 			# chose a move depending the current policy. For that we need to do a forward pass
 			# on the neural network, using the state as an input
-			state = format_state(current.context, 3)
-			print("*"*30)
+			state = format_state(current.context, n_time_step=3)
 			#move = network(state)
 			# We randomly chose an unexpanded move, can pop it since it's already shuffled
 			move = current.unexpanded_moves.pop()
@@ -244,9 +242,12 @@ class MCTS_UCT:
 					best_child = child
 				num_best_found += 1
 				
+		# Get the representation of the current state for the future NN training
+		state = format_state(root_node.context, n_time_step=3)
+				
 		# Returns the move to play in the real game and the moves
 		# associated to their probability distribution
-		return best_child.move_from_parent, np.array(move_array)
+		return best_child.move_from_parent, state, move_array
 
 
 class Node:

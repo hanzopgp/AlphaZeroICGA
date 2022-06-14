@@ -44,9 +44,9 @@ class RunningTrials:
 		total = 0
 		
 		idx_sample = 0
-		X = np.zeros((MAX_SAMPLE, 2*N_TIME_STEP, N_ROW, N_COL))
+		X = np.zeros((MAX_SAMPLE, 2*N_TIME_STEP, N_ROW, N_COL, N_LEVELS))
 		X_mover = np.zeros((MAX_SAMPLE))
-		y_distrib = np.zeros((MAX_SAMPLE, N_ROW*N_COL, 2)) # 2 because moves -> softmax
+		y_distrib = np.zeros((MAX_SAMPLE, N_ROW*N_COL))
 		y_values = np.zeros((MAX_SAMPLE))
 		
 		for i in range(NUM_TRIALS):
@@ -88,9 +88,10 @@ class RunningTrials:
 					# Save X state
 					X[idx_sample] = state
 					# Sort moves by their number 
-					tmp_arr_move = tmp_arr_move[tmp_arr_move[:, 0].argsort()]
+					#tmp_arr_move = tmp_arr_move[tmp_arr_move[:, 0].argsort()]
 					# Apply softmax on the visit count to get a distribution from the MCTS
-					tmp_arr_move[:,1] = softmax(tmp_arr_move[:,1])
+					#tmp_arr_move[:,1] = softmax(tmp_arr_move[:,1])
+					tmp_arr_move = softmax(tmp_arr_move)
 					y_distrib[idx_sample] = tmp_arr_move
 					idx_sample += 1	
 				

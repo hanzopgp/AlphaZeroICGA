@@ -30,18 +30,20 @@ def opp(mover):
 
 # Create a numpy array from the java owned positions
 def format_positions(positions):
-	res = np.zeros(N_ROW*N_COL)
+	res = np.zeros((N_ROW*N_COL, N_LEVELS))
 	for pos in positions:
 		for i in range(pos.size()):
 			# We create a boolean in order to build a presence map
-			res[pos.get(i).site()] = 1
+			p = pos.get(i)
+			#print(p)
+			res[p.site(), p.level()] = 1
 	# Reshape it as a 2D board because we are going to use a CNN
-	return res.reshape(N_ROW, N_COL)
+	return res.reshape(N_ROW, N_COL, N_LEVELS)
 
 # Build the input of the NN for AlphaZero algorithm thanks to the context object
 def format_state(context):
 	# We multiply per 2 because we have 2 state per time step
-	res = np.zeros((N_TIME_STEP*2, N_ROW, N_COL))
+	res = np.zeros((N_TIME_STEP*2, N_ROW, N_COL, N_LEVELS))
 	# Here we copy the state since we are going to need to undo moves
 	context_copy = context.deepCopy()
 	# Get some objects thanks to our copy context object
@@ -213,8 +215,8 @@ class MCTS_UCT:
 		num_children = len(root_node.children)
 		total_visit_count = root_node.total_visit_count
 		
-		# Array to store the move, the number of visits per move and the future reward
-		move_array = np.zeros((N_ROW*N_COL, 2))
+		# Array to store the number of visits per move
+		move_array = np.zeros((N_ROW*N_COL))
 
 		# For each children of the root, so for each legal moves
 		for i in range(num_children):
@@ -222,12 +224,8 @@ class MCTS_UCT:
 			visit_count = child.visit_count
 			
 			# Saving values to build dataset later
-			#print("Move:", child.move_from_parent)
-			#print("Number of visits:", child.visit_count)
-			#move_dict[child.move_from_parent] = visit_count
-			# Currently we have the move number, the number of visit of that move
-			# and we put 0 for the reward since we don't know who will win yet
-			move_array[i] = [child.move_from_parent.to(), visit_count/total_visit_count]
+			# The move number is the index and the score is the value
+			move_array[child.move_from_parent.to()] = visit_count/total_visit_count
 			
 			# Keep track of the best child according to the number of visits
 			if visit_count > best_visit_count:

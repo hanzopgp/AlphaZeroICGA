@@ -47,15 +47,28 @@ def load_data():
 ######### Training model from loaded data #########
 			
 X, y_values, y_distrib = load_data()
+X = X.squeeze().reshape(X.shape[0], X.shape[2], X.shape[3], X.shape[1])
 print(X.shape)
 print(y_values.shape)
 print(y_distrib.shape)
-#model = CustomModel(
-#	input_dim=data["X"][0].shape, 
-#	output_dim=data["y_distrib"][0].shape, 
-#	n_res_layer=3, 
-#	learning_rate=1e-3, 
-#	momentum=1e-4, 
-#	reg_const=1e-6)
-#model.build_model()
+
+y = {'value_head': y_values, 'policy_head': y_distrib} 
+
+model = CustomModel(
+	input_dim=X[0].shape, 
+	output_dim=y_distrib.shape[1], 
+	n_res_layer=N_RES_LAYER, 
+	learning_rate=LEARNING_RATE, 
+	momentum=MOMENTUM, 
+	reg_const=REG_CONST)
+model.build_model()
 #model.summary()
+history = model.fit(
+	X=X, 
+	y=y, 
+	n_epochs=N_EPOCHS, 
+	batch_size=BATCH_SIZE, 
+	verbose=VERBOSE, 
+	validation_split=VALIDATION_SPLIT)
+#model.plot_metrics(history)
+model.write()

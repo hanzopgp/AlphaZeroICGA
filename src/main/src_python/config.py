@@ -11,7 +11,7 @@ THINKING_TIME_AGENT2 = 0.1
 N_TIME_STEP = 3
 
 # Trial parameters
-NUM_TRIALS = 10	
+NUM_TRIALS = 50	
 
 # Game dependent variable
 

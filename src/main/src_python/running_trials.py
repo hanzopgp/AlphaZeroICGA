@@ -130,7 +130,7 @@ class RunningTrials:
 		y_values = y_values[:idx_sample]
 		y_distrib = y_distrib[:idx_sample]
 		#print(X)
-		print(y_values)
+		#print(y_values)
 		#print(y_distrib)
 		
 		# Save values to CSV

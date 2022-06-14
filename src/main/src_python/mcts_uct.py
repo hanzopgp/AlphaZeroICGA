@@ -2,11 +2,13 @@ import math
 import random
 import time
 import numpy as np
+from os.path import exists
 
 import tensorflow as tf
 from tensorflow.keras.models import load_model
 
 from src_python.config import * 
+from src_python.model import softmax_cross_entropy_with_logits
 
 	
 ######### Here are the utility function to run the MCTS simulation #########
@@ -28,10 +30,10 @@ def utilities(context):
 	return utils
 	
 # Loads the trained model from previous dataset
-def load_model():
+def load_nn():
 	return load_model(
-			MODEL_PATH+GAME_NAME+'.h5', 
-			custom_objects={'softmax_cross_entropy_with_logits': tf.nn.softmax_cross_entropy_with_logits}
+			MODEL_PATH+GAME_NAME+".h5",
+			custom_objects={'softmax_cross_entropy_with_logits': softmax_cross_entropy_with_logits}
 		)
 	
 # Returns the opponent of the mover as an int
@@ -85,7 +87,13 @@ def format_state(context):
 class MCTS_UCT:
 	def __init__(self):
 		self._player_id = -1
-		#self.model = load_model()
+		if exists(MODEL_PATH+GAME_NAME+".h5"): 
+			print("Using the model:", MODEL_PATH+GAME_NAME+".h5", "to chose moves")
+			self.first_step = False
+			self.model = load_nn()
+		else:
+			print("No model found, starting from random moves")
+			self.first_step = True
 
 	# Fix the player who will play with MCTS
 	def init_ai(self, game, player_id):
@@ -167,16 +175,21 @@ class MCTS_UCT:
 	def select(self, current):
 		# If we have some moves to expand
 		if len(current.unexpanded_moves) > 0:
-			# Here we usualy chose a random move but in the AlphaZero algorithm we are going to
-			# chose a move depending the current policy. For that we need to do a forward pass
-			# on the neural network, using the state as an input
-			#state = format_state(current.context)
-			# wtf = self.model(state)
-			# We randomly chose an unexpanded move, can pop it since it's already shuffled
-			move = current.unexpanded_moves.pop()
+			# If it's the first step and we don't have a model yet, we chose random moves
+			# can pop it since it's already shuffled
+			if self.first_step:
+				move = current.unexpanded_moves.pop()
+			# If it's not the first step then we use our model to chose a move
+			else:
+				state = format_state(current.context).squeeze()
+				state = state.reshape(state.shape[1], state.shape[2], state.shape[0])
+				value_pred, policy_pred = self.model.predict(np.expand_dims(state, axis=0))
+				move = np.argmax(policy_pred)
 			# We copy the context to play in a simulation
 			context = current.context.deepCopy()
 			# Apply the move in the simulation
+			# NEED TO FIGURE OUT HOW TO BUILD A MOVE OBJECT FROM JAVA TO APPLY IT
+			# WHEN USING THE MODEL TO CHOSE A MOVE !!!
 			context.game().apply(context, move)
 			# Return a new node, with the new child (which is the move played)
 			return Node(current, move, context)

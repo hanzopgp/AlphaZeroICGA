@@ -6,7 +6,9 @@ from tensorflow.keras.layers import Input, Dense, Conv2D, Flatten, BatchNormaliz
 from tensorflow.keras.optimizers import SGD
 from keras import regularizers
 
-from config import *
+# PROBLEM WHEN RUNNING SCRIPT FROM .sh, ant, or python3...
+#from config import *
+from src_python.config import *
 
 
 def softmax_cross_entropy_with_logits(y_true, y_pred):
@@ -30,13 +32,13 @@ class CustomModel():
 		self.reg_const = reg_const
 		
 	def write(self):
-		self.model.save(MODEL_PATH+GAME_NAME+'.h5')
+		self.model.save(MODEL_PATH+GAME_NAME+".h5")
 		
 	def summary(self):
 		return self.model.summary()
 		
 	def predict(self, x):
-		return self.model.predict(x)
+		return self.model.predict(x, verbose=False)
 
 	def fit(self, X, y, n_epochs, batch_size, verbose, validation_split):
 		return self.model.fit(
@@ -45,8 +47,7 @@ class CustomModel():
 				epochs=n_epochs, 
 				verbose=verbose, 
 				validation_split=validation_split, 
-				batch_size=batch_size
-			)
+				batch_size=batch_size)
 			
 	def plot_metrics(self, history):
 		plt.plot(history.history['policy_head_accuracy'])
@@ -84,8 +85,7 @@ class CustomModel():
 			loss={"value_head": "mean_squared_error", "policy_head": softmax_cross_entropy_with_logits},
 			loss_weights={"value_head": 0.5, "policy_head": 0.5},
 			metrics={"value_head": "mean_squared_error", "policy_head": "accuracy"},
-			optimizer=SGD(learning_rate=self.learning_rate, momentum=self.momentum)	
-		)
+			optimizer=SGD(learning_rate=self.learning_rate, momentum=self.momentum))
 		self.model = model
 		
 	# This method returns a classical convolutional layer with batch normalization

@@ -25,7 +25,7 @@ N_LEVELS = 1
 #MAX_SAMPLE = NUM_TRIALS * N_ROW * N_COL * N_LEVELS + 1
 
 # Trial parameters
-NUM_TRIALS = 50
+NUM_TRIALS = 3
 MAX_SAMPLE = NUM_TRIALS * N_ROW * N_COL * N_LEVELS + 1	
 
 # NN parameters

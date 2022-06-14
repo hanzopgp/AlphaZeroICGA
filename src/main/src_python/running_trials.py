@@ -1,4 +1,5 @@
 import os
+from os.path import exists
 import pickle
 import numpy as np
 
@@ -18,8 +19,12 @@ def add_to_dataset(X, y_values, y_distrib):
 	my_data = {'X': X,
 	   	   'y_values': y_values,
 	   	   'y_distrib': y_distrib}
-	with open(pkl_path, 'ab+') as fp:
-		pickle.dump(my_data, fp)
+	if exists(pkl_path): 
+		with open(pkl_path, 'ab+') as fp:
+			pickle.dump(my_data, fp)
+	else:
+		with open(pkl_path, 'wb') as fp:
+			pickle.dump(my_data, fp)
 	print("Done !")
 
 def softmax(x):

@@ -26,9 +26,12 @@
 	<target name="clean">
 		<delete dir="bin"/>
 	 	<delete dir="build"/>
-	 	<delete file="datasets/*"/>
-	 	<delete file="models/*"/>
-	 	<fileset dir="models/" includes="**/*"/>
+		<delete includeemptydirs="true">
+		    <fileset dir="models" includes="*"/>
+		</delete>
+		<delete includeemptydirs="true">
+		    <fileset dir="datasets" includes="*"/>
+		</delete>
 	</target>
 	
 	<target name="build" depends="init">

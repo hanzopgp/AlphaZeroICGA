@@ -1,11 +1,10 @@
-import numpy as np
-import matplotlib.pyplot as plt
-
 import tensorflow as tf
-from tensorflow.keras.models import Sequential, load_model, Model
-from tensorflow.keras.layers import Input, Dense, Conv2D, Flatten, BatchNormalization, Activation, LeakyReLU, add
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Input, Dense, Conv2D, Flatten, BatchNormalization, LeakyReLU, add
 from tensorflow.keras.optimizers import SGD
 from keras import regularizers
+
+from config import * 
 
 
 class CustomModel():
@@ -16,6 +15,9 @@ class CustomModel():
 		self.learning_rate = learning_rate
 		self.momentum = momentum
 		self.reg_const = reg_const
+		
+	def write(self, game_name, version):
+		self.model.save(MODEL_PATH+GAME_NAME+'.h5')
 		
 	def summary(self):
 		return self.model.summary()
@@ -50,7 +52,7 @@ class CustomModel():
 		# Define the loss and optimizer
 		model.compile(
 			loss={"value_head": "mean_squared_error", "policy_head": tf.nn.softmax_cross_entropy_with_logits},
-			optimizer=SGD(lr=self.learning_rate, momentum=self.momentum),	
+			optimizer=SGD(learning_rate=self.learning_rate, momentum=self.momentum),	
 			loss_weights={"value_head": 0.5, "policy_head": 0.5}	
 		)
 		self.model = model
@@ -142,9 +144,4 @@ class CustomModel():
 			kernel_regularizer=regularizers.l2(self.reg_const)
 		)(x)
 		return (x)
-		
-print("ok")
-model = CustomModel((6,3,3), (9), 3, 1e-3, 1e-4, 1e-6)
-model.build_model()
-model.summary()
 		

@@ -3,6 +3,9 @@ import random
 import time
 import numpy as np
 
+import tensorflow as tf
+from tensorflow.keras.models import load_model
+
 from src_python.config import * 
 
 	
@@ -24,9 +27,18 @@ def utilities(context):
 		utils[p] = rank_to_util(rank) # Compute utility value per player
 	return utils
 	
+# Loads the trained model from previous dataset
+def load_model():
+	return load_model(
+			MODEL_PATH+GAME_NAME+'.h5', 
+			custom_objects={'softmax_cross_entropy_with_logits': tf.nn.softmax_cross_entropy_with_logits}
+		)
+	
 # Returns the opponent of the mover as an int
 def opp(mover):
 	return 2 if mover ==1 else 1
+	
+######### Here are the utility functions to format data #########
 
 # Create a numpy array from the java owned positions
 def format_positions(positions):
@@ -68,11 +80,12 @@ def format_state(context):
 			break	
 	return res
 	
-######### Here are the main classes to run the MCTS simulation #########
+######### Here is the main class to run the MCTS simulation #########
 
 class MCTS_UCT:
 	def __init__(self):
 		self._player_id = -1
+		#self.model = load_model()
 
 	# Fix the player who will play with MCTS
 	def init_ai(self, game, player_id):
@@ -157,8 +170,8 @@ class MCTS_UCT:
 			# Here we usualy chose a random move but in the AlphaZero algorithm we are going to
 			# chose a move depending the current policy. For that we need to do a forward pass
 			# on the neural network, using the state as an input
-			state = format_state(current.context)
-			#move = network(state)
+			#state = format_state(current.context)
+			# wtf = self.model(state)
 			# We randomly chose an unexpanded move, can pop it since it's already shuffled
 			move = current.unexpanded_moves.pop()
 			# We copy the context to play in a simulation

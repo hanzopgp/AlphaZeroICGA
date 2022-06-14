@@ -6,16 +6,14 @@ from src_python.mcts_uct import MCTS_UCT
 
 
 ######### Here are the function to build the dataset for AlphaZero #########	
-# We need functions to keep track of the state representation, the future reward
-# and the distribution of moves for the rote_node. It will help us
-# build a dataset with X and y in order to train a DCNN model which will
-# estimate a policy and a value. Once it has been train, we inject the outputs
-# into the MCTS, which will now follow the policy and values, thus expanding
-# differently and giving new move distribution and future rewards.
+# It will help us build a dataset with X and y in order to train a DCNN model 
+# which will estimate a policy and a value. Once it has been train, we inject 
+# the outputs into the MCTS, which will now follow the policy and values, 
+# thus expanding differently and giving new move distribution and future rewards.
 
-def add_to_dataset(game_name, X, y_values, y_distrib):
-	print("Saving data to csv for the game :", game_name, "...")
-	with open(DATASET_FOLDER_PATH+game_name+".csv", 'a+', newline='') as w:
+def add_to_dataset(X, y_values, y_distrib):
+	print("Saving data to csv for the game :", GAME_NAME, "...")
+	with open(DATASET_PATH+GAME_NAME+".csv", 'a+', newline='') as w:
 		csv_w = writer(w)
 		for sample in range(X.shape[0]):
 			csv_w.writerow([X[sample], y_values[sample], y_distrib[sample]])
@@ -134,7 +132,7 @@ class RunningTrials:
 		#print(y_distrib)
 		
 		# Save values to CSV
-		#add_to_dataset("TicTacToe", X, y_values, y_distrib)
+		#add_to_dataset(X, y_values, y_distrib)
 		
 		# Print our generated dataset shapes
 		print("X", X.shape)			

@@ -13,14 +13,14 @@ NUM_TRIALS = 1
 # Game dependent variable
 
 # TicTacToe
-N_ROW = 3
-N_COL = 3
-N_LEVELS = 1
-MAX_SAMPLE = NUM_TRIALS * N_ROW * N_COL + 1
+#N_ROW = 3
+#N_COL = 3
+#N_LEVELS = 1
+#MAX_SAMPLE = NUM_TRIALS * N_ROW * N_COL + 1
 
 # Bashni
-#N_ROW = 8
-#N_COL = 8
-#N_LEVELS = 10
-#MAX_SAMPLE = NUM_TRIALS * N_ROW * N_COL * N_LEVELS + 1
+N_ROW = 8
+N_COL = 8
+N_LEVELS = 20
+MAX_SAMPLE = NUM_TRIALS * N_ROW * N_COL * N_LEVELS + 1
 

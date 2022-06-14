@@ -1,5 +1,6 @@
+import os
+import pickle
 import numpy as np
-from csv import writer
 
 from src_python.config import * 
 from src_python.mcts_uct import MCTS_UCT
@@ -13,12 +14,14 @@ from src_python.mcts_uct import MCTS_UCT
 
 def add_to_dataset(X, y_values, y_distrib):
 	print("Saving data to csv for the game :", GAME_NAME, "...")
-	with open(DATASET_PATH+GAME_NAME+".csv", 'a+', newline='') as w:
-		csv_w = writer(w)
-		for sample in range(X.shape[0]):
-			csv_w.writerow([X[sample], y_values[sample], y_distrib[sample]])
+	pkl_path = DATASET_PATH+GAME_NAME+".pkl"
+	my_data = {'X': X,
+	   	   'y_values': y_values,
+	   	   'y_distrib': y_distrib}
+	with open(pkl_path, 'ab+') as fp:
+		pickle.dump(my_data, fp)
 	print("Done !")
-	
+
 def softmax(x):
     return np.exp(x)/np.sum(np.exp(x))
 
@@ -131,17 +134,17 @@ class RunningTrials:
 		#print(y_values)
 		#print(y_distrib)
 		
-		# Save values to CSV
-		#add_to_dataset(X, y_values, y_distrib)
-		
 		# Print our generated dataset shapes
-		print("X", X.shape)			
-		print("y_values", y_values.shape)
-		print("y_distrib", y_distrib.shape)
+		print("X shape", X.shape)			
+		print("y_values shape", y_values.shape)
+		print("y_distrib shape", y_distrib.shape)
 		
 		# Print some trial stats
 		print("AI1 winrate:", ai1_win/total)
 		print("AI2 winrate:", ai2_win/total)
 		print("Draws:", draw/total)
+		
+		# Save values to CSV
+		add_to_dataset(X, y_values, y_distrib)
 
 		

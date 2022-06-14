@@ -27,8 +27,8 @@ public class RunningTrialsWithPython{
 
 	public static void main(String[] args){
 		initJPY();
-		//final Game game = GameLoader.loadGameFromName("Tic-Tac-Toe.lud");
-		final Game game = GameLoader.loadGameFromName("Bashni.lud");
+		final Game game = GameLoader.loadGameFromName("Tic-Tac-Toe.lud");
+		//final Game game = GameLoader.loadGameFromName("Bashni.lud");
 		final Trial trial = new Trial(game);
 		final Context context = new Context(game, trial);
 		final List<AI> ais = new ArrayList<AI>();

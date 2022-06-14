@@ -1,4 +1,5 @@
 import numpy as np
+from csv import writer
 
 from src_python.config import * 
 from src_python.mcts_uct import MCTS_UCT
@@ -12,17 +13,13 @@ from src_python.mcts_uct import MCTS_UCT
 # into the MCTS, which will now follow the policy and values, thus expanding
 # differently and giving new move distribution and future rewards.
 
-def track_state(context):
-	pass
-	
-def track_values():
-	pass
-	
-def build_dataset(visit_count_arr):
-	pass
-	
-def export_dataset_csv():
-	pass
+def add_to_dataset(game_name, X, y_values, y_distrib):
+	print("Saving data to csv for the game :", game_name, "...")
+	with open(DATASET_FOLDER_PATH+game_name+".csv", 'a+', newline='') as w:
+		csv_w = writer(w)
+		for sample in range(X.shape[0]):
+			csv_w.writerow([X[sample], y_values[sample], y_distrib[sample]])
+	print("Done !")
 	
 def softmax(x):
     return np.exp(x)/np.sum(np.exp(x))
@@ -45,13 +42,14 @@ class RunningTrials:
 		
 		idx_sample = 0
 		X = np.zeros((MAX_SAMPLE, 2*N_TIME_STEP, N_ROW, N_COL, N_LEVELS))
-		X_mover = np.zeros((MAX_SAMPLE))
 		y_distrib = np.zeros((MAX_SAMPLE, N_ROW*N_COL))
-		y_values = np.zeros((MAX_SAMPLE))
+		y_values = []
 		
 		for i in range(NUM_TRIALS):
 			game.start(context)
 			model = context.model()
+			
+			X_mover = []
 			
 			while not trial.over():
 				#print("====================NEW MOVE====================")
@@ -72,7 +70,7 @@ class RunningTrials:
 				mover = context.state().mover()
 				
 				# Keep track of the mover
-				X_mover[idx_sample] = mover
+				X_mover.append(mover)
 				
 				# Move with custom python AI and save the move distribution
 				if mover == 1:
@@ -117,22 +115,26 @@ class RunningTrials:
 				reward2 = 0
 				draw += 1
 			total += 1
-			
+
 			# Use reward as labels for our dataset
-			for j in range(X_mover.shape[0]):
-				if X_mover[j] == PLAYER1:
-					y_values[j] = reward1
-				elif X_mover[j] == PLAYER2:
-					y_values[j] = reward2
+			for j in range(len(X_mover)):
+				if X_mover[j] == int(PLAYER1):
+					y_values.append(reward1)
+				elif X_mover[j] == int(PLAYER2):
+					y_values.append(reward2)
 			
+		y_values = np.array(y_values)
+		
 		# Keep the interesting values only
-		# TOO MUCH SAMPLE NEED TO FIX THAT		
 		X = X[:idx_sample]
 		y_values = y_values[:idx_sample]
 		y_distrib = y_distrib[:idx_sample]
 		#print(X)
-		#print(y_values)
+		print(y_values)
 		#print(y_distrib)
+		
+		# Save values to CSV
+		#add_to_dataset("TicTacToe", X, y_values, y_distrib)
 		
 		# Print our generated dataset shapes
 		print("X", X.shape)			

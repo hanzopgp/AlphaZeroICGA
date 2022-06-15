@@ -22,7 +22,7 @@ model = CustomModel(
 	reg_const=REG_CONST)
 	
 model.build_model()
-#model.summary()
+model.summary()
 
 history = model.fit(
 	X=X, 

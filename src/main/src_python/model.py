@@ -74,7 +74,7 @@ class CustomModel():
 		# First layer is in input layer
 		input_layer = Input(shape=self.input_dim)
 		# Second layer is a classic convolutional layer
-		x = self.conv_layer(input_layer, FILTERS, KERNEL_SIZE)
+		x = self.conv_layer(input_layer, FILTERS, FIRST_KERNEL_SIZE)
 		# Then we have several residual layers		
 		for _ in range(self.n_res_layer):
 			x = self.res_layer(x, FILTERS, KERNEL_SIZE)
@@ -120,17 +120,17 @@ class CustomModel():
 			kernel_regularizer=regularizers.l2(self.reg_const)
 		)(x)
 		x = BatchNormalization(axis=1)(x)
-		x = add([input_layer, x])
+		x = add([input_layer, x]) # Skip connection
 		x = LeakyReLU()(x)
 		return (x)
 		
 	# Our final network will have a common backbone of residual layer and
 	# two head, this one is the value head and it will try to predict one
 	# scalar value thanks to the input state
-	def value_head(self, x, n_neurons=20):
+	def value_head(self, x):
 		x = Conv2D(
-			filters=1, 
-			kernel_size=(1,1), 
+			filters=1, # AlphaZero paper
+			kernel_size=(1,1), # AlphaZero paper
 			#data_format="channels_first", 
 			padding="same", 
 			use_bias=False, 
@@ -141,7 +141,7 @@ class CustomModel():
 		x = LeakyReLU()(x)
 		x = Flatten()(x)
 		x = Dense(
-			n_neurons, 
+			256, # AlphaZero paper 
 			use_bias=False, 
 			activation="linear", 
 			kernel_regularizer=regularizers.l2(self.reg_const)
@@ -160,8 +160,8 @@ class CustomModel():
 	# which will be our new policy
 	def policy_head(self, x):
 		x = Conv2D(
-			filters=2, 
-			kernel_size=(1,1), 
+			filters=2, # AlphaZero paper
+			kernel_size=(1,1), # AlphaZero paper 
 			#data_format="channels_first", 
 			padding="same", 
 			use_bias=False, 

@@ -1,4 +1,4 @@
-from src_python.config import MODEL_PATH, GAME_NAME, N_ROW, N_COL
+from src_python.config import *
 from src_python.utils import *
 
 	
@@ -18,7 +18,7 @@ class MCTS_UCT:
 	# Fix the player who will play with MCTS
 	def init_ai(self, game, player_id):
 		self._player_id = player_id
-
+		
 	# Main method that select the next move at depth 0
 	def select_action(self, game, context, max_seconds, max_iterations, max_depth):
 		# Init an empty node which will be our root
@@ -104,8 +104,11 @@ class MCTS_UCT:
 				state = format_state(current.context).squeeze()
 				state = state.reshape(state.shape[1], state.shape[2], state.shape[0])
 				_, policy_pred = self.model.predict(np.expand_dims(state, axis=0))
-				move = np.argmax(policy_pred)
-				print("MOVE",move)
+				policy_pred = policy_pred[0] # Get ride of useless batch dimension
+				move = format_move(current.unexpanded_moves, policy_pred)
+				print("*"*50)
+				print("MOVE", move)
+				print("*"*50)
 			# We copy the context to play in a simulation
 			context = current.context.deepCopy()
 			# Apply the move in the simulation

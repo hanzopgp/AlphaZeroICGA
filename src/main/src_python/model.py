@@ -1,7 +1,11 @@
 # PROBLEM WHEN RUNNING SCRIPT FROM .sh, ant, or python3...
-from src_python.config import MODEL_PATH, GAME_NAME, FILTERS, KERNEL_SIZE
+#from config import *
+#from utils import *
+from src_python.config import *
 from src_python.utils import *
 
+
+######### Here is the class that contain our AlphaZero model #########
 
 class CustomModel():
 	def __init__(self, input_dim, output_dim, n_res_layer, learning_rate, momentum, reg_const):
@@ -62,11 +66,18 @@ class CustomModel():
 		# Finaly we declare our model
 		model = Model(inputs=[input_layer], outputs=[val_head, pol_head])
 		# Define the loss and optimizer
+		adam = tf.keras.optimizers.Adam(
+		    learning_rate=self.learning_rate,
+		    beta_1=0.9,
+		    beta_2=0.999,
+		    epsilon=1e-07,
+		    amsgrad=False)
+		sgd = SGD(learning_rate=self.learning_rate, momentum=self.momentum)
 		model.compile(
 			loss={"value_head": "mean_squared_error", "policy_head": softmax_cross_entropy_with_logits},
 			loss_weights={"value_head": 0.5, "policy_head": 0.5},
 			metrics={"value_head": "mean_squared_error", "policy_head": "accuracy"},
-			optimizer=SGD(learning_rate=self.learning_rate, momentum=self.momentum))
+			optimizer=sgd)
 		self.model = model
 		
 	# This method returns a classical convolutional layer with batch normalization
@@ -129,7 +140,7 @@ class CustomModel():
 		x = Dense(
 			1, 
 			use_bias=False, 
-			activation="tanh", 
+			activation="tanh", # Value is between -1 and 1 
 			kernel_regularizer=regularizers.l2(self.reg_const),
 			name="value_head"
 		)(x)
@@ -153,7 +164,7 @@ class CustomModel():
 		x = Dense(
 			self.output_dim, 
 			use_bias=False, 
-			activation="linear", 
+			activation="softmax", # Policy is a distribution
 			kernel_regularizer=regularizers.l2(self.reg_const),
 			name="policy_head"
 		)(x)

@@ -17,14 +17,18 @@ from tensorflow.keras.optimizers import SGD
 from keras import regularizers
 
 
-from src_python.config import DATASET_PATH, GAME_NAME, MODEL_PATH, N_ROW, N_COL, N_LEVELS, N_TIME_STEP
+from src_python.config import *
+#from config import *
 
 
 ######### Here are the utility function for loading/writing files #########
 
 def load_data():
-	print("Loading CSV dataset ...")
 	pkl_path = DATASET_PATH+GAME_NAME+".pkl"
+	if not exists(pkl_path):
+		print("Couldn't find dataset at:", pkl_path)
+		exit()
+	print("Loading CSV dataset ...")
 	data = []
 	with open(pkl_path, 'rb') as fr:
 		try:
@@ -73,20 +77,22 @@ def load_nn():
 			custom_objects={'softmax_cross_entropy_with_logits': softmax_cross_entropy_with_logits}
 		)
 
-######### Here are some maths functions #########
+######### Here are some functions for the model #########
 
 def softmax_cross_entropy_with_logits(y_true, y_pred):
-	p = y_pred
-	pi = y_true
-	zero = tf.zeros(shape=tf.shape(pi), dtype=tf.float32)
-	where = tf.equal(pi, zero)
-	negatives = tf.fill(tf.shape(pi), -100.0) 
-	p = tf.where(where, negatives, p)
-	loss = tf.nn.softmax_cross_entropy_with_logits(labels=pi, logits=p)
-	return loss 
+	# Find where the values of the labels are 0
+	zero = tf.zeros(shape=tf.shape(y_true), dtype=tf.float32)
+	where = tf.equal(y_true, zero)
+	# Create a -100 values array
+	filler = tf.fill(tf.shape(y_true), -100.0)
+	# Switch 0 values by -100 values for the predictions
+	y_pred = tf.where(where, filler, y_pred)
+	# Apply and return the classical softmax crossentropy loss
+	return tf.nn.softmax_cross_entropy_with_logits(labels=y_true, logits=y_pred) 
 
 def softmax(x):
-    return np.exp(x)/np.sum(np.exp(x))
+	exp_ = np.exp(x)
+	return exp_/np.sum(exp_)
 
 ######### Here are the utility function used for the game #########
 	
@@ -111,29 +117,54 @@ def opp(mover):
 	
 ######### Here are the utility functions to format data #########
 
+# Mask out the illegal moves and re compute softmax
+def format_move(legal_moves, policy_pred):
+	# Get the to() values
+	to = []
+	for i in range(len(legal_moves)):
+		to.append(legal_moves[i].to())
+	# Mask out the illegal moves by lowering their values
+	mask = np.ones(policy_pred.shape, dtype=bool)
+	mask[to] = False
+	policy_pred[mask] = -100
+	# Recompute softmax and get the argmax
+	decision = softmax(policy_pred).argmax()
+	# Return the moves depending the decision, we do it like that
+	# because we need to directly return a Move java object in
+	# order to play the move with the java functions 
+	for i in range(len(legal_moves)):
+		if decision == legal_moves[i].to():
+			return legal_moves[i]
+
 # Create a numpy array from the java owned positions
 def format_positions(positions):
-	res = np.zeros((N_ROW*N_COL, N_LEVELS))
+	res = np.zeros((N_ROW*N_COL))
 	for pos in positions:
 		for i in range(pos.size()):
 			# We create a boolean in order to build a presence map
 			p = pos.get(i)
-			#print(p)
-			res[p.site(), p.level()] = 1
+			res[p.site()] = 1
 	# Reshape it as a 2D board because we are going to use a CNN
-	return res.reshape(N_ROW, N_COL, N_LEVELS)
+	return res.reshape(N_ROW, N_COL)
 
 # Build the input of the NN for AlphaZero algorithm thanks to the context object
 def format_state(context):
 	# We multiply per 2 because we have 2 state per time step
-	res = np.zeros((N_TIME_STEP*2, N_ROW, N_COL, N_LEVELS))
+	# We add one stack which will represent the current player
+	# We multiply by N_LEVELS because there is one stack per level
+	res = np.zeros((N_LEVELS*(N_TIME_STEP*2)+1, N_ROW, N_COL))
 	# Here we copy the state since we are going to need to undo moves
 	context_copy = context.deepCopy()
 	# Get some objects thanks to our copy context object
 	trial = context_copy.trial()
 	game = context_copy.game()
+	# The current player stack will be 0 if player1 is the current
+	# player and 1 if player2 is the current player
+	mover = context.state().mover()
+	current_player = 0 if mover==1 else 1
+	res[-1] = np.full((N_ROW, N_COL), current_player)
 	# We iterate N_TIME_STEP*2 time
-	for i in range(0, N_TIME_STEP*2, 2):
+	for i in range(0, res.shape[0]-1, 2):
 		# Get the current state
 		state = context_copy.state()
 		# Get the owned object and the mover
@@ -148,7 +179,7 @@ def format_state(context):
 		try:
 			game.undo(context_copy)
 		except: 
-			break	
+			break
 	return res
 
 

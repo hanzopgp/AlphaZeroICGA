@@ -1,44 +1,8 @@
-import pandas as pd
-import numpy as np
-import pprint
-import pickle
+# PROBLEM WHEN RUNNING SCRIPT FROM .sh, ant, or python3...
+from src_python.config import N_RES_LAYER, LEARNING_RATE, MOMENTUM, REG_CONST, N_EPOCHS, BATCH_SIZE, VERBOSE, VALIDATION_SPLIT
+from src_python.utils import *
+from src_python.model import CustomModel
 
-from config import *
-from model import CustomModel
-
-	
-######### Here are the utility function to load data and train the model #########
-
-def load_data():
-	print("Loading CSV dataset ...")
-	pkl_path = DATASET_PATH+GAME_NAME+".pkl"
-	data = []
-	with open(pkl_path, 'rb') as fr:
-		try:
-			while True:
-		    		data.append(pickle.load(fr))
-		except EOFError:
-			pass
-	X = []
-	y_values = []
-	y_distrib = []
-	for batch in data:
-		X.append(batch["X"])
-		y_values.append(batch["y_values"])
-		y_distrib.append(batch["y_distrib"])
-	X = np.array(X, dtype=object)
-	y_values = np.array(y_values, dtype=object)
-	y_distrib = np.array(y_distrib, dtype=object)
-	final_X = X[0]
-	final_y_values = y_values[0]
-	final_y_distrib = y_distrib[0]
-	for i in range(1, X.shape[0]):
-		final_X = np.concatenate((final_X, X[i]), axis=0)
-		final_y_values = np.concatenate((final_y_values, y_values[i]), axis=0)
-		final_y_distrib = np.concatenate((final_y_distrib, y_distrib[i]), axis=0)
-	print("Number of examples", final_X.shape[0])
-	print("Done !")
-	return final_X, final_y_values, final_y_distrib
 	
 ######### Training model from loaded data #########
 			

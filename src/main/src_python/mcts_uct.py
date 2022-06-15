@@ -1,86 +1,6 @@
-import math
-import random
-import time
-import numpy as np
-from os.path import exists
+from src_python.config import MODEL_PATH, GAME_NAME, N_ROW, N_COL
+from src_python.utils import *
 
-import tensorflow as tf
-from tensorflow.keras.models import load_model
-
-from src_python.config import * 
-from src_python.model import softmax_cross_entropy_with_logits
-
-	
-######### Here are the utility function to run the MCTS simulation #########
-	
-# Convert end of game rank into utility value
-def rank_to_util(rank):
-	return 1.0 - ((rank - 1.0) * 2.0)
-
-# Get utilities from context object
-# The utility values are between -1 and 1
-def utilities(context):
-	ranking = context.trial().ranking() 
-	utils = np.zeros(len(ranking))
-	for p in range(1, len(ranking)): # Avoid first null object
-		rank = ranking[p]
-		if rank == 0.0: # If the game isn't over
-		    rank = context.computeNextDrawRank() # Compute next ranks
-		utils[p] = rank_to_util(rank) # Compute utility value per player
-	return utils
-	
-# Loads the trained model from previous dataset
-def load_nn():
-	return load_model(
-			MODEL_PATH+GAME_NAME+".h5",
-			custom_objects={'softmax_cross_entropy_with_logits': softmax_cross_entropy_with_logits}
-		)
-	
-# Returns the opponent of the mover as an int
-def opp(mover):
-	return 2 if mover ==1 else 1
-	
-######### Here are the utility functions to format data #########
-
-# Create a numpy array from the java owned positions
-def format_positions(positions):
-	res = np.zeros((N_ROW*N_COL, N_LEVELS))
-	for pos in positions:
-		for i in range(pos.size()):
-			# We create a boolean in order to build a presence map
-			p = pos.get(i)
-			#print(p)
-			res[p.site(), p.level()] = 1
-	# Reshape it as a 2D board because we are going to use a CNN
-	return res.reshape(N_ROW, N_COL, N_LEVELS)
-
-# Build the input of the NN for AlphaZero algorithm thanks to the context object
-def format_state(context):
-	# We multiply per 2 because we have 2 state per time step
-	res = np.zeros((N_TIME_STEP*2, N_ROW, N_COL, N_LEVELS))
-	# Here we copy the state since we are going to need to undo moves
-	context_copy = context.deepCopy()
-	# Get some objects thanks to our copy context object
-	trial = context_copy.trial()
-	game = context_copy.game()
-	# We iterate N_TIME_STEP*2 time
-	for i in range(0, N_TIME_STEP*2, 2):
-		# Get the current state
-		state = context_copy.state()
-		# Get the owned object and the mover
-		owned = state.owned()
-		mover = state.mover()
-		# We get the state information (who owns the pieces on the board)
-		res[i] = format_positions(owned.positions(mover))
-		res[i+1] = format_positions(owned.positions(opp(mover)))
-		# Then we undo one move to get the previous states. The try except allows us
-		# to avoid an error of we can't undo the last move (in case we are at the start
-		# of the game.
-		try:
-			game.undo(context_copy)
-		except: 
-			break	
-	return res
 	
 ######### Here is the main class to run the MCTS simulation #########
 
@@ -183,8 +103,9 @@ class MCTS_UCT:
 			else:
 				state = format_state(current.context).squeeze()
 				state = state.reshape(state.shape[1], state.shape[2], state.shape[0])
-				value_pred, policy_pred = self.model.predict(np.expand_dims(state, axis=0))
+				_, policy_pred = self.model.predict(np.expand_dims(state, axis=0))
 				move = np.argmax(policy_pred)
+				print("MOVE",move)
 			# We copy the context to play in a simulation
 			context = current.context.deepCopy()
 			# Apply the move in the simulation
@@ -208,21 +129,23 @@ class MCTS_UCT:
 		# For each childrens of the mover
 		for i in range(num_children):
 			child = current.children[i]
-			# Compute first part of UCB score
-			exploit = child.score_sums[mover] / child.visit_count
-			# Compute second part of UCB score
-			explore = math.sqrt(two_parent_log / child.visit_count)
-
-			# Compute final UCB score
-			ucb1_value = exploit + explore
+			# If we don't have a model yet we compute the UCB score
+			if self.first_step:
+				exploit = child.score_sums[mover] / child.visit_count
+				explore = math.sqrt(two_parent_log / child.visit_count)
+				value = exploit + explore
+			else:
+			# Else we use the model to predict a value
+				value, _ = self.model.predict(np.expand_dims(state, axis=0))
+				print("VALUE:",value)
 
 			# Keep track of the best_child which has the best UCB score
-			if ucb1_value > best_value:
-				best_value = ucb1_value;
+			if value > best_value:
+				best_value = value;
 				best_child = child;
 				num_best_found = 1;
 			# Chose a random child if we have several optimal UCB scores
-			elif ucb1_value == best_value:
+			elif value == best_value:
 				rand = random.randint(0, num_best_found + 1)
 				if rand == 0:
 					best_child = child

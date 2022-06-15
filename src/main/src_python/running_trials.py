@@ -1,34 +1,7 @@
-import os
-from os.path import exists
-import pickle
-import numpy as np
-
-from src_python.config import * 
+from src_python.config import PLAYER1, PLAYER2, MAX_SAMPLE, N_TIME_STEP, N_ROW, N_COL, N_LEVELS, NUM_TRIALS, THINKING_TIME_AGENT1, THINKING_TIME_AGENT2
+from src_python.utils import *
 from src_python.mcts_uct import MCTS_UCT
 
-
-######### Here are the function to build the dataset for AlphaZero #########	
-# It will help us build a dataset with X and y in order to train a DCNN model 
-# which will estimate a policy and a value. Once it has been train, we inject 
-# the outputs into the MCTS, which will now follow the policy and values, 
-# thus expanding differently and giving new move distribution and future rewards.
-
-def add_to_dataset(X, y_values, y_distrib):
-	print("Saving data to csv for the game :", GAME_NAME, "...")
-	pkl_path = DATASET_PATH+GAME_NAME+".pkl"
-	my_data = {'X': X,
-	   	   'y_values': y_values,
-	   	   'y_distrib': y_distrib}
-	if exists(pkl_path): 
-		with open(pkl_path, 'ab+') as fp:
-			pickle.dump(my_data, fp)
-	else:
-		with open(pkl_path, 'wb') as fp:
-			pickle.dump(my_data, fp)
-	print("Done !")
-
-def softmax(x):
-    return np.exp(x)/np.sum(np.exp(x))
 
 ######### Here is the class called in the java file to run trials #########	
 

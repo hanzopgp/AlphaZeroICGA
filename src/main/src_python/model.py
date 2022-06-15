@@ -1,25 +1,6 @@
-from matplotlib import pyplot as plt
-
-import tensorflow as tf
-from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Input, Dense, Conv2D, Flatten, BatchNormalization, LeakyReLU, add
-from tensorflow.keras.optimizers import SGD
-from keras import regularizers
-
 # PROBLEM WHEN RUNNING SCRIPT FROM .sh, ant, or python3...
-#from config import *
-from src_python.config import *
-
-
-def softmax_cross_entropy_with_logits(y_true, y_pred):
-	p = y_pred
-	pi = y_true
-	zero = tf.zeros(shape=tf.shape(pi), dtype=tf.float32)
-	where = tf.equal(pi, zero)
-	negatives = tf.fill(tf.shape(pi), -100.0) 
-	p = tf.where(where, negatives, p)
-	loss = tf.nn.softmax_cross_entropy_with_logits(labels=pi, logits=p)
-	return loss 
+from src_python.config import MODEL_PATH, GAME_NAME, FILTERS, KERNEL_SIZE
+from src_python.utils import *
 
 
 class CustomModel():

@@ -17,8 +17,8 @@ from tensorflow.keras.optimizers import SGD
 from keras import regularizers
 
 
-from src_python.config import *
-#from config import *
+#from src_python.config import *
+from config import *
 
 
 ######### Here are the utility function for loading/writing files #########
@@ -81,12 +81,12 @@ def load_nn():
 
 def softmax_cross_entropy_with_logits(y_true, y_pred):
 	# Find where the values of the labels are 0
-	zero = tf.zeros(shape=tf.shape(y_true), dtype=tf.float32)
-	where = tf.equal(y_true, zero)
+	#zero = tf.zeros(shape=tf.shape(y_true), dtype=tf.float32)
+	#where = tf.equal(y_true, zero)
 	# Create a -100 values array
-	filler = tf.fill(tf.shape(y_true), -100.0)
+	#filler = tf.fill(tf.shape(y_true), -100.0)
 	# Switch 0 values by -100 values for the predictions
-	y_pred = tf.where(where, filler, y_pred)
+	#y_pred = tf.where(where, filler, y_pred)
 	# Apply and return the classical softmax crossentropy loss
 	return tf.nn.softmax_cross_entropy_with_logits(labels=y_true, logits=y_pred) 
 

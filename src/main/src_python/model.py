@@ -1,8 +1,8 @@
 # PROBLEM WHEN RUNNING SCRIPT FROM .sh, ant, or python3...
-#from config import *
-#from utils import *
-from src_python.config import *
-from src_python.utils import *
+from config import *
+from utils import *
+#from src_python.config import *
+#from src_python.utils import *
 
 
 ######### Here is the class that contain our AlphaZero model #########
@@ -15,6 +15,24 @@ class CustomModel():
 		self.learning_rate = learning_rate
 		self.momentum = momentum
 		self.reg_const = reg_const
+		# Define the optimizer
+		if OPTIMIZER == "adam":
+			opt = tf.keras.optimizers.Adam(
+				learning_rate=self.learning_rate,
+				beta_1=0.9,
+				beta_2=0.999,
+				epsilon=1e-07,
+				amsgrad=False)
+		elif OPTIMIZER == "rmsprop":
+			opt = tf.keras.optimizers.RMSprop(
+				learning_rate=self.learning_rate,
+				rho=0.9,
+				momentum=0.0,
+				epsilon=1e-07,
+				centered=False)
+		else:
+			opt = SGD(learning_rate=self.learning_rate, momentum=self.momentum)
+		self.opt = opt
 		
 	def write(self):
 		self.model.save(MODEL_PATH+GAME_NAME+".h5")
@@ -65,19 +83,11 @@ class CustomModel():
 		pol_head = self.policy_head(x)
 		# Finaly we declare our model
 		model = Model(inputs=[input_layer], outputs=[val_head, pol_head])
-		# Define the loss and optimizer
-		adam = tf.keras.optimizers.Adam(
-		    learning_rate=self.learning_rate,
-		    beta_1=0.9,
-		    beta_2=0.999,
-		    epsilon=1e-07,
-		    amsgrad=False)
-		sgd = SGD(learning_rate=self.learning_rate, momentum=self.momentum)
 		model.compile(
 			loss={"value_head": "mean_squared_error", "policy_head": softmax_cross_entropy_with_logits},
 			loss_weights={"value_head": 0.5, "policy_head": 0.5},
-			metrics={"value_head": "mean_squared_error", "policy_head": "accuracy"},
-			optimizer=sgd)
+			#metrics={"value_head": "mean_squared_error", "policy_head": "accuracy"},
+			optimizer=self.opt)
 		self.model = model
 		
 	# This method returns a classical convolutional layer with batch normalization
@@ -164,7 +174,7 @@ class CustomModel():
 		x = Dense(
 			self.output_dim, 
 			use_bias=False, 
-			activation="softmax", # Policy is a distribution
+			activation="linear", # Don't use softmax here because we use a loss with logits
 			kernel_regularizer=regularizers.l2(self.reg_const),
 			name="policy_head"
 		)(x)

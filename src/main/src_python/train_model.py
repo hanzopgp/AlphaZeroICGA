@@ -1,10 +1,10 @@
 # PROBLEM WHEN RUNNING SCRIPT FROM .sh, ant, or python3...
-from src_python.config import N_*
-from src_python.utils import *
-from src_python.model import CustomModel
-#from config import *
-#from utils import *
-#from model import CustomModel
+#from src_python.config import N_*
+#from src_python.utils import *
+#from src_python.model import CustomModel
+from config import *
+from utils import *
+from model import CustomModel
 
 	
 ######### Training model from loaded data and saving weights #########
@@ -32,7 +32,9 @@ history = model.fit(
 	verbose=VERBOSE, 
 	validation_split=VALIDATION_SPLIT)
 	
-model.plot_metrics(history)
+print(model.predict(np.expand_dims(X[0], axis=0)))	
+	
+#model.plot_metrics(history)
 model.write()
 
 

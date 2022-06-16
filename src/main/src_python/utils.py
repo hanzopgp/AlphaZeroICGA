@@ -17,8 +17,8 @@ from tensorflow.keras.optimizers import SGD
 from keras import regularizers
 
 
-#from src_python.config import *
-from config import *
+from src_python.config import *
+#from config import *
 
 
 ######### Here are the utility function for loading/writing files #########
@@ -137,49 +137,44 @@ def format_move(legal_moves, policy_pred):
 			return legal_moves[i]
 
 # Create a numpy array from the java owned positions
-def format_positions(positions):
+def format_positions(positions, lvl, val):
 	res = np.zeros((N_ROW*N_COL))
 	for pos in positions:
 		for i in range(pos.size()):
 			# We create a boolean in order to build a presence map
 			p = pos.get(i)
-			res[p.site()] = 1
-	# Reshape it as a 2D board because we are going to use a CNN
+			if p.level() == lvl:
+				res[p.site()] = val
 	return res.reshape(N_ROW, N_COL)
 
 # Build the input of the NN for AlphaZero algorithm thanks to the context object
 def format_state(context):
-	# We multiply per 2 because we have 2 state per time step
-	# We add one stack which will represent the current player
-	# We multiply by N_LEVELS because there is one stack per level
-	res = np.zeros((N_LEVELS*(N_TIME_STEP*2)+1, N_ROW, N_COL))
+	res = np.zeros(((N_TIME_STEP*2), N_LEVELS, N_ROW, N_COL))
 	# Here we copy the state since we are going to need to undo moves
 	context_copy = context.deepCopy()
-	# Get some objects thanks to our copy context object
-	trial = context_copy.trial()
+	# Get the game model so we can undo move on the context_copy object
 	game = context_copy.game()
-	# The current player stack will be 0 if player1 is the current
-	# player and 1 if player2 is the current player
-	mover = context.state().mover()
-	current_player = 0 if mover==1 else 1
-	res[-1] = np.full((N_ROW, N_COL), current_player)
-	# We iterate N_TIME_STEP*2 time
-	for i in range(0, res.shape[0]-1, 2):
-		# Get the current state
+	# Fill owned position for each player at each time step
+	for i in range(0, N_TIME_STEP*2, 2):
+		# Get the state and the owned positions for both players
 		state = context_copy.state()
-		# Get the owned object and the mover
 		owned = state.owned()
-		mover = state.mover()
-		# We get the state information (who owns the pieces on the board)
-		res[i] = format_positions(owned.positions(mover))
-		res[i+1] = format_positions(owned.positions(opp(mover)))
-		# Then we undo one move to get the previous states. The try except allows us
-		# to avoid an error of we can't undo the last move (in case we are at the start
-		# of the game.
+		# We fill levels positions for each time step
+		for j in range(N_LEVELS):
+			res[i][j] = format_positions(owned.positions(PLAYER1), lvl=j, val=PLAYER1)
+			res[i+1][j] = format_positions(owned.positions(PLAYER2), lvl=j, val=PLAYER2)
+		# After filling the positions for one time step we undo one game move
+		# to fill the previous time step
 		try:
 			game.undo(context_copy)
+		# Break in case we can't undo a move (start of game for example)
 		except: 
 			break
+	# The current player stack will be 0 if player1 is the current
+	# player and 1 if player2 is the current player
+	res = res.reshape(-1, N_ROW, N_COL)
+	current_mover = context.state().mover()
+	#current_player = 0 if current_mover==PLAYER1 else 1
+	res = np.append(res, np.full((1, N_ROW, N_COL), current_mover), axis=0)
 	return res
-
-
+	

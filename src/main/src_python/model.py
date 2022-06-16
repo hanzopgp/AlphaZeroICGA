@@ -1,8 +1,8 @@
 # PROBLEM WHEN RUNNING SCRIPT FROM .sh, ant, or python3...
-from config import *
-from utils import *
-#from src_python.config import *
-#from src_python.utils import *
+#from config import *
+#from utils import *
+from src_python.config import *
+from src_python.utils import *
 
 
 ######### Here is the class that contain our AlphaZero model #########
@@ -50,6 +50,7 @@ class CustomModel():
 				epochs=n_epochs, 
 				verbose=verbose, 
 				validation_split=validation_split, 
+				shuffle=True,
 				batch_size=batch_size)
 			
 	def plot_metrics(self, history):
@@ -85,7 +86,7 @@ class CustomModel():
 		model = Model(inputs=[input_layer], outputs=[val_head, pol_head])
 		model.compile(
 			loss={"value_head": "mean_squared_error", "policy_head": softmax_cross_entropy_with_logits},
-			loss_weights={"value_head": 0.5, "policy_head": 0.5},
+			loss_weights={"value_head": LOSS_WEIGHTS[0], "policy_head": LOSS_WEIGHTS[1]},
 			#metrics={"value_head": "mean_squared_error", "policy_head": "accuracy"},
 			optimizer=self.opt)
 		self.model = model

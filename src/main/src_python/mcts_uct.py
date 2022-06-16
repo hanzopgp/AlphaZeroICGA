@@ -15,7 +15,7 @@ class MCTS_UCT:
 			print("No model found, starting from random moves")
 			self.first_step = True
 
-	# Fix the player who will play with MCTS
+	# Fix the player who will play with MCTS in case we load this class with Ludii
 	def init_ai(self, game, player_id):
 		self._player_id = player_id
 		

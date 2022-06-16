@@ -36,6 +36,7 @@ class RunningTrials:
 			game.start(context)
 			model = context.model()
 			X_mover = []
+			move_check = []
 			
 			# Main game loop			
 			while not trial.over():
@@ -47,22 +48,8 @@ class RunningTrials:
 					print("Ended one game because it was too long")
 					break
 				
-				# Plays whole game until the end
-				#game.playout(context,
-				#             ais, # ais
-				#             1.0,  # thinking_time
-				#             None, # playoutMoveSelector
-				#             0,    # max_num_biased_actions
-				#             -1,   # max_num_playout_actions
-				#             None) # random
-				             
-				# Plays step by step
-				#model.startNewStep(context, ais, game.players().count())
-				
-				# Move per move
-				mover = context.state().mover()
-				
 				# Keep track of the mover
+				mover = context.state().mover()
 				X_mover.append(mover)
 				
 				# Move with custom python AI and save the move distribution
@@ -81,6 +68,8 @@ class RunningTrials:
 					tmp_arr_move = softmax(tmp_arr_move)
 					y_distrib[idx_sample] = tmp_arr_move
 					idx_sample += 1	
+				
+				move_check.append(move)
 				
 				#print("Move played:", move)				
 				context.game().apply(context, move)
@@ -119,9 +108,35 @@ class RunningTrials:
 		y_values = np.array(y_values)
 		y_values = y_values[:idx_sample]
 		y_distrib = y_distrib[:idx_sample]
-		#print(X)
-		#print(y_values)
-		#print(y_distrib)
+		
+		print("*"*40)
+		print(X_mover[50])
+		print(move_check[50])
+		#print(X[50][0])
+		#print(X[50][1])
+		#print(X[50][2])
+		for i in range(X[50].shape[0]):
+			print(X[50][i])
+		print(y_values[50])
+		print(y_distrib[50])
+		
+		#print("*"*40)
+		#print(X_mover[51])
+		#print(move_check[51])
+		#print(X[51][0])
+		#print(X[51][1])
+		#print(X[51][2])
+		#print(y_values[51])
+		#print(y_distrib[51])
+		
+		#print("*"*40)
+		#print(X_mover[52])
+		#print(move_check[52])
+		#print(X[52][0])
+		#print(X[52][1])
+		#print(X[52][2])
+		#print(y_values[52])
+		#print(y_distrib[52])
 		
 		# Print our generated dataset shapes
 		print("X shape", X.shape)	

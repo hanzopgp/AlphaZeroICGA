@@ -4,8 +4,9 @@
 
 1. [Presentation](#presentation-)
 2. [Competition](#competition-)
-3. [Environment & Setup](#environment-&-setup-)
-4. [Baseline](#baseline-)
+3. [Baseline](#baseline-)
+4. [Environment & Setup](#environment-&-setup-)
+5. [Try it](#try-it-)
 
 ## Presentation
 
@@ -40,6 +41,15 @@ The different games of the learning event this year are :
 - Plakoto: https://ludii.games/details.php?keyword=Plakoto
 - Lotus: https://ludii.games/details.php?keyword=Lotus
 
+## Baseline
+
+We use deep reinforcement learning algorithms for this competition and we start with AlphaZero as a baseline. AlphaGo is an algorithm which can play Go at a super-human level using supervised learning and reinforcement learning. AlphaGo Zero can basically do the same but starting from scratch, hence the "Zero" in its name. AlphaZero does the same but it is able to play different games such as Chess and Shogi.
+
+Links : 
+- https://www.nature.com/articles/nature16961 (AlphaGo)
+- https://discovery.ucl.ac.uk/id/eprint/10045895/1/agz_unformatted_nature.pdf (AlphaGo Zero)
+- https://arxiv.org/abs/1712.01815 (AlphaZero)
+
 ## Environment & Setup
 
 The games are hosted on the Ludii software, which is in java. Since we use python for our algorithms we will need a java-python bridge such as **JPY**. Microsoft Visual C++ 14.0 and Java JDK 7.0 are required to build JPY.
@@ -67,11 +77,14 @@ First you need to clone Luddi and JPY repositories, then download C++ build and 
 
 If everything worked, you should have a build directory. Copy the content of the lib directory into the Ludii directory in a folder called `/LudiiPythonAI/libs/`. The Ludii jar file should also be moved to the libs directory. Finaly, you can build the jar file thanks to ant and the xml file, then export it in Ludii.
 
-## Baseline
+## Try it
 
-We use deep reinforcement learning algorithms for this competition and we start with AlphaZero as a baseline. AlphaGo is an algorithm which can play Go at a super-human level using supervised learning and reinforcement learning. AlphaGo Zero can basically do the same but starting from scratch, hence the "Zero" in its name. AlphaZero does the same but it is able to play different games such as Chess and Shogi.
+Go to the src/main/ directory and run the next commands in a terminal :
 
-Links : 
-- https://www.nature.com/articles/nature16961 (AlphaGo)
-- https://discovery.ucl.ac.uk/id/eprint/10045895/1/agz_unformatted_nature.pdf (AlphaGo Zero)
-- https://arxiv.org/abs/1712.01815 (AlphaZero)
+`nano src_python/config.py` : set the settings to run AlphaZero such as number of simulations, game type...
+
+`ant clean` : clean all the directories (bin/ build/ models/ datasets/).
+
+`ant mcts_trials` : runs the MCTS simulations (randomly or using the model depending if there is a model in models/) and fill the dataset.
+
+`python3 src_python/train_model.py` : trains the model using the dataset and save the best model.

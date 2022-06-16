@@ -42,12 +42,6 @@
 		</javac>
 	</target>
 	
-	<target name="ludii_trials" depends="build">
-	    	<java classname="alphazero.RunningTrials" fork="true">
-	      		<classpath refid="AlphaZero.classpath"/>
-	    	</java>
-	</target>
-	
 	<target name="mcts_trials" depends="build">
 	    	<java classname="alphazero.RunningTrialsWithPython" fork="true">
 	      		<classpath refid="AlphaZero.classpath"/>

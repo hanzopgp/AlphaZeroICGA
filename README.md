@@ -83,6 +83,8 @@ Go to the src/main/ directory and run the next commands in a terminal
 
 `nano src_python/config.py` : set the settings to run AlphaZero such as number of simulations, game type...
 
+`bash dojo.sh` : runs the whole loop (MCTS simulation with random moves -> dataset -> train model -> save model -> MCTS simulation with model predicting moves -> dataset -> ...)
+
 `ant clean` : clean all the directories (**bin/** **build/** **models/** **datasets/**).
 
 `ant mcts_trials` : runs the MCTS simulations (randomly or using the model depending if there is a model in **models/**) and fill the dataset.

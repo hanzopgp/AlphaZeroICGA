@@ -24,8 +24,8 @@ class RunningTrials:
 		
 		# Declare some variables to save the dataset
 		idx_sample = 0
-		X = np.zeros((MAX_SAMPLE, N_LEVELS*(2*N_TIME_STEP)+1, N_ROW, N_COL))
-		y_distrib = np.zeros((MAX_SAMPLE, N_ROW*N_COL))
+		X = np.zeros((MAX_SAMPLE, N_ROW, N_COL, N_REPRESENTATION_STACK))
+		y_distrib = np.zeros((MAX_SAMPLE, N_ROW, N_COL, N_ACTION_STACK))
 		y_values = []
 		
 		print("Running", NUM_TRIALS, "games")
@@ -57,9 +57,9 @@ class RunningTrials:
 					# Uncomment next line if using Ludii AI object
 					#move = ais.get(mover).selectAction(game, context)
 					# Get the optimal move and number of visits per move
-					move, state, tmp_arr_move = mcts1.select_action(game, context, THINKING_TIME_AGENT1, -1, -1)
+					move, state, tmp_arr_move = mcts1.select_action(game, context, THINKING_TIME_AGENT1, MAX_ITERATION_AGENT1, max_depth=-1)
 				else:
-					move, state, tmp_arr_move = mcts2.select_action(game, context, THINKING_TIME_AGENT2, -1, -1)
+					move, state, tmp_arr_move = mcts2.select_action(game, context, THINKING_TIME_AGENT2, MAX_ITERATION_AGENT2, max_depth=-1)
 					
 				if not move.isForced(): # Avoid to add useless moves when games is over
 					# Save X state
@@ -80,11 +80,11 @@ class RunningTrials:
 			# Check who won and print some stats + rewards
 			reward1 = 0
 			reward2 = 0
-			if ranking[int(PLAYER1)] > ranking[int(PLAYER2)]:
+			if ranking[PLAYER1] > ranking[PLAYER2]:
 				reward1 = -1
 				reward2 = 1
 				ai2_win += 1
-			elif ranking[int(PLAYER1)] < ranking[int(PLAYER2)]:
+			elif ranking[PLAYER1] < ranking[PLAYER2]:
 				reward1 = 1
 				reward2 = -1
 				ai1_win += 1
@@ -96,9 +96,9 @@ class RunningTrials:
 
 			# Use reward as labels for our dataset
 			for j in range(len(X_mover)):
-				if X_mover[j] == int(PLAYER1):
+				if X_mover[j] == PLAYER1:
 					y_values.append(reward1)
-				elif X_mover[j] == int(PLAYER2):
+				elif X_mover[j] == PLAYER2:
 					y_values.append(reward2)
 					
 			duration[i] = time.time() - start_time

@@ -1,5 +1,10 @@
-# https://stackoverflow.com/questions/54368686/lstm-having-a-systematic-offset-between-predictions-and-ground-truth
 import math
+
+# AlphaZero paper config for chess
+# thiking_time 40ms
+# number of trials 800
+# total number of games 44M
+# learning rate 0.2, 0.02, 0.002, 0.0002
 
 # Paths
 DATASET_PATH = "./datasets/"
@@ -12,20 +17,21 @@ PLAYER2 = 2
 # Hyper-parameters
 THINKING_TIME_AGENT1 = 0.5
 THINKING_TIME_AGENT2 = 0.5
+MAX_ITERATION_AGENT1 = -1
+MAX_ITERATION_AGENT2 = -1
 N_TIME_STEP = 2 # number of past state we keep for our representation
-
-# TicTacToe
-#GAME_NAME = "TicTacToe"
-#N_ROW = 3
-#N_COL = 3
-#N_LEVELS = 1
-#MAX_GAME_DURATION = math.inf
 
 # Bashni
 GAME_NAME = "Bashni"
 N_ROW = 8
 N_COL = 8
 N_LEVELS = 24
+N_DISTANCE = 2 # can go forward or jumpy over a piece
+N_ORIENTATION = 2 # can go only left or right diagonaly
+N_ACTION_STACK = N_ORIENTATION * N_DISTANCE
+N_ADDITIONAL_FEATURES = 1 # currently only the color of the current player
+N_REPRESENTATION_STACK = N_ADDITIONAL_FEATURES + N_TIME_STEP * 2 * N_LEVELS 
+MAX_MOVES_POSSIBLE = N_ROW*N_COL*N_ACTION_STACK*12 # 12 pieces
 MAX_GAME_DURATION = math.inf
 
 # Trial parameters

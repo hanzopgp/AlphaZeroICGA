@@ -74,8 +74,7 @@ def add_to_dataset(X, y_values, y_distrib):
 def load_nn():
 	return load_model(
 			MODEL_PATH+GAME_NAME+".h5",
-			custom_objects={'softmax_cross_entropy_with_logits': softmax_cross_entropy_with_logits}
-		)
+			custom_objects={'softmax_cross_entropy_with_logits': softmax_cross_entropy_with_logits})
 
 ######### Here are some functions for the model #########
 
@@ -116,6 +115,12 @@ def opp(mover):
 	return 2 if mover ==1 else 1
 	
 ######### Here are the utility functions to format data #########
+
+#def index_action(from_, to):
+#	prev_x = int(from_/N_ROW)
+#	prev_y = from_%N_ROW,
+#	x = int(to/N_ROW)
+#	y = to%N_ROW
 
 # Mask out the illegal moves and re compute softmax
 def format_move(legal_moves, policy_pred):
@@ -162,7 +167,7 @@ def format_state(context):
 		# We fill levels positions for each time step
 		for j in range(N_LEVELS):
 			res[i][j] = format_positions(owned.positions(PLAYER1), lvl=j, val=PLAYER1)
-			res[i+1][j] = format_positions(owned.positions(PLAYER2), lvl=j, val=PLAYER2)
+			res[i+1][j]= format_positions(owned.positions(PLAYER2), lvl=j, val=PLAYER2)
 		# After filling the positions for one time step we undo one game move
 		# to fill the previous time step
 		try:
@@ -171,10 +176,12 @@ def format_state(context):
 		except: 
 			break
 	# The current player stack will be 0 if player1 is the current
-	# player and 1 if player2 is the current player
-	res = res.reshape(-1, N_ROW, N_COL)
+	# player and 1 if player2 is the current player, this is an example
+	# of additional feature but we could also add the number of moves
+	# played until now etc...
+	res = res.reshape(N_ROW, N_COL, -1)
 	current_mover = context.state().mover()
 	#current_player = 0 if current_mover==PLAYER1 else 1
-	res = np.append(res, np.full((1, N_ROW, N_COL), current_mover), axis=0)
+	res = np.append(res, np.full((N_ROW, N_COL, 1), current_mover), axis=2)
 	return res
 	

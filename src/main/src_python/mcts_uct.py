@@ -105,6 +105,7 @@ class MCTS_UCT:
 				state = state.reshape(state.shape[1], state.shape[2], state.shape[0])
 				_, policy_pred = self.model.predict(np.expand_dims(state, axis=0))
 				policy_pred = policy_pred[0] # Get ride of useless batch dimension
+				# WE NEED TO PICK RANDOMLY A MOVE ACCORDING TO THE POLICY
 				move = format_move(current.unexpanded_moves, policy_pred)
 				print("*"*50)
 				print("MOVE", move)
@@ -167,17 +168,33 @@ class MCTS_UCT:
 		num_children = len(root_node.children)
 		total_visit_count = root_node.total_visit_count
 		
-		# Array to store the number of visits per move
-		move_array = np.zeros((N_ROW*N_COL))
+		# Array to store the number of visits per move, a move is represented
+		# by its coordinate and several stacks representing where it can go
+		move_array = np.zeros((N_ROW, N_COL, N_ACTION_STACK))
 
 		# For each children of the root, so for each legal moves
 		for i in range(num_children):
 			child = root_node.children[i]
 			visit_count = child.visit_count
+			move_from_parent = child.move_from_parent
+
+
+
 			
-			# Saving values to build dataset later
-			# The move number is the index and the score is the value
-			move_array[child.move_from_parent.to()] = visit_count/total_visit_count
+			to = move_from_parent.to()
+			from_ = getattr(move_from_parent, "from")() # trick to use the from method (reserved in python)
+			print("****DEBUG*****")
+			## NEED TO FIND A WAY TO SAVE ACTIONS INSTEAD OF 0
+			# 0 1 2 3... depending the from and to (ORIENTATION*DISTANCE)
+			#action_index = index_action(from_, to)
+			action_index = 0
+			# <math.ceil(from_/N_ROW), from_%N_ROW> represent the position of the
+			# pawn that chosed action <action_index> to go in position <to>
+			move_array[math.ceil(from_/N_ROW), from_%N_ROW, action_index] = visit_count/total_visit_count
+			print("****DEBUG*****")
+			
+			
+
 			
 			# Keep track of the best child according to the number of visits
 			if visit_count > best_visit_count:

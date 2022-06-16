@@ -116,6 +116,7 @@ class RunningTrials:
 		#print(X[50][1])
 		#print(X[50][2])
 		for i in range(X[50].shape[0]):
+			print("***",i,"***")
 			print(X[50][i])
 		print(y_values[50])
 		print(y_distrib[50])

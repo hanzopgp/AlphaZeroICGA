@@ -10,9 +10,9 @@ PLAYER1 = 1
 PLAYER2 = 2
 
 # Hyper-parameters
-THINKING_TIME_AGENT1 = 3
-THINKING_TIME_AGENT2 = 3
-N_TIME_STEP = 1 # number of past state we keep for our representation
+THINKING_TIME_AGENT1 = 0.5
+THINKING_TIME_AGENT2 = 0.5
+N_TIME_STEP = 2 # number of past state we keep for our representation
 
 # TicTacToe
 #GAME_NAME = "TicTacToe"

@@ -75,16 +75,16 @@ First you need to clone Luddi and JPY repositories, then download C++ build and 
 
 `python setup.py build maven bdist_wheel`
 
-If everything worked, you should have a build directory. Copy the content of the lib directory into the Ludii directory in a folder called `/LudiiPythonAI/libs/`. The Ludii jar file should also be moved to the libs directory. Finaly, you can build the jar file thanks to ant and the xml file, then export it in Ludii.
+If everything worked, you should have a build directory. Copy the content of the lib directory into the Ludii directory in a folder called **/LudiiPythonAI/libs/**. The Ludii jar file should also be moved to the libs directory. Finaly, you can build the jar file thanks to ant and the xml file, then export it in Ludii.
 
 ## Try it
 
-Go to the src/main/ directory and run the next commands in a terminal :
+Go to the src/main/ directory and run the next commands in a terminal
 
 `nano src_python/config.py` : set the settings to run AlphaZero such as number of simulations, game type...
 
-`ant clean` : clean all the directories (bin/ build/ models/ datasets/).
+`ant clean` : clean all the directories (**bin/** **build/* **models/** **datasets/**).
 
-`ant mcts_trials` : runs the MCTS simulations (randomly or using the model depending if there is a model in models/) and fill the dataset.
+`ant mcts_trials` : runs the MCTS simulations (randomly or using the model depending if there is a model in **models/**) and fill the dataset.
 
 `python3 src_python/train_model.py` : trains the model using the dataset and save the best model.

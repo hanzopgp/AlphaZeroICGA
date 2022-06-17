@@ -120,7 +120,7 @@ def index_action(from_, to):
 	# We get the coordinate of both position
 	prev_x = round(from_/N_ROW)
 	prev_y = from_%N_ROW
-	x = math.round(to/N_ROW)
+	x = round(to/N_ROW)
 	y = to%N_ROW
 	print(prev_x, prev_y)
 	print(x, y)

@@ -126,25 +126,27 @@ def index_action(from_, to):
 	print(x, y)
 	off_y = y - prev_y
 	off_x = x - prev_x
-	if off_y == 2: # south 2
-		if off_x == 2: # east 2
+	# 2 distance moves
+	if off_y == 2: # south 
+		if off_x == 2: # east 
 			index = 7
-		else: # west 2
+		else: # west 
 			index = 6
-	elif off_y == -2 : # north 2
-		if off_x == 2: # east 2
+	elif off_y == -2 : # north 
+		if off_x == 2: # east 
 			index = 5
-		else: # west 2
+		else: # west 
 			index = 4
-	elif off_y == -1 : # south 1 
-		if off_x == 1: # east 1
+	# 1 distance moves
+	elif off_y == 1 : # south 
+		if off_x == 1: # east 
 			index = 3
-		else: # west 1
+		else: # west 
 			index = 2
-	elif off_y == -1 : # north 1
-		if off_x == 1: # east 1
+	elif off_y == -1 : # north 
+		if off_x == 1: # east 
 			index = 1
-		else: # west 1 
+		else: # west 
 			index = 0
 	return index  # because we start at 0
 

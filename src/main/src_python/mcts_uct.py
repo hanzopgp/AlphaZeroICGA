@@ -7,7 +7,6 @@ from src_python.utils import *
 class MCTS_UCT:
 	def __init__(self):
 		self._player_id = -1
-		self.action_array = self.init_action_array()
 		if exists(MODEL_PATH+GAME_NAME+".h5"): 
 			print("Using the model:", MODEL_PATH+GAME_NAME+".h5", "to chose moves")
 			self.first_step = False
@@ -20,10 +19,6 @@ class MCTS_UCT:
 	def init_ai(self, game, player_id):
 		self._player_id = player_id
 
-	def init_action_array(self):
-		action_array = np.zeros(N_ACTION_STACK)
-		return action_array
-		
 	# Main method that select the next move at depth 0
 	def select_action(self, game, context, max_seconds, max_iterations, max_depth):
 		# Init an empty node which will be our root
@@ -192,6 +187,7 @@ class MCTS_UCT:
 			## NEED TO FIND A WAY TO SAVE ACTIONS INSTEAD OF 0
 			# 0 1 2 3... depending the from and to (ORIENTATION*DISTANCE)
 			action_index = index_action(from_, to)
+			print(action_index)
 			#action_index = 0
 			# <math.ceil(from_/N_ROW), from_%N_ROW> represent the position of the
 			# pawn that chosed action <action_index> to go in position <to>

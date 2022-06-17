@@ -99,7 +99,7 @@ def softmax(x, ignore_zero=False):
 		for i in non_zero_indices[0]:
 			for j in non_zero_indices[1]:
 				for k in non_zero_indices[2]:
-					x[i,j,k] = np.exp(x[i,j,k])/np.sum(np.exp(x[i,j,k]))
+					x[i,j,k] = np.exp(x[i,j,k])/np.sum(np.exp(x[non_zero_indices]))
 		return x
 	else:
 		return np.exp(x)/np.sum(np.exp(x))
@@ -202,7 +202,8 @@ def chose_move(legal_moves, policy_pred):
 	# Get a random probability and chose a move according to that
 	r = np.random.rand()
 	chose_array = np.cumsum(legal_policy)
-	chosen_x, chosen_y, chosen_action = np.argmax(chose_array>=r)
+	chosen_x, chosen_y, chosen_action = np.where(chose_array>=r)[0]
+	print(chosen_x, chosen_y, chosen_action)
 	chosen_prev_x, chosen_prev_y = reverse_index_action(chosen_x, chosen_y, chosen_action)
 	# Find the move given by our policy in the legal moves
 	for i in range(len(legal_moves)):

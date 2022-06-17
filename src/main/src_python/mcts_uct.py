@@ -178,25 +178,17 @@ class MCTS_UCT:
 			visit_count = child.visit_count
 			move_from_parent = child.move_from_parent
 
-
-
-			
+			# Getting coordinates of the move
 			to = move_from_parent.to()
 			from_ = getattr(move_from_parent, "from")() # trick to use the from method (reserved in python)
-			print("****DEBUG*****")
-			## NEED TO FIND A WAY TO SAVE ACTIONS INSTEAD OF 0
-			# 0 1 2 3... depending the from and to (ORIENTATION*DISTANCE)
+			
+			# Getting the action type as an int :
+			# 0 1 2 3... depending the from and to
 			action_index = index_action(from_, to)
-			print(action_index)
-			#action_index = 0
 			# <int(from_/N_ROW), from_%N_ROW> represent the position of the
 			# pawn that chosed action <action_index> to go in position <to>
 			move_array[int(from_/N_ROW), from_%N_ROW, action_index] = visit_count/total_visit_count
-			print("****DEBUG*****")
-			
-			
-
-			
+	
 			# Keep track of the best child according to the number of visits
 			if visit_count > best_visit_count:
 				best_visit_count = visit_count

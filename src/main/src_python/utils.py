@@ -116,14 +116,13 @@ def opp(mover):
 	
 ######### Here are the utility functions to format data #########
 
+# Define the type of action thanks to position of current and last move
 def index_action(from_, to):
 	# We get the coordinate of both position
 	prev_x = int(from_/N_ROW)
 	prev_y = from_%N_ROW
 	x = int(to/N_ROW)
 	y = to%N_ROW
-	print(prev_x, prev_y)
-	print(x, y)
 	off_y = y - prev_y
 	off_x = x - prev_x
 	# We have distance such as 1, 2, 3, 4... We have orientation such as 

@@ -109,17 +109,17 @@ class RunningTrials:
 		y_values = y_values[:idx_sample]
 		y_distrib = y_distrib[:idx_sample]
 		
-		print("*"*40)
-		print(X_mover[50])
-		print(move_check[50])
+		#print("*"*40)
+		#print(X_mover[50])
+		#print(move_check[50])
 		#print(X[50][0])
 		#print(X[50][1])
 		#print(X[50][2])
-		for i in range(X[50].shape[0]):
-			print("***",i,"***")
-			print(X[50][i])
-		print(y_values[50])
-		print(y_distrib[50])
+		#for i in range(X[50].shape[0]):
+		#	print("***",i,"***")
+		#	print(X[50][i])
+		# print(y_values[50])
+		# print(y_distrib[50])
 		
 		#print("*"*40)
 		#print(X_mover[51])

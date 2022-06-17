@@ -89,9 +89,10 @@ def softmax_cross_entropy_with_logits(y_true, y_pred):
 	# Apply and return the classical softmax crossentropy loss
 	return tf.nn.softmax_cross_entropy_with_logits(labels=y_true, logits=y_pred) 
 
-def softmax(x):
-	exp_ = np.exp(x)
-	return exp_/np.sum(exp_)
+def softmax(x, ignore_zero=False):
+	non_zero_indices = np.where(arr != 0)
+	x[non_zero_indices] = np.exp(x)/np.sum(np.exp(x))
+	return x[non_zero_indices]
 
 ######### Here are the utility function used for the game #########
 	
@@ -143,26 +144,63 @@ def index_action(from_, to):
 			index = 3 * N_ROW + (np.abs(off_y) - 1)
 	return index 
 
-# Mask out the illegal moves and re compute softmax
-def format_move(legal_moves, policy_pred):
-	# Get the to() values
-	to = []
+# Returns the position of the pawn after going to (to_x, to_y)
+# thanks to action <action>
+def reverse_index_action(to_x, to_y, action):
+	orientation = int(action/N_ORIENTATION)
+	distance = action%N_DISTANCE
+	if orientation == 0: # SE
+		from_x = to_x + distance
+		from_y = to_y + distance
+	elif orientation == 1: # SW
+		from_x = to_x - distance
+		from_y = to_y + distance
+	elif orientation == 2: # NE
+		from_x = to_x + distance
+		from_y = to_y - distance
+	else: # NW
+		from_x = to_x - distance
+		from_y = to_y - distance
+	return from_x, from_y
+
+# Get the policy on every moves, mask out the illegal moves,
+# re-compute softmax and pick a move randomly according to
+# the new policy
+def chose_move(legal_moves, policy_pred):
+	# New legal policy array starting as everything illegal
+	legal_policy = np.zeros(policy_pred.shape)
+	# Find the legal moves in the policy
 	for i in range(len(legal_moves)):
-		to.append(legal_moves[i].to())
-	# Mask out the illegal moves by lowering their values
-	mask = np.ones(policy_pred.shape, dtype=bool)
-	mask[to] = False
-	policy_pred[mask] = -100
-	# Recompute softmax and get the argmax
-	decision = softmax(policy_pred).argmax()
-	# NEED TO USE INVERSE INDEX ACTION TO GET THE POSITION OF THE PAWN
-	# AND THE MOVE CHOSEN !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	# Return the moves depending the decision, we do it like that
-	# because we need to directly return a Move java object in
-	# order to play the move with the java functions 
+		# Get the N_ROW, N_COL coordinates
+		to = legal_moves[i].to()
+		from_ = getattr(legal_moves[i], "from")()
+		prev_x = int(from_/N_ROW)
+		prev_y = from_%N_ROW
+		x = int(to/N_ROW)
+		y = to%N_ROW
+		# Get the action index
+		action_index = index_action(from_, to)
+		# Write the value only for the legal moves
+		legal_policy[prev_x, prev_y, action_index] = policy_pred[prev_x, prev_y, action_index]
+	# Re-compute softmax after masking out illegal moves
+	legal_policy = softmax(legal_policy, ignore_zero=True)
+	# Get a random probability and chose a move according to that
+	r = np.random.rand()
+	chose_array = np.cumsum(legal_policy)
+	chosen_x, chosen_y, chosen_action = np.argmax(chose_array>=r)
+	chosen_prev_x, chosen_prev_y = reverse_index_action(chosen_x, chosen_y, chosen_action)
+	# Find the move given by our policy in the legal moves
 	for i in range(len(legal_moves)):
-		if decision == legal_moves[i].to():
+		to = legal_moves[i].to()
+		from_ = getattr(legal_moves[i], "from")()
+		prev_x = int(from_/N_ROW)
+		prev_y = from_%N_ROW
+		x = int(to/N_ROW)
+		y = to%N_ROW
+		if prev_x == chosen_prev_x and prev_y == chosen_prev_y and x = chosen_x and y = chosen_y :
 			return legal_moves[i]
+		else:
+			print("WTFF !!!!")
 
 # Create a numpy array from the java owned positions
 def format_positions(positions, lvl, val):

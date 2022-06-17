@@ -101,12 +101,11 @@ class MCTS_UCT:
 				move = current.unexpanded_moves.pop()
 			# If it's not the first step then we use our model to chose a move
 			else:
-				state = format_state(current.context).squeeze()
-				state = state.reshape(state.shape[1], state.shape[2], state.shape[0])
-				_, policy_pred = self.model.predict(np.expand_dims(state, axis=0))
-				policy_pred = policy_pred[0] # Get ride of useless batch dimension
-				# WE NEED TO PICK RANDOMLY A MOVE ACCORDING TO THE POLICY
-				move = format_move(current.unexpanded_moves, policy_pred)
+				#state = format_state(current.context).squeeze()
+				#_, policy_pred = self.model.predict(np.expand_dims(state, axis=0))
+				#policy_pred = policy_pred[0] # Get ride of useless batch dimension
+				policy_pred = softmax(np.random.rand(8,8,32))
+				move = chose_move(current.unexpanded_moves, policy_pred)
 				print("*"*50)
 				print("MOVE", move)
 				print("*"*50)

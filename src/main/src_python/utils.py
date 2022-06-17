@@ -126,24 +126,22 @@ def index_action(from_, to):
 	print(x, y)
 	off_y = y - prev_y
 	off_x = x - prev_x
-	# We have distance such as 1, 2, 3, 4...
-	# We have orientation such as SE, SW, NE, NW
-	# We create an index such as :
-	# index = orientation * N_ROW + (distance-1)
-	# for example if the move is a NE with 3
-	# as the distance we get the index :
-	# 2 * 8 + (3-1) = 18, the number of index is
-	# N_DISTANCE * N_ORIENTATION.
+	# We have distance such as 1, 2, 3, 4... We have orientation such as 
+	# SE, SW, NE, NW. We create an index such as :
+	# index = orientation * N_ROW + (abs(distance)-1)
+	# for example if the move is a NE with 3 as the distance we get the index :
+	# 2 * 8 + (3-1) = 18, the number of index is N_DISTANCE * N_ORIENTATION. 
+	# If we want to get back the values easily using int() and %
 	if off_y >= 1: # south
 		if off_x >= 1: # east
-			index = 0 * N_ROW + off_y - 1
+			index = 0 * N_ROW + (np.abs(off_y) - 1)
 		else: # west
-			index = 1 * N_ROW + off_y - 1
+			index = 1 * N_ROW + (np.abs(off_y) - 1)
 	elif off_y <= -1: # north
 		if off_x >= 1: # east
-			index = 2 * N_ROW + off_y - 1 
+			index = 2 * N_ROW + (np.abs(off_y) - 1)
 		else: # west
-			index = 3 * N_ROW + off_y - 1
+			index = 3 * N_ROW + (np.abs(off_y) - 1)
 	return index 
 
 # Mask out the illegal moves and re compute softmax
@@ -158,6 +156,8 @@ def format_move(legal_moves, policy_pred):
 	policy_pred[mask] = -100
 	# Recompute softmax and get the argmax
 	decision = softmax(policy_pred).argmax()
+	# NEED TO USE INVERSE INDEX ACTION TO GET THE POSITION OF THE PAWN
+	# AND THE MOVE CHOSEN !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	# Return the moves depending the decision, we do it like that
 	# because we need to directly return a Move java object in
 	# order to play the move with the java functions 
@@ -206,6 +206,7 @@ def format_state(context):
 	res = res.reshape(N_ROW, N_COL, -1)
 	current_mover = context.state().mover()
 	#current_player = 0 if current_mover==PLAYER1 else 1
-	res = np.append(res, np.full((N_ROW, N_COL, 1), current_mover), axis=2)
+	## GOTTA CHECK STATE HERE !!!!!!!!!!!!
+	res = np.append(res, np.full((N_ROW, N_COL, 1), current_mover), axis=0)
 	return res
 	

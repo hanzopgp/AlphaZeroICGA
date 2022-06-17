@@ -190,7 +190,12 @@ def chose_move(legal_moves, policy_pred):
 		# Write the value only for the legal moves
 		legal_policy[prev_x, prev_y, action_index] = policy_pred[prev_x, prev_y, action_index]
 	# Re-compute softmax after masking out illegal moves
+	print("TEST================================================================")
+	print("LEGAL", legal_policy)
+	print("SHAPE", legal_policy.shape)
 	legal_policy = softmax(legal_policy, ignore_zero=True)
+	print("LEGAL", legal_policy)
+	print("TEST================================================================")
 	# Get a random probability and chose a move according to that
 	r = np.random.rand()
 	chose_array = np.cumsum(legal_policy)

@@ -93,11 +93,11 @@ def softmax(x, ignore_zero=False):
 	if ignore_zero:
 		print("DEBUG")
 		print(x.shape)
-		print(np.where(x != 0).shape)
+		print(np.where(x != 0))
 		print("DEBUG")
 		non_zero_indices = np.where(x != 0)
 		x[non_zero_indices] = np.exp(x)/np.sum(np.exp(x))
-		return x[non_zero_indices]
+		return x
 	else:
 		return np.exp(x)/np.sum(np.exp(x))
 

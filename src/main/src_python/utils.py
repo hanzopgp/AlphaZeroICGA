@@ -116,11 +116,38 @@ def opp(mover):
 	
 ######### Here are the utility functions to format data #########
 
-#def index_action(from_, to):
-#	prev_x = int(from_/N_ROW)
-#	prev_y = from_%N_ROW,
-#	x = int(to/N_ROW)
-#	y = to%N_ROW
+def index_action(from_, to):
+	# We get the coordinate of both position
+	prev_x = math.ceil(from_/N_ROW)
+	prev_y = from_%N_ROW,
+	x = math.ceil(to/N_ROW)
+	y = to%N_ROW
+	# Our index_action array will be indexed by N_DISTANCE * N_ORIENTATION, 
+	# for example we will take 1 and 2 as distance and NW, NE, SW, SE, thus
+	# the SW2 move will be 2*3=6 
+	print(prev_x, prev_y)
+	print(x, y)
+	if y - prev_y == 2: # south 2
+		if x - prev_x == 2: # east 2
+			index = 8
+		else: # west 2
+			index = 6
+	elif y - prev_y == -2 : # north 2
+		if x - prev_x == 2: # east 2
+			index = 4
+		else: # west 2
+			index = 2
+	elif y - prev_y == -1 : # south 1 
+		if x - prev_x == 1: # east 1
+			index = 4
+		else: # west 1
+			index = 3
+	elif y - prev_y == -1 : # north 1
+		if x - prev_x == 1: # east 1
+			index = 2
+		else: # west 1 
+			index = 1
+	return index - 1 # because we start at 0
 
 # Mask out the illegal moves and re compute softmax
 def format_move(legal_moves, policy_pred):

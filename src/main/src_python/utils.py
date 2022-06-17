@@ -90,9 +90,16 @@ def softmax_cross_entropy_with_logits(y_true, y_pred):
 	return tf.nn.softmax_cross_entropy_with_logits(labels=y_true, logits=y_pred) 
 
 def softmax(x, ignore_zero=False):
-	non_zero_indices = np.where(x != 0)
-	x[non_zero_indices] = np.exp(x)/np.sum(np.exp(x))
-	return x[non_zero_indices]
+	if ignore_zero:
+		print("DEBUG")
+		print(x.shape)
+		print(np.where(x != 0).shape)
+		print("DEBUG")
+		non_zero_indices = np.where(x != 0)
+		x[non_zero_indices] = np.exp(x)/np.sum(np.exp(x))
+		return x[non_zero_indices]
+	else:
+		return np.exp(x)/np.sum(np.exp(x))
 
 ######### Here are the utility function used for the game #########
 	

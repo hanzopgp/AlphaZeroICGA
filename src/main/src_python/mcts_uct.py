@@ -97,6 +97,9 @@ class MCTS_UCT:
 		if len(current.unexpanded_moves) > 0:
 			# If it's the first step and we don't have a model yet, we chose random moves
 			# can pop it since it's already shuffled
+
+			self.first_step = False
+
 			if self.first_step:
 				move = current.unexpanded_moves.pop()
 			# If it's not the first step then we use our model to chose a move

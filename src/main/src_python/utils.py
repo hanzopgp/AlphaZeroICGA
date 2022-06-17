@@ -118,7 +118,7 @@ def opp(mover):
 
 def index_action(from_, to):
 	# We get the coordinate of both position
-	prev_x = math.ceil(from_/N_ROW)
+	prev_x = round(from_/N_ROW)
 	prev_y = from_%N_ROW
 	x = math.ceil(to/N_ROW)
 	y = to%N_ROW

@@ -191,7 +191,7 @@ class MCTS_UCT:
 			#action_index = 0
 			# <math.ceil(from_/N_ROW), from_%N_ROW> represent the position of the
 			# pawn that chosed action <action_index> to go in position <to>
-			move_array[math.ceil(from_/N_ROW), from_%N_ROW, action_index] = visit_count/total_visit_count
+			move_array[math.round(from_/N_ROW), from_%N_ROW, action_index] = visit_count/total_visit_count
 			print("****DEBUG*****")
 			
 			

@@ -206,7 +206,6 @@ def format_state(context):
 	res = res.reshape(N_ROW, N_COL, -1)
 	current_mover = context.state().mover()
 	#current_player = 0 if current_mover==PLAYER1 else 1
-	## GOTTA CHECK STATE HERE !!!!!!!!!!!!
-	res = np.append(res, np.full((N_ROW, N_COL, 1), current_mover), axis=0)
+	res = np.append(res, np.full((N_ROW, N_COL, 1), current_mover), axis=2)
 	return res
 	

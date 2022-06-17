@@ -126,29 +126,25 @@ def index_action(from_, to):
 	print(x, y)
 	off_y = y - prev_y
 	off_x = x - prev_x
-	# 2 distance moves
-	if off_y == 2: # south 
-		if off_x == 2: # east 
-			index = 7
-		else: # west 
-			index = 6
-	elif off_y == -2 : # north 
-		if off_x == 2: # east 
-			index = 5
-		else: # west 
-			index = 4
-	# 1 distance moves
-	elif off_y == 1 : # south 
-		if off_x == 1: # east 
-			index = 3
-		else: # west 
-			index = 2
-	elif off_y == -1 : # north 
-		if off_x == 1: # east 
-			index = 1
-		else: # west 
-			index = 0
-	return index  # because we start at 0
+	# We have distance such as 1, 2, 3, 4...
+	# We have orientation such as SE, SW, NE, NW
+	# We create an index such as :
+	# index = orientation * N_ROW + (distance-1)
+	# for example if the move is a NE with 3
+	# as the distance we get the index :
+	# 2 * 8 + (3-1) = 18, the number of index is
+	# N_DISTANCE * N_ORIENTATION.
+	if off_y >= 1: # south
+		if off_x >= 1: # east
+			index = 0 * N_ROW + off_y - 1
+		else: # west
+			index = 1 * N_ROW + off_y - 1
+	elif off_y <= -1: # north
+		if off_x >= 1: # east
+			index = 2 * N_ROW + off_y - 1 
+		else: # west
+			index = 3 * N_ROW + off_y - 1
+	return index 
 
 # Mask out the illegal moves and re compute softmax
 def format_move(legal_moves, policy_pred):

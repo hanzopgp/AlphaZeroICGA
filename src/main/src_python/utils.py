@@ -122,25 +122,27 @@ def index_action(from_, to):
 	prev_y = from_%N_ROW
 	x = math.ceil(to/N_ROW)
 	y = to%N_ROW
-	#print(prev_x, prev_y)
-	#print(x, y)
-	if y - prev_y == 2: # south 2
-		if x - prev_x == 2: # east 2
+	print(prev_x, prev_y)
+	print(x, y)
+	off_y = y - prev_y
+	off_x = x - prev_x
+	if off_y == 2: # south 2
+		if off_x == 2: # east 2
 			index = 7
 		else: # west 2
 			index = 6
-	elif y - prev_y == -2 : # north 2
-		if x - prev_x == 2: # east 2
+	elif off_y == -2 : # north 2
+		if off_x == 2: # east 2
 			index = 5
 		else: # west 2
 			index = 4
-	elif y - prev_y == -1 : # south 1 
-		if x - prev_x == 1: # east 1
+	elif off_y == -1 : # south 1 
+		if off_x == 1: # east 1
 			index = 3
 		else: # west 1
 			index = 2
-	elif y - prev_y == -1 : # north 1
-		if x - prev_x == 1: # east 1
+	elif off_y == -1 : # north 1
+		if off_x == 1: # east 1
 			index = 1
 		else: # west 1 
 			index = 0

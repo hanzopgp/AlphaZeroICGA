@@ -197,7 +197,7 @@ def chose_move(legal_moves, policy_pred):
 		prev_y = from_%N_ROW
 		x = int(to/N_ROW)
 		y = to%N_ROW
-		if prev_x == chosen_prev_x and prev_y == chosen_prev_y and x = chosen_x and y = chosen_y :
+		if prev_x == chosen_prev_x and prev_y == chosen_prev_y and x == chosen_x and y == chosen_y:
 			return legal_moves[i]
 		else:
 			print("WTFF !!!!")

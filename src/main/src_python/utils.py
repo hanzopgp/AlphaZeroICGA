@@ -99,7 +99,7 @@ def softmax(x, ignore_zero=False):
 		for i in non_zero_indices[0]:
 			for j in non_zero_indices[1]:
 				for k in non_zero_indices[2]:
-					x[i,j,k] = np.exp(x)/np.sum(np.exp(x))
+					x[i,j,k] = np.exp(x[i,j,k])/np.sum(np.exp(x[i,j,k]))
 		return x
 	else:
 		return np.exp(x)/np.sum(np.exp(x))

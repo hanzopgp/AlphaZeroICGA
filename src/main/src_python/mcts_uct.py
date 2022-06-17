@@ -109,9 +109,6 @@ class MCTS_UCT:
 				#policy_pred = policy_pred[0] # Get ride of useless batch dimension
 				policy_pred = softmax(np.random.rand(8,8,32))
 				move = chose_move(current.unexpanded_moves, policy_pred)
-				print("*"*50)
-				print("MOVE", move)
-				print("*"*50)
 			# We copy the context to play in a simulation
 			context = current.context.deepCopy()
 			# Apply the move in the simulation

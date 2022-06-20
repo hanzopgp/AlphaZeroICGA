@@ -105,15 +105,13 @@ class MCTS_UCT:
 			# If it's not the first step then we use our model to chose a move
 			else:
 				#state = format_state(current.context).squeeze()
-				#_, policy_pred = self.model.predict(np.expand_dims(state, axis=0))
-				#policy_pred = policy_pred[0] # Get ride of useless batch dimension
-				policy_pred = softmax(np.random.rand(8,8,32))
+				_, policy_pred = self.model.predict(np.expand_dims(state, axis=0))
+				policy_pred = policy_pred[0] # Get ride of useless batch dimension
+				# Chose a move in legal moves by randomly firing in the policy pred distribution
 				move = chose_move(current.unexpanded_moves, policy_pred)
 			# We copy the context to play in a simulation
 			context = current.context.deepCopy()
 			# Apply the move in the simulation
-			# NEED TO FIGURE OUT HOW TO BUILD A MOVE OBJECT FROM JAVA TO APPLY IT
-			# WHEN USING THE MODEL TO CHOSE A MOVE !!!
 			context.game().apply(context, move)
 			# Return a new node, with the new child (which is the move played)
 			return Node(current, move, context)

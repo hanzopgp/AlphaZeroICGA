@@ -8,11 +8,11 @@ class MCTS_UCT:
 	def __init__(self):
 		self._player_id = -1
 		if exists(MODEL_PATH+GAME_NAME+".h5"): 
-			print("Using the model:", MODEL_PATH+GAME_NAME+".h5", "to chose moves")
+			print("--> Using the model:", MODEL_PATH+GAME_NAME+".h5", "to chose moves")
 			self.first_step = False
 			self.model = load_nn()
 		else:
-			print("No model found, starting from random moves")
+			print("--> No model found, starting from random moves")
 			self.first_step = True
 
 	# Fix the player who will play with MCTS in case we load this class with Ludii
@@ -49,7 +49,7 @@ class MCTS_UCT:
 				    break
 			
 				# Now our current node is a new one, selected thanks to UCB selection & extension phase
-				current = self.select(current)
+				current = self.select_node(current)
 
 				# If the node expanded is a new one, we have to playout until the end of the game
 				if current.visit_count == 0:
@@ -92,14 +92,11 @@ class MCTS_UCT:
 		return self.final_move_selection(root)
 
 	# This method choses what node to select and expand depending the UCB score
-	def select(self, current):
+	def select_node(self, current):
 		# If we have some moves to expand
 		if len(current.unexpanded_moves) > 0:
 			# If it's the first step and we don't have a model yet, we chose random moves
 			# can pop it since it's already shuffled
-
-			self.first_step = False
-
 			if self.first_step:
 				move = current.unexpanded_moves.pop()
 			# If it's not the first step then we use our model to chose a move
@@ -135,11 +132,9 @@ class MCTS_UCT:
 				exploit = child.score_sums[mover] / child.visit_count
 				explore = math.sqrt(two_parent_log / child.visit_count)
 				value = exploit + explore
-			else:
 			# Else we use the model to predict a value
+			else:
 				value, _ = self.model.predict(np.expand_dims(state, axis=0))
-				print("VALUE:", value)
-
 			# Keep track of the best_child which has the best UCB score
 			if value > best_value:
 				best_value = value;

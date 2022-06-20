@@ -28,7 +28,7 @@ class RunningTrials:
 		y_distrib = np.zeros((MAX_SAMPLE, N_ROW, N_COL, N_ACTION_STACK))
 		y_values = []
 		
-		print("Running", NUM_TRIALS, "games")
+		print("--> Running", NUM_TRIALS, "games")
 		
 		# Main trial loop, we play one game per trial
 		for i in range(NUM_TRIALS):
@@ -45,7 +45,7 @@ class RunningTrials:
 				# Sometimes the game is way too long and has to be stopped
 				# and considered as a draw
 				if time.time() - start_time  > MAX_GAME_DURATION:
-					print("Ended one game because it was too long")
+					print("--> Ended one game because it was too long")
 					break
 				
 				# Keep track of the mover
@@ -140,16 +140,16 @@ class RunningTrials:
 		#print(y_distrib[52])
 		
 		# Print our generated dataset shapes
-		print("X shape", X.shape)	
-		print("y_values shape", y_values.shape)
-		print("y_distrib shape", y_distrib.shape)
+		print("* X shape", X.shape)	
+		print("* y_values shape", y_values.shape)
+		print("* y_distrib shape", y_distrib.shape)
 		
 		# Print some trial stats
-		print("AI1 winrate:", ai1_win/total)
-		print("AI2 winrate:", ai2_win/total)
-		print("Draws:", draw/total)
-		print("Mean game duration", duration.mean())
-		print("Max game duration", duration.max())
+		print("* AI1 winrate:", ai1_win/total)
+		print("* AI2 winrate:", ai2_win/total)
+		print("* Draws:", draw/total)
+		print("* Mean game duration", duration.mean())
+		print("* Max game duration", duration.max())
 		
 		# Save values to CSV
 		add_to_dataset(X, y_values, y_distrib)

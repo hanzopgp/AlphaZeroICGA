@@ -50,4 +50,10 @@
 	    	</java>
 	</target>
 	
+	<target name="train_model" depends="build">
+	    	<exec executable="python3">
+	      		<arg line="src_python/train_model.py"></arg>
+	    	</exec>
+	</target>
+	
 </project>

@@ -17,8 +17,8 @@ from tensorflow.keras.optimizers import SGD
 from keras import regularizers
 
 
-from src_python.config import *
-#from config import *
+#from src_python.config import *
+from config import *
 
 
 ######### Here are the utility function for loading/writing files #########
@@ -26,9 +26,9 @@ from src_python.config import *
 def load_data():
 	pkl_path = DATASET_PATH+GAME_NAME+".pkl"
 	if not exists(pkl_path):
-		print("Couldn't find dataset at:", pkl_path)
+		print("--> Couldn't find dataset at:", pkl_path)
 		exit()
-	print("Loading CSV dataset ...")
+	print("--> Loading CSV dataset ...")
 	data = []
 	with open(pkl_path, 'rb') as fr:
 		try:
@@ -53,12 +53,12 @@ def load_data():
 		final_X = np.concatenate((final_X, X[i]), axis=0)
 		final_y_values = np.concatenate((final_y_values, y_values[i]), axis=0)
 		final_y_distrib = np.concatenate((final_y_distrib, y_distrib[i]), axis=0)
-	print("Number of examples", final_X.shape[0])
-	print("Done !")
+	print("* Number of examples in the dataset :", final_X.shape[0])
+	print("--> Done !")
 	return final_X, final_y_values, final_y_distrib
 
 def add_to_dataset(X, y_values, y_distrib):
-	print("Saving data to csv for the game :", GAME_NAME, "...")
+	print("--> Saving data to csv for the game :", GAME_NAME, "...")
 	pkl_path = DATASET_PATH+GAME_NAME+".pkl"
 	my_data = {'X': X,
 	   	   'y_values': y_values,
@@ -69,7 +69,7 @@ def add_to_dataset(X, y_values, y_distrib):
 	else:
 		with open(pkl_path, 'wb') as fp:
 			pickle.dump(my_data, fp)
-	print("Done !")
+	print("--> Done !")
 
 def load_nn():
 	return load_model(

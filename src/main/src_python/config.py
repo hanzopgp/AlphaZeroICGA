@@ -5,6 +5,10 @@ import math
 # number of trials 800
 # total number of games 44M
 # learning rate 0.2, 0.02, 0.002, 0.0002
+# kernel size (3,3)
+# n residual layers 40
+# n filters 256
+# mlp neurons 256
 
 ######### CONSTANTE VARIABLES #########
 
@@ -24,7 +28,7 @@ N_DISTANCE = 8 # the king can move on the whole diagonal
 N_ORIENTATION = 4 # can go only left or right diagonaly, for both players
 N_ACTION_STACK = N_ORIENTATION * N_DISTANCE
 N_ADDITIONAL_FEATURES = 1 # currently only the color of the current player
-N_REPRESENTATION_STACK = N_ADDITIONAL_FEATURES + N_TIME_STEP * 2 * N_LEVELS 
+N_REPRESENTATION_STACK = N_ADDITIONAL_FEATURES + (N_TIME_STEP * 2) * N_LEVELS 
 MAX_MOVES_POSSIBLE = N_ROW*N_COL*N_ACTION_STACK*12 # 12 pieces
 
 ######### MCTS PARAMETERS #########
@@ -33,9 +37,9 @@ THINKING_TIME_AGENT1 = 0.5
 THINKING_TIME_AGENT2 = 0.5
 MAX_ITERATION_AGENT1 = -1
 MAX_ITERATION_AGENT2 = -1
-NUM_TRIALS = 10 # 800 games ~ 80 000 moves ~ 10 hours
-MAX_GAME_DURATION = 200
-MAX_SAMPLE = NUM_TRIALS * N_ROW * N_COL * N_LEVELS + 1	
+NUM_TRIALS = 30 # 800 games ~ 80 000 moves ~ 10 hours
+MAX_GAME_DURATION = 200 # 200 seconds is fine
+MAX_SAMPLE = 10000 # can decide the size of the dataset 
 
 ######### NN parameters #########
 
@@ -43,16 +47,19 @@ RANDOM_SEED = 42
 N_EPOCHS = 10
 BATCH_SIZE = 256
 VERBOSE = True
-VALIDATION_SPLIT = 0.2
-LOSS_WEIGHTS = [0.33, 0.67] # first one is value, second one policy
+VALIDATION_SPLIT = 0.5
+LOSS_WEIGHTS = [0.5, 0.5] # first one is value, second one policy
 
-FILTERS = 128
-KERNEL_SIZE = (4,4)
-FIRST_KERNEL_SIZE = (5,5) 
+MAIN_ACTIVATION = "relu"
+FILTERS = 32
+KERNEL_SIZE = (3,3)
+KERNEL_INITIALIZER = "random_normal"
+FIRST_KERNEL_SIZE = (3,3) 
+USE_BIAS = False
 N_RES_LAYER = 5
-NEURONS_VALUE_HEAD = 128 # number of neurons in last dense layer
+NEURONS_VALUE_HEAD = 64 # number of neurons in last dense layer
 
 OPTIMIZER = "adam"
-LEARNING_RATE = 0.2
+LEARNING_RATE = 0.002
 MOMENTUM = 0.9
 REG_CONST = 1e-4 # L2 reg

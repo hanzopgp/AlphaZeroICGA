@@ -31,7 +31,9 @@ class CustomModel():
 				epsilon=1e-07,
 				centered=False)
 		else:
-			opt = SGD(learning_rate=self.learning_rate, momentum=self.momentum)
+			opt = tf.keras.optimizers.SGD(
+				learning_rate=self.learning_rate, 
+				momentum=self.momentum)
 		self.opt = opt
 		
 	def write(self):
@@ -97,10 +99,10 @@ class CustomModel():
 		x = Conv2D(
 			filters=filters, 
 			kernel_size=kernel_size,
-			#data_format="channels_first", 
+			kernel_initializer=KERNEL_INITIALIZER,
 			padding="same", 
-			use_bias=False, 
-			activation="linear", 
+			use_bias=USE_BIAS, 
+			activation=MAIN_ACTIVATION, 
 			kernel_regularizer=regularizers.l2(self.reg_const)
 		)(x)
 		x = BatchNormalization(axis=1)(x)
@@ -114,10 +116,10 @@ class CustomModel():
 		x = Conv2D(
 			filters=filters, 
 			kernel_size=kernel_size, 
-			#data_format="channels_first", 
+			kernel_initializer=KERNEL_INITIALIZER,
 			padding="same", 
-			use_bias=False, 
-			activation="linear", 
+			use_bias=USE_BIAS, 
+			activation=MAIN_ACTIVATION, 
 			kernel_regularizer=regularizers.l2(self.reg_const)
 		)(x)
 		x = BatchNormalization(axis=1)(x)
@@ -132,9 +134,9 @@ class CustomModel():
 		x = Conv2D(
 			filters=1, # AlphaZero paper
 			kernel_size=(1,1), # AlphaZero paper
-			#data_format="channels_first", 
+			kernel_initializer=KERNEL_INITIALIZER,
 			padding="same", 
-			use_bias=False, 
+			use_bias=USE_BIAS, 
 			activation="linear", 
 			kernel_regularizer=regularizers.l2(self.reg_const)
 		)(x)
@@ -142,16 +144,17 @@ class CustomModel():
 		x = LeakyReLU()(x)
 		x = Flatten()(x)
 		x = Dense(
-			256, # AlphaZero paper 
-			use_bias=False, 
+			NEURONS_VALUE_HEAD, # AlphaZero paper 
+			use_bias=USE_BIAS, 
 			activation="linear", 
 			kernel_regularizer=regularizers.l2(self.reg_const)
 		)(x)
 		x = LeakyReLU()(x)
 		x = Dense(
 			1, 
-			use_bias=False, 
+			use_bias=USE_BIAS, 
 			activation="tanh", # Value is between -1 and 1 
+			kernel_initializer=KERNEL_INITIALIZER,
 			kernel_regularizer=regularizers.l2(self.reg_const),
 			name="value_head"
 		)(x)
@@ -163,9 +166,9 @@ class CustomModel():
 		x = Conv2D(
 			filters=2, # AlphaZero paper
 			kernel_size=(1,1), # AlphaZero paper 
-			#data_format="channels_first", 
+			kernel_initializer=KERNEL_INITIALIZER,
 			padding="same", 
-			use_bias=False, 
+			use_bias=USE_BIAS, 
 			activation="linear", 
 			kernel_regularizer=regularizers.l2(self.reg_const)
 		)(x)
@@ -174,8 +177,9 @@ class CustomModel():
 		x = Flatten()(x)
 		x = Dense(
 			self.output_dim, 
-			use_bias=False, 
-			activation="linear", # Don't use softmax here because we use a loss with logits
+			use_bias=USE_BIAS, 
+			activation="linear", # We are a softmax cross entropy with logits loss
+			kernel_initializer=KERNEL_INITIALIZER,
 			kernel_regularizer=regularizers.l2(self.reg_const),
 			name="policy_head"
 		)(x)

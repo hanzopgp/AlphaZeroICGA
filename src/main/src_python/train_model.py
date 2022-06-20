@@ -11,7 +11,6 @@ from model import CustomModel
 			
 X, y_values, y_distrib = load_data()
 X = X.astype('float32')
-#X = X.squeeze().reshape(X.shape[0], X.shape[2], X.shape[3], X.shape[1]).astype('float32')
 y = {'value_head': y_values.astype('float32'), 'policy_head': y_distrib.flatten().astype('float32')} 
 
 model = CustomModel(

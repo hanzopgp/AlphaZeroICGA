@@ -30,8 +30,13 @@ class RunningTrials:
 		
 		print("--> Running", NUM_TRIALS, "games")
 		
+		breaker = False
+		
 		# Main trial loop, we play one game per trial
 		for i in range(NUM_TRIALS):
+		
+			if breaker: break
+		
 			start_time = time.time()
 			game.start(context)
 			model = context.model()
@@ -46,6 +51,10 @@ class RunningTrials:
 				# and considered as a draw
 				if time.time() - start_time  > MAX_GAME_DURATION:
 					print("--> Ended one game because it was too long")
+					break
+					
+				if idx_sample >= MAX_SAMPLE:
+					breaker=True
 					break
 				
 				# Keep track of the mover
@@ -65,8 +74,7 @@ class RunningTrials:
 					# Save X state
 					X[idx_sample] = state
 					# Apply softmax on the visit count to get a distribution from the MCTS
-					tmp_arr_move = softmax(tmp_arr_move)
-					y_distrib[idx_sample] = tmp_arr_move
+					y_distrib[idx_sample] = softmax(tmp_arr_move)
 					idx_sample += 1	
 				
 				move_check.append(move)
@@ -109,35 +117,12 @@ class RunningTrials:
 		y_values = y_values[:idx_sample]
 		y_distrib = y_distrib[:idx_sample]
 		
-		#print("*"*40)
-		#print(X_mover[50])
-		#print(move_check[50])
-		#print(X[50][0])
-		#print(X[50][1])
-		#print(X[50][2])
-		#for i in range(X[50].shape[0]):
-		#	print("***",i,"***")
-		#	print(X[50][i])
-		# print(y_values[50])
-		# print(y_distrib[50])
-		
-		#print("*"*40)
-		#print(X_mover[51])
-		#print(move_check[51])
-		#print(X[51][0])
-		#print(X[51][1])
-		#print(X[51][2])
-		#print(y_values[51])
-		#print(y_distrib[51])
-		
-		#print("*"*40)
-		#print(X_mover[52])
-		#print(move_check[52])
-		#print(X[52][0])
-		#print(X[52][1])
-		#print(X[52][2])
-		#print(y_values[52])
-		#print(y_distrib[52])
+		#idx = 1
+		#print(X_mover[idx])
+		#print(move_check[idx])
+		#X_test = X[idx]
+		#print(X_test.shape)
+		#print(X_test[:,:,-1])
 		
 		# Print our generated dataset shapes
 		print("* X shape", X.shape)	

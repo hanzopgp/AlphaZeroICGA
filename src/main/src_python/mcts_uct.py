@@ -101,11 +101,11 @@ class MCTS_UCT:
 				move = current.unexpanded_moves.pop()
 			# If it's not the first step then we use our model to chose a move
 			else:
-				#state = format_state(current.context).squeeze()
+				state = format_state(current.context).squeeze()
 				_, policy_pred = self.model.predict(np.expand_dims(state, axis=0))
 				policy_pred = policy_pred[0] # Get ride of useless batch dimension
-				# Chose a move in legal moves by randomly firing in the policy pred distribution
-				move = chose_move(current.unexpanded_moves, policy_pred)
+				# Chose a move in legal moves by randomly firing in the policy
+				move = chose_move(current.unexpanded_moves, policy_pred, competitive_mode=False)
 			# We copy the context to play in a simulation
 			context = current.context.deepCopy()
 			# Apply the move in the simulation

@@ -80,12 +80,12 @@ def load_nn():
 
 def softmax_cross_entropy_with_logits(y_true, y_pred):
 	# Find where the values of the labels are 0
-	#zero = tf.zeros(shape=tf.shape(y_true), dtype=tf.float32)
-	#where = tf.equal(y_true, zero)
+	zero = tf.zeros(shape=tf.shape(y_true), dtype=tf.float32)
+	where = tf.equal(y_true, zero)
 	# Create a -100 values array
-	#filler = tf.fill(tf.shape(y_true), -100.0)
+	filler = tf.fill(tf.shape(y_true), -100.0)
 	# Switch 0 values by -100 values for the predictions
-	#y_pred = tf.where(where, filler, y_pred)
+	y_pred = tf.where(where, filler, y_pred)
 	# Apply and return the classical softmax crossentropy loss
 	return tf.nn.softmax_cross_entropy_with_logits(labels=y_true, logits=y_pred) 
 
@@ -118,7 +118,7 @@ def utilities(context):
 def opp(mover):
 	return 2 if mover ==1 else 1
 	
-######### Here are the utility functions to format data #########
+######### Here are the utility functions to format policy #########
 
 # Define the type of action thanks to position of current and last move
 def index_action(from_, to):
@@ -169,7 +169,7 @@ def reverse_index_action(to_x, to_y, action):
 # Get the policy on every moves, mask out the illegal moves,
 # re-compute softmax and pick a move randomly according to
 # the new policy
-def chose_move(legal_moves, policy_pred):
+def chose_move(legal_moves, policy_pred, competitive):
 	# New legal policy array starting as everything illegal
 	legal_policy = np.zeros(policy_pred.shape)
 	# Find the legal moves in the policy
@@ -185,13 +185,18 @@ def chose_move(legal_moves, policy_pred):
 		legal_policy[prev_x, prev_y, action_index] = policy_pred[prev_x, prev_y, action_index]
 	# Re-compute softmax after masking out illegal moves
 	legal_policy = softmax(legal_policy, ignore_zero=True)
-	# Build a cumulative sum array and chose the move
-	r = np.random.rand()
-	idx_legal = np.where(legal_policy != 0)
-	fire = legal_policy[idx_legal]
-	chose_array = np.cumsum(fire)
-	choice = np.where(chose_array >= r)[0][0]
-	chosen_x, chosen_y, chosen_action = idx_legal[0][choice], idx_legal[1][choice], idx_legal[2][choice]
+	# If we are playing for real, we chose the best action given by the policy
+	if competitive_mode:
+		chosen_x, chosen_y, chosen_action = np.argmax(legal_policy)
+	# Else we are training and we use the policy for the MCTS
+	else:
+		# Build a cumulative sum array and chose the move
+		r = np.random.rand()
+		idx_legal = np.where(legal_policy != 0)
+		fire = legal_policy[idx_legal]
+		chose_array = np.cumsum(fire)
+		choice = np.where(chose_array >= r)[0][0]
+		chosen_x, chosen_y, chosen_action = idx_legal[0][choice], idx_legal[1][choice], idx_legal[2][choice]
 	# Now we need to find the move in the java object legal moves list
 	chosen_prev_x, chosen_prev_y = reverse_index_action(chosen_x, chosen_y, chosen_action)
 	for i in range(len(legal_moves)):
@@ -205,12 +210,14 @@ def chose_move(legal_moves, policy_pred):
 		if prev_x == chosen_x and prev_y == chosen_y and x == chosen_prev_x and y == chosen_prev_y:
 			return legal_moves[i]
 
+######### Here are the utility functions to format the states #########
+
 # Create a numpy array from the java owned positions
 def format_positions(positions, lvl, val):
 	res = np.zeros((N_ROW*N_COL))
 	for pos in positions:
 		for i in range(pos.size()):
-			# We create a boolean in order to build a presence map
+			# Filling presence map per level
 			p = pos.get(i)
 			if p.level() == lvl:
 				res[p.site()] = val
@@ -230,8 +237,8 @@ def format_state(context):
 		owned = state.owned()
 		# We fill levels positions for each time step
 		for j in range(N_LEVELS):
-			res[i][j] = format_positions(owned.positions(PLAYER1), lvl=j, val=PLAYER1)
-			res[i+1][j]= format_positions(owned.positions(PLAYER2), lvl=j, val=PLAYER2)
+			res[i][j] = format_positions(owned.positions(PLAYER1), lvl=j, val=1)
+			res[i+1][j]= format_positions(owned.positions(PLAYER2), lvl=j, val=1)
 		# After filling the positions for one time step we undo one game move
 		# to fill the previous time step
 		try:
@@ -239,13 +246,14 @@ def format_state(context):
 		# Break in case we can't undo a move (start of game for example)
 		except: 
 			break
+	res = res.reshape(N_ROW, N_COL, -1)
 	# The current player stack will be 0 if player1 is the current
 	# player and 1 if player2 is the current player, this is an example
 	# of additional feature but we could also add the number of moves
 	# played until now etc...
-	res = res.reshape(N_ROW, N_COL, -1)
 	current_mover = context.state().mover()
-	#current_player = 0 if current_mover==PLAYER1 else 1
-	res = np.append(res, np.full((N_ROW, N_COL, 1), current_mover), axis=2)
-	return res
-	
+	current_player = 0 if current_mover==PLAYER1 else 1
+	res = np.append(res, np.full((N_ROW, N_COL, 1), current_player), axis=2)
+	return res	
+
+

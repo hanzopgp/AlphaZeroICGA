@@ -104,6 +104,8 @@ class MCTS_UCT:
 				state = format_state(current.context).squeeze()
 				_, policy_pred = self.model.predict(np.expand_dims(state, axis=0))
 				policy_pred = policy_pred[0] # Get ride of useless batch dimension
+				# The output of the network is a flattened array
+				policy_pred = policy_pred.reshape(N_ROW, N_COL, N_ACTION_STACK)
 				# Chose a move in legal moves by randomly firing in the policy
 				move = chose_move(current.unexpanded_moves, policy_pred, competitive_mode=False)
 			# We copy the context to play in a simulation

@@ -10,7 +10,7 @@ from src_python.model import CustomModel
 ######### Training model from loaded data and saving weights #########
 			
 X, y_values, y_distrib = load_data()
-X = X.astype('float32')
+X = X.reshape(X.shape[0], X.shape[2], X.shape[3], X.shape[1]).astype('float32')
 y = {'value_head': y_values.astype('float32'), 'policy_head': y_distrib.flatten().astype('float32')} 
 
 model = CustomModel(

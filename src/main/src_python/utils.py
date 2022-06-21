@@ -173,7 +173,7 @@ def reverse_index_action(to_x, to_y, action):
 # Get the policy on every moves, mask out the illegal moves,
 # re-compute softmax and pick a move randomly according to
 # the new policy
-def chose_move(legal_moves, policy_pred, competitive):
+def chose_move(legal_moves, policy_pred, competitive_mode):
 	# New legal policy array starting as everything illegal
 	legal_policy = np.zeros(policy_pred.shape)
 	# Find the legal moves in the policy
@@ -250,7 +250,13 @@ def format_state(context):
 		# Break in case we can't undo a move (start of game for example)
 		except: 
 			break
-	res = res.reshape(N_ROW, N_COL, -1)
+	# Need to first merge the time steps and levels into a representation stack
+	res = res.reshape(-1, N_ROW, N_COL)
+	# And then move the axis the get the NWHC format
+	res = np.moveaxis(res, 0, -1)
+	# This was a big misstake leading to a wrong representation
+	#res = res.reshape(N_ROW, N_COL, -1)
+	
 	# The current player stack will be 0 if player1 is the current
 	# player and 1 if player2 is the current player, this is an example
 	# of additional feature but we could also add the number of moves

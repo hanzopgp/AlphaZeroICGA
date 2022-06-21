@@ -36,11 +36,11 @@ MAX_MOVES_POSSIBLE = N_ROW * N_COL * N_ACTION_STACK * 12 # 12 pieces
 # (500, 8, 8, 192) --> too big dataset  
 # (300, 8, 8, 144) --> better
 
-THINKING_TIME_AGENT1 = 1
-THINKING_TIME_AGENT2 = 1
+THINKING_TIME_AGENT1 = 0.1
+THINKING_TIME_AGENT2 = 0.1
 MAX_ITERATION_AGENT1 = -1
 MAX_ITERATION_AGENT2 = -1
-NUM_TRIALS = 20 # 800 games ~ 80 000 moves ~ 10 hours
+NUM_TRIALS = 1 # 20 games ~ 2000 moves ~ 36 minutes (1s TT)
 MAX_GAME_DURATION = 250 # 200 seconds is fine
 MAX_SAMPLE = 100000 # can decide the size of the dataset 
 

@@ -117,25 +117,9 @@ class RunningTrials:
 		y_values = y_values[:idx_sample]
 		y_distrib = y_distrib[:idx_sample]
 		
-		X = X.reshape(X.shape[0], X.shape[3], X.shape[1], X.shape[2])
-		
-		idx = 0
-		print(X_mover[idx])
-		print(move_check[idx])
-		X_test = X[idx]
-		print(X_test.shape)
-		print(X_test[0])
-		print(X_test[1])
-		print(X_test[-1])
-		
-		idx = 12
-		print(X_mover[idx])
-		print(move_check[idx])
-		X_test = X[idx]
-		print(X_test.shape)
-		print(X_test[0])
-		print(X_test[1])
-		print(X_test[-1])
+		# Test print
+		for i in range(X.shape[0]):
+			print(X[0,:,:,i])
 		
 		# Print our generated dataset shapes
 		print("* X shape", X.shape)	

@@ -118,8 +118,9 @@ class RunningTrials:
 		y_distrib = y_distrib[:idx_sample]
 		
 		# Test print
-		for i in range(X.shape[0]):
-			print(X[0,:,:,i])
+		#idx_move = 15
+		#for i in range(X.shape[3]):
+		#	print(X[idx_move,:,:,i])
 		
 		# Print our generated dataset shapes
 		print("* X shape", X.shape)	

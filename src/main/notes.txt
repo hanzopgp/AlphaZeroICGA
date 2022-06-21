@@ -1,3 +1,19 @@
+============================================================================
+
+Run on clusters :
+
+scp -r AlphaZero/ durande@cluster.lip6.fr:.
+ssh durande@cluster.lip6.fr
+oarsub -I
+scp -r durande@cluster.lip6.fr:. .
+cd AlphaZero/src/main
+nano src_python/config.py
+javac -cp "libs/jpy-0.10.0-SNAPSHOT.jar":"libs/Ludii-1.3.4.jar" src_java/alphazero/RunningTrialsWithPython.java -d bin/
+pip install tensorflow
+cd bin | java -cp "../libs/jpy-0.10.0-SNAPSHOT.jar":"../libs/Ludii-1.3.4.jar":"alphazero/":"." alphazero.RunningTrialsWithPython
+
+============================================================================
+
 representation :
 
 states : - n_rows * n_cols * (m+1)_stacks

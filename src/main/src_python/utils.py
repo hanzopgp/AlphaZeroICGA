@@ -54,6 +54,10 @@ def load_data():
 		final_y_values = np.concatenate((final_y_values, y_values[i]), axis=0)
 		final_y_distrib = np.concatenate((final_y_distrib, y_distrib[i]), axis=0)
 	print("* Number of examples in the dataset :", final_X.shape[0])
+	print("* X shape", X.shape)
+	print("* y_values shape", y_values.shape)
+	print("* y_distrib shape", y_distrib.shape)
+
 	print("--> Done !")
 	return final_X, final_y_values, final_y_distrib
 

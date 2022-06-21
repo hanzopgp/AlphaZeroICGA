@@ -40,7 +40,7 @@ THINKING_TIME_AGENT1 = 1
 THINKING_TIME_AGENT2 = 1
 MAX_ITERATION_AGENT1 = -1
 MAX_ITERATION_AGENT2 = -1
-NUM_TRIALS = 300 # 800 games ~ 80 000 moves ~ 10 hours
+NUM_TRIALS = 20 # 800 games ~ 80 000 moves ~ 10 hours
 MAX_GAME_DURATION = 250 # 200 seconds is fine
 MAX_SAMPLE = 100000 # can decide the size of the dataset 
 

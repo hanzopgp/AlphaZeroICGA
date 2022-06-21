@@ -100,6 +100,7 @@ class CustomModel():
 			filters=filters, 
 			kernel_size=kernel_size,
 			kernel_initializer=KERNEL_INITIALIZER,
+			#data_format="channels_first",
 			padding="same", 
 			use_bias=USE_BIAS, 
 			activation=MAIN_ACTIVATION, 
@@ -117,6 +118,7 @@ class CustomModel():
 			filters=filters, 
 			kernel_size=kernel_size, 
 			kernel_initializer=KERNEL_INITIALIZER,
+			#data_format="channels_first",
 			padding="same", 
 			use_bias=USE_BIAS, 
 			activation=MAIN_ACTIVATION, 
@@ -135,6 +137,7 @@ class CustomModel():
 			filters=1, # AlphaZero paper
 			kernel_size=(1,1), # AlphaZero paper
 			kernel_initializer=KERNEL_INITIALIZER,
+			#data_format="channels_first",
 			padding="same", 
 			use_bias=USE_BIAS, 
 			activation="linear", 
@@ -167,6 +170,7 @@ class CustomModel():
 			filters=2, # AlphaZero paper
 			kernel_size=(1,1), # AlphaZero paper 
 			kernel_initializer=KERNEL_INITIALIZER,
+			#data_format="channels_first",
 			padding="same", 
 			use_bias=USE_BIAS, 
 			activation="linear", 

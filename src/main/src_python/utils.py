@@ -17,8 +17,8 @@ from tensorflow.keras.optimizers import SGD
 from keras import regularizers
 
 
-#from src_python.config import *
-from config import *
+from src_python.config import *
+#from config import *
 
 
 ######### Here are the utility function for loading/writing files #########
@@ -28,7 +28,7 @@ def load_data():
 	if not exists(pkl_path):
 		print("--> Couldn't find dataset at:", pkl_path)
 		exit()
-	print("--> Loading CSV dataset ...")
+	print("--> Loading dataset ...")
 	data = []
 	with open(pkl_path, 'rb') as fr:
 		try:

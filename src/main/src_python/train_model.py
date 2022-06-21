@@ -1,10 +1,10 @@
 # PROBLEM WHEN RUNNING SCRIPT FROM .sh, ant, or python3...
-#from src_python.config import *
-#from src_python.utils import *
-#from src_python.model import CustomModel
-from config import *
-from utils import *
-from model import CustomModel
+from src_python.config import *
+from src_python.utils import *
+from src_python.model import CustomModel
+#from config import *
+#from utils import *
+#from model import CustomModel
 
 	
 ######### Training model from loaded data and saving weights #########

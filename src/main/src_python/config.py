@@ -23,23 +23,26 @@ GAME_NAME = "Bashni"
 N_ROW = 8
 N_COL = 8
 N_LEVELS = 24
-N_TIME_STEP = 2 # number of past state we keep for our representation
+N_TIME_STEP = 3 # number of past state we keep for our representation
 N_DISTANCE = 8 # the king can move on the whole diagonal
 N_ORIENTATION = 4 # can go only left or right diagonaly, for both players
 N_ACTION_STACK = N_ORIENTATION * N_DISTANCE
 N_ADDITIONAL_FEATURES = 1 # currently only the color of the current player
 N_REPRESENTATION_STACK = N_ADDITIONAL_FEATURES + (N_TIME_STEP * 2) * N_LEVELS 
-MAX_MOVES_POSSIBLE = N_ROW*N_COL*N_ACTION_STACK*12 # 12 pieces
+MAX_MOVES_POSSIBLE = N_ROW * N_COL * N_ACTION_STACK * 12 # 12 pieces
 
 ######### MCTS PARAMETERS #########
+# games, row, col, features
+# (500, 8, 8, 192) --> too big dataset  
+# (300, 8, 8, 144) --> better
 
-THINKING_TIME_AGENT1 = 0.5
-THINKING_TIME_AGENT2 = 0.5
+THINKING_TIME_AGENT1 = 1
+THINKING_TIME_AGENT2 = 1
 MAX_ITERATION_AGENT1 = -1
 MAX_ITERATION_AGENT2 = -1
-NUM_TRIALS = 30 # 800 games ~ 80 000 moves ~ 10 hours
-MAX_GAME_DURATION = 200 # 200 seconds is fine
-MAX_SAMPLE = 10000 # can decide the size of the dataset 
+NUM_TRIALS = 300 # 800 games ~ 80 000 moves ~ 10 hours
+MAX_GAME_DURATION = 250 # 200 seconds is fine
+MAX_SAMPLE = 100000 # can decide the size of the dataset 
 
 ######### NN parameters #########
 
@@ -47,7 +50,7 @@ RANDOM_SEED = 42
 N_EPOCHS = 10
 BATCH_SIZE = 256
 VERBOSE = True
-VALIDATION_SPLIT = 0.5
+VALIDATION_SPLIT = 0.2
 LOSS_WEIGHTS = [0.5, 0.5] # first one is value, second one policy
 
 MAIN_ACTIVATION = "relu"

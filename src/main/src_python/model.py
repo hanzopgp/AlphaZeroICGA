@@ -37,7 +37,8 @@ class CustomModel():
 		self.opt = opt
 		
 	def write(self):
-		self.model.save(MODEL_PATH+GAME_NAME+".h5")
+		print("--> Saving model for the game :", GAME_NAME, ", AlphaZero iteration :", N_ALPHAZERO_LOOP)
+		self.model.save(MODEL_PATH+GAME_NAME+str(N_ALPHAZERO_LOOP)+".h5")
 		
 	def summary(self):
 		return self.model.summary()

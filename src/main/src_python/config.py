@@ -10,12 +10,20 @@ import math
 # n filters 256
 # mlp neurons 256
 
+######### GENERAL PARAMETERS #########
+
+N_ALPHAZERO_LOOP = 0
+
 ######### CONSTANTE VARIABLES #########
 
 PLAYER1 = 1
 PLAYER2 = 2
 DATASET_PATH = "./datasets/"
 MODEL_PATH = "./models/"
+
+######### DOJO PARAMETERS #########
+
+NUM_DOJO = 10
 
 ######### GAME PARAMETERS #########
 

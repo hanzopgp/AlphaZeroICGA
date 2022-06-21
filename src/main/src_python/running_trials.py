@@ -8,7 +8,7 @@ from src_python.mcts_uct import MCTS_UCT
 class RunningTrials:
 	# Need to give a Java List object here, if we give 2 ais and make it a python array
 	# it won't work and we get no java overload error
-	def run(self, game, trial, context, ais):
+	def run_trial(self, game, trial, context, ais):
 		# Init both agents
 		mcts1 = MCTS_UCT()
 		mcts2 = MCTS_UCT()

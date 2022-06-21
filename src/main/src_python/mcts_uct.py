@@ -18,6 +18,9 @@ class MCTS_UCT:
 	# Fix the player who will play with MCTS in case we load this class with Ludii
 	def init_ai(self, game, player_id):
 		self._player_id = player_id
+		
+	def set_dojo_model(self, n):
+		self.model = load_nn(n, dojo=True)
 
 	# Main method that select the next move at depth 0
 	def select_action(self, game, context, max_seconds, max_iterations, max_depth):

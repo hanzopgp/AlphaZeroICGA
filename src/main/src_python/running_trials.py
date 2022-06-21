@@ -8,10 +8,10 @@ from src_python.mcts_uct import MCTS_UCT
 class RunningTrials:
 	# Need to give a Java List object here, if we give 2 ais and make it a python array
 	# it won't work and we get no java overload error
-	def run_trial(self, game, trial, context, ais):
+	def run_trial(self, game, trial, context, ais, alphazero_iteration):
 		# Init both agents
-		mcts1 = MCTS_UCT()
-		mcts2 = MCTS_UCT()
+		mcts1 = MCTS_UCT(alphazero_iteration=alphazero_iteration)
+		mcts2 = MCTS_UCT(alphazero_iteration=alphazero_iteration)
 		mcts1.init_ai(game, PLAYER1)
 		mcts2.init_ai(game, PLAYER2)
 		
@@ -135,6 +135,6 @@ class RunningTrials:
 		print("* Max game duration", duration.max())
 		
 		# Save values to CSV
-		add_to_dataset(X, y_values, y_distrib)
+		add_to_dataset(X, y_values, y_distrib, alphazero_iteration)
 
 		

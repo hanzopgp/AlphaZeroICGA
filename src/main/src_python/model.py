@@ -36,9 +36,9 @@ class CustomModel():
 				momentum=self.momentum)
 		self.opt = opt
 		
-	def write(self):
-		print("--> Saving model for the game :", GAME_NAME, ", AlphaZero iteration :", N_ALPHAZERO_LOOP)
-		self.model.save(MODEL_PATH+GAME_NAME+str(N_ALPHAZERO_LOOP)+".h5")
+	def write(self, alphazero_iteration):
+		print("--> Saving model for the game :", GAME_NAME, ", AlphaZero iteration :", alphazero_iteration)
+		self.model.save(MODEL_PATH+GAME_NAME+str(alphazero_iteration)+".h5")
 		
 	def summary(self):
 		return self.model.summary()

@@ -23,12 +23,12 @@ from src_python.config import *
 
 ######### Here are the utility function for loading/writing files #########
 
-def load_data():
-	pkl_path = DATASET_PATH+GAME_NAME+str(N_ALPHAZERO_LOOP)+".pkl"
+def load_data(alphazero_iteration):
+	pkl_path = DATASET_PATH+GAME_NAME+str(alphazero_iteration)+".pkl"
 	if not exists(pkl_path):
 		print("--> Couldn't find dataset at:", pkl_path)
 		exit()
-	print("--> Loading dataset for the game :", GAME_NAME, ", AlphaZero iteration :", N_ALPHAZERO_LOOP)
+	print("--> Loading dataset for the game :", GAME_NAME, ", AlphaZero iteration :", alphazero_iteration)
 	data = []
 	with open(pkl_path, 'rb') as fr:
 		try:
@@ -59,11 +59,11 @@ def load_data():
 	print("* y_distrib shape", y_distrib.shape)
 
 	print("--> Done !")
-	return final_X, final_y_values, final_y_distrib
+	return final_X.squeeze(), final_y_values.squeeze(), final_y_distrib.squeeze()
 
-def add_to_dataset(X, y_values, y_distrib):
-	print("--> Saving data to pickle for the game :", GAME_NAME, ", AlphaZero iteration :", N_ALPHAZERO_LOOP)
-	pkl_path = DATASET_PATH+GAME_NAME+str(N_ALPHAZERO_LOOP)+".pkl"
+def add_to_dataset(X, y_values, y_distrib, alphazero_iteration):
+	print("--> Saving data to pickle for the game :", GAME_NAME, ", AlphaZero iteration :", alphazero_iteration)
+	pkl_path = DATASET_PATH+GAME_NAME+str(alphazero_iteration)+".pkl"
 	my_data = {'X': X,
 	   	   'y_values': y_values,
 	   	   'y_distrib': y_distrib}
@@ -75,7 +75,7 @@ def add_to_dataset(X, y_values, y_distrib):
 			pickle.dump(my_data, fp)
 	print("--> Done !")
 
-def load_nn(n=0, dojo=False):
+def load_nn(alphazero_iteration=0, n=0, dojo=False):
 	if dojo:
 		print("--> Dojo mode: loading model for evaluation")
 		print("--> Loading model for the game :", GAME_NAME, ", AlphaZero iteration :", n)
@@ -85,13 +85,10 @@ def load_nn(n=0, dojo=False):
 		return model
 	else:
 		print("--> Train mode: loading most recent model")
-		print("--> Loading model for the game :", GAME_NAME, ", AlphaZero iteration :", N_ALPHAZERO_LOOP)
+		print("--> Loading model for the game :", GAME_NAME, ", AlphaZero iteration :", alphazero_iteration)
 		model = load_model(
-				MODEL_PATH+GAME_NAME+str(N_ALPHAZERO_LOOP)+".h5",
+				MODEL_PATH+GAME_NAME+str(alphazero_iteration)+".h5",
 				custom_objects={'softmax_cross_entropy_with_logits': softmax_cross_entropy_with_logits})
-		# After building dataset0, training the model0 on it, and loading the model0 to help our MCTS,
-		# we are going to go for the second alphazero iteration so we increment the global variable
-		N_ALPHAZERO_LOOP += 1
 		return model
 
 ######### Here are some functions for the model #########

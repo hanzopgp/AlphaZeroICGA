@@ -9,15 +9,12 @@ class Dojo:
 	# Need to give a Java List object here, if we give 2 ais and make it a python array
 	# it won't work and we get no java overload error
 	def run_dojo(self, game, trial, context, ais):
-		# Init both agents
-		base_mcts = MCTS_UCT()
-		outsider_mcts = MCTS_UCT()
-		base_mcts.init_ai(game, PLAYER1)
-		outsider_mcts.init_ai(game, PLAYER2)
 		# The base MCTS player gets the latest working model
-		base_mcts.set_dojo_model(ALPHAZERO_ITERATION-1)
+		base_mcts = MCTS_UCT(dojo=True, ALPHAZERO_ITERATION-1)
+		base_mcts.init_ai(game, PLAYER1)
 		# The outsider MCTS player gets the latest model which has to be evaluated
-		outsider_mcts.set_dojo_model(ALPHAZERO_ITERATION)
+		outsider_mcts = MCTS_UCT(dojo=True, ALPHAZERO_ITERATION)
+		outsider_mcts.init_ai(game, PLAYER2)
 		
 		# Declare some variables for statistics
 		base_mcts_win = 0

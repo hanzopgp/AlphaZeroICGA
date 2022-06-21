@@ -5,23 +5,23 @@ from src_python.utils import *
 ######### Here is the main class to run the MCTS simulation #########
 
 class MCTS_UCT:
-	def __init__(self):
+	def __init__(self, alphazero_iteration=0, dojo=False, n=0):
 		self._player_id = -1
-		if exists(MODEL_PATH+GAME_NAME+".h5"): 
-			print("--> Using the model:", MODEL_PATH+GAME_NAME+".h5", "to chose moves")
-			self.first_step = False
-			self.model = load_nn()
+		if dojo:
+			self.model = load_nn(n, dojo=True)
 		else:
-			print("--> No model found, starting from random moves")
-			self.first_step = True
+			if exists(MODEL_PATH+GAME_NAME+str(alphazero_iteration-1)+".h5"): 
+				print("--> Using the model:", MODEL_PATH+GAME_NAME+str(alphazero_iteration-1)+".h5", "to chose moves")
+				self.first_step = False
+				self.model = load_nn()
+			else:
+				print("--> No model found, starting from random policy")
+				self.first_step = True
 
 	# Fix the player who will play with MCTS in case we load this class with Ludii
 	def init_ai(self, game, player_id):
 		self._player_id = player_id
 		
-	def set_dojo_model(self, n):
-		self.model = load_nn(n, dojo=True)
-
 	# Main method that select the next move at depth 0
 	def select_action(self, game, context, max_seconds, max_iterations, max_depth):
 		# Init an empty node which will be our root

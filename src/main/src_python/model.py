@@ -1,8 +1,8 @@
 # PROBLEM WHEN RUNNING SCRIPT FROM .sh, ant, or python3...
-#from config import *
-#from utils import *
-from src_python.config import *
-from src_python.utils import *
+from config import *
+from utils import *
+#from src_python.config import *
+#from src_python.utils import *
 
 
 ######### Here is the class that contain our AlphaZero model #########

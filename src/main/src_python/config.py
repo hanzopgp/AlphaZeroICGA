@@ -10,10 +10,6 @@ import math
 # n filters 256
 # mlp neurons 256
 
-######### GENERAL PARAMETERS #########
-
-N_ALPHAZERO_LOOP = 0
-
 ######### CONSTANTE VARIABLES #########
 
 PLAYER1 = 1
@@ -41,15 +37,15 @@ MAX_MOVES_POSSIBLE = N_ROW * N_COL * N_ACTION_STACK * 12 # 12 pieces
 
 ######### MCTS PARAMETERS #########
 # games, row, col, features
-# (500, 8, 8, 192) --> too big dataset  
-# (300, 8, 8, 144) --> better
+# (500, 8, 8, 193) --> too big dataset  
+# (200, 8, 8, 145) --> better
 
-THINKING_TIME_AGENT1 = 0.1
-THINKING_TIME_AGENT2 = 0.1
+THINKING_TIME_AGENT1 = 1
+THINKING_TIME_AGENT2 = 1
 MAX_ITERATION_AGENT1 = -1
 MAX_ITERATION_AGENT2 = -1
-NUM_TRIALS = 1 # 20 games ~ 2000 moves ~ 36 minutes (1s TT)
-MAX_GAME_DURATION = 250 # 200 seconds is fine
+NUM_TRIALS = 200 # 200 games ~ 26000 moves ~ 446 minutes (1s TT)
+MAX_GAME_DURATION = 300 # 200 seconds is fine
 MAX_SAMPLE = 100000 # can decide the size of the dataset 
 
 ######### NN parameters #########

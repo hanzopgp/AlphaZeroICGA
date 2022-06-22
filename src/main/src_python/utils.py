@@ -17,8 +17,8 @@ from tensorflow.keras.optimizers import SGD
 from keras import regularizers
 
 
-from src_python.config import *
-#from config import *
+#from src_python.config import *
+from config import *
 
 
 ######### Here are the utility function for loading/writing files #########
@@ -54,12 +54,12 @@ def load_data(alphazero_iteration):
 		final_y_values = np.concatenate((final_y_values, y_values[i]), axis=0)
 		final_y_distrib = np.concatenate((final_y_distrib, y_distrib[i]), axis=0)
 	print("* Number of examples in the dataset :", final_X.shape[0])
-	print("* X shape", X.shape)
-	print("* y_values shape", y_values.shape)
-	print("* y_distrib shape", y_distrib.shape)
+	print("* X shape", final_X.shape)
+	print("* y_values shape", final_y_values.shape)
+	print("* y_distrib shape", final_y_distrib.shape)
 
 	print("--> Done !")
-	return final_X.squeeze(), final_y_values.squeeze(), final_y_distrib.squeeze()
+	return final_X, final_y_values, final_y_distrib
 
 def add_to_dataset(X, y_values, y_distrib, alphazero_iteration):
 	print("--> Saving data to pickle for the game :", GAME_NAME, ", AlphaZero iteration :", alphazero_iteration)

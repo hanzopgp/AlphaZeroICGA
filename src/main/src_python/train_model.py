@@ -2,17 +2,16 @@ import sys
 
 
 # PROBLEM WHEN RUNNING SCRIPT FROM .sh, ant, or python3...
-from src_python.config import *
-from src_python.utils import *
-from src_python.model import CustomModel
-#from config import *
-#from utils import *
-#from model import CustomModel
+#from src_python.config import *
+#from src_python.utils import *
+#from src_python.model import CustomModel
+from config import *
+from utils import *
+from model import CustomModel
 
 	
 ######### Training model from loaded data and saving weights #########
 
-print(sys.argv[0])
 alphazero_iteration = int(sys.argv[1])
 			
 X, y_values, y_distrib = load_data(alphazero_iteration)

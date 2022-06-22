@@ -45,14 +45,14 @@ THINKING_TIME_AGENT2 = 1
 MAX_ITERATION_AGENT1 = -1
 MAX_ITERATION_AGENT2 = -1
 NUM_TRIALS = 200 # 200 games ~ 26000 moves ~ 446 minutes (1s TT)
-MAX_GAME_DURATION = 300 # 200 seconds is fine
+MAX_GAME_DURATION = 300 # 300 seconds is fine
 MAX_SAMPLE = 100000 # can decide the size of the dataset 
 
 ######### NN parameters #########
 
 RANDOM_SEED = 42
 N_EPOCHS = 10
-BATCH_SIZE = 256
+BATCH_SIZE = 512 # 256 working
 VERBOSE = True
 VALIDATION_SPLIT = 0.2
 LOSS_WEIGHTS = [0.5, 0.5] # first one is value, second one policy

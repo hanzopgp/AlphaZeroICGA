@@ -19,7 +19,7 @@ import utils.RandomAI;
 import other.AI;
 
 
-public class RunningTrialsWithPython{
+public class RunningDojoWithPython{
 
 	private static PyModule pythonTrialModule = null;
 	private static PyObject pythonTrial = null;
@@ -34,7 +34,7 @@ public class RunningTrialsWithPython{
 		ais.add(null);
 		ais.add(new RandomAI());
 		ais.add(new RandomAI());
-		run(game, trial, context, ais, Integer.parseInt(args[0]));	
+		run(game, trial, context, ais);	
 	}
 	
 	public static void initJPY(){
@@ -54,7 +54,7 @@ public class RunningTrialsWithPython{
 		pythonTrial = pythonTrialModule.call("RunningTrials");
 	}
 	
-	public static void run(final Game game, final Trial trial, final Context context, final List<AI> ais, final int alphazero_iteration){
-		pythonTrial.call("run_trial", game, trial, context, ais, alphazero_iteration);
+	public static void run(final Game game, final Trial trial, final Context context, final List<AI> ais){
+		pythonTrial.call("run_dojo", game, trial, context, ais);
 	}
 }

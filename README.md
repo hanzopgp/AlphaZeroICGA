@@ -77,16 +77,29 @@ First you need to clone Luddi and JPY repositories, then download C++ build and 
 
 If everything worked, you should have a build directory. Copy the content of the lib directory into the Ludii directory in a folder called **/LudiiPythonAI/libs/**. The Ludii jar file should also be moved to the libs directory. Finaly, you can build the jar file thanks to ant and the xml file, then export it in Ludii.
 
+You also have to specify some paths in the configuration files such as **jpyconfig.py** and **jpyconfig.properties**.
+
+The required python librairies are :
+- Numpy
+- TensorFlow
+- Matplotlib
+
 ## Try it
 
 Go to the src/main/ directory and run the next commands in a terminal
 
-`nano src_python/config.py` : set the settings to run AlphaZero such as number of simulations, game type...
-
-`bash dojo.sh` : runs the whole loop (MCTS simulation with random moves -> dataset -> train model -> save model -> MCTS simulation with model predicting moves -> dataset -> ...)
-
 `ant clean` : clean all the directories (**bin/** **build/** **models/** **datasets/**).
 
-`ant mcts_trials` : runs the MCTS simulations (randomly or using the model depending if there is a model in **models/**) and fill the dataset.
+`nano src_python/config.py` : set the settings to run AlphaZero such as number of simulations, game type...
 
-`python3 src_python/train_model.py` : trains the model using the dataset and save the best model.
+`bash alphazero.sh <alphazero_iteration>` : runs the whole loop (MCTS simulation with random moves -> dataset -> train model -> save model -> MCTS simulation with model predicting moves -> dataset -> ...). alphazero_iteration is the number of loop it will achieve.
+
+`ant mcts_trials -Dalphazero_iteration=0` : runs the MCTS simulations only (randomly or using the model depending if there is a model in **models/**) and creates a dataset. Use alphazero_iteration=0 if it's your first time using it.
+
+`python3 src_python/train_model.py 0` : only trains the model using the dataset and save the best model. The 0 is also the alphazero_iteration parameter.
+
+`ant mcts_dojo` : runs a 1 versus 1 between the last model (the outsider) and the best current model (the base model) and outputs some stats.
+
+## Fight it
+
+When the project will be over, the models will be available in the folder **final_models/** and the Ludii AI will be in the folder **agents/** as jar files in order to load them in Ludii software. You will be able to load it against other AIs or against you on different games.

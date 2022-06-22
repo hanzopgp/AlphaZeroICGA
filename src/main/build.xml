@@ -17,6 +17,7 @@
 		<mkdir dir="bin"/>
 		<mkdir dir="models/"/>
 		<mkdir dir="datasets/"/>
+		<touch file="models/winners.txt"/>
 		<copy includeemptydirs="false" todir="bin">
 			<fileset dir="src_java">
 	 		<exclude name="**/*.launch"/>

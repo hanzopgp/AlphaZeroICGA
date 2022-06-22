@@ -84,6 +84,15 @@ def load_nn(model_type):
 			custom_objects={'softmax_cross_entropy_with_logits': softmax_cross_entropy_with_logits})
 	return model
 
+def write_winner(outsider_winrate):
+	f = open(MODEL_PATH+"winners.txt", "a")
+	if outsider_winrate >= OUTSIDER_MIN_WINRATE:
+		f.write("Outsider model won with winrate: "+str(outsider_winrate)+"\n")
+	else:
+		f.write("Champion model won with winrate: "+str(1-outsider_winrate)+"\n")
+	f.close()
+	print("--> Saved the winner of the dojo in winners.txt")
+
 ######### Here are some functions for the model #########
 
 def softmax_cross_entropy_with_logits(y_true, y_pred):

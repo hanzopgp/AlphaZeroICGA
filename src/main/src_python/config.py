@@ -1,5 +1,7 @@
 import math
 
+######### ALPHAZERO PAPER VARIABLES #########
+
 # AlphaZero paper config for chess
 # thiking_time 40ms
 # total number of games 44M
@@ -9,7 +11,6 @@ import math
 # play 400 games to evaluate new network
 # need more than 55% winrate to pass
 # 7 time step for each player
-
 
 # learning rate 0.2, 0.02, 0.002, 0.0002
 # kernel size (3,3)
@@ -28,6 +29,7 @@ MODEL_PATH = "./models/"
 
 NUM_DOJO = 1
 THINKING_TIME_AGENTS_DOJO = 0.1
+OUTSIDER_MIN_WINRATE = 0.5 
 
 ######### GAME PARAMETERS #########
 

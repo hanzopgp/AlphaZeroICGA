@@ -32,8 +32,6 @@ class Dojo:
 			
 			# Main game loop			
 			while not trial.over():
-				#print("====================NEW MOVE====================")
-				
 				# Sometimes the game is way too long and has to be stopped
 				# and considered as a draw
 				if time.time() - start_time  > MAX_GAME_DURATION:
@@ -68,6 +66,7 @@ class Dojo:
 		print("* Mean game duration", duration.mean())
 		print("* Max game duration", duration.max())
 		
-		# Decide if the outsider is now the champion
-		
+		# Return 1 or -1 depending the winner so we can decide what
+		# is the next step to do in our script
+		write_winner(outsider_mcts_win/total)
 		

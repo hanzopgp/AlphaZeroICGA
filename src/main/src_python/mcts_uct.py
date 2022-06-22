@@ -167,13 +167,18 @@ class MCTS_UCT:
 		
 		# Array to store the number of visits per move, a move is represented
 		# by its coordinate and several stacks representing where it can go
-		move_array = np.zeros((N_ROW, N_COL, N_ACTION_STACK))
+		move_distribution = np.zeros((N_ROW, N_COL, N_ACTION_STACK))
+
+		# Arrays for the decision making
+		children = []
+		counter = []
 
 		# For each children of the root, so for each legal moves
 		for i in range(num_children):
 			child = root_node.children[i]
 			visit_count = child.visit_count
 			move_from_parent = child.move_from_parent
+			normalized_visit_count = visit_count/total_visit_count
 
 			# Getting coordinates of the move
 			to = move_from_parent.to()
@@ -184,27 +189,30 @@ class MCTS_UCT:
 			action_index = index_action(from_, to)
 			# <int(from_/N_ROW), from_%N_ROW> represent the position of the
 			# pawn that chosed action <action_index> to go in position <to>
-			move_array[int(from_/N_ROW), from_%N_ROW, action_index] = visit_count/total_visit_count
+			move_distribution[int(from_/N_ROW), from_%N_ROW, action_index] = normalized_visit_count
 	
-			# Keep track of the best child according to the number of visits
-			if visit_count > best_visit_count:
-				best_visit_count = visit_count
-				best_child = child
-				num_best_found = 1
-				
-			# Chose one child randomly if there is several optimal children
-			elif visit_count == best_visit_count:
-				rand = random.randint(0, num_best_found + 1)
-				if rand == 0:
-					best_child = child
-				num_best_found += 1
+			# Keeps track of our children and their visit_count
+			children.append(child)
+			counter.append(normalized_visit_count)
+		
+		# Compute softmax on visit counts, giving us a distribution on moves
+		soft = softmax(np.array(counter))
+		
+		# Start as 1 so it doesn't matter at the beginning,
+		# goes to 0 while the game goes on in order to reduce
+		# exploration in the end game
+		soft = np.power(soft, 1/TEMPERATURE)
+		
+		# Get the decision
+		decision = children[soft.argmax()].move_from_parent
 				
 		# Get the representation of the current state for the future NN training
 		state = format_state(root_node.context)
 				
 		# Returns the move to play in the real game and the moves
 		# associated to their probability distribution
-		return best_child.move_from_parent, state, move_array
+		#return best_child.move_from_parent, state, move_distribution
+		return decision, state, move_distribution
 
 
 class Node:

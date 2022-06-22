@@ -25,11 +25,11 @@ Implementing deep reinforcement learning algorithms for the ICGA competition. Th
       |       |      ├── datasets/       (Contains the (state,distrib,value) datasets)
       |       |      ├── final_models/   (Contains the final weights of the best models)
       |       |      ├── libs/           (Contains the librairies such as JPY/Ludii...)
-      |       |      ├── models/         (Contains the current models trained thanks to the datasets)
+      |       |      ├── models/         (Contains the current models)
       |       |      ├── src_java/       (Contains all the source code in java)
       |       |      ├── src_python/     (Contains all the source code in python)
       |       |      ├── alphazero.sh    (Script running the whole AlphaZero algorithm)
-      |       |      ├── build.xml       (Build file helping us run java commands and cleaning dirs)
+      |       |      ├── build.xml       (Build file helping us run java commands, clean...)
       |       |      └── notes.txt       (Some notes I left while doing that project)
       |       └── test/
       ├── README.md

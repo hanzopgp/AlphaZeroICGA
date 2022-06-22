@@ -3,6 +3,7 @@
 ## Table des matières
 
 1. [Presentation](#presentation-)
+2. [Project Artchitecture](#project-architecture-)
 2. [Competition](#competition-)
 3. [Baseline](#baseline-)
 4. [Environment & Setup](#environment-&-setup-)
@@ -12,7 +13,28 @@
 
 <p align="center"><img width="800" src="img.jpg"></p>
 
-Implementing deep reinforcement learning algorithms for the ICGA competition. This project is carried out for my 1st year of master internship at the LIP6 (Laboratoire d'Informatique de Paris 6 / Sorbonne University / CNRS).
+Implementing deep reinforcement learning algorithms for the ICGA competition. This project is carried out for my 1st year of master internship at the LIP6 (Sorbonne University / CNRS).
+
+## Project architecture
+
+<pre><code>AlphaZeroICGA/
+      ├── src/
+      |       ├── main/
+      |       |      ├── agents/         (Contains the jar files of the final agents)
+      |       |      ├── bin/            (Contains the binary files compiled from src_java)
+      |       |      ├── datasets/       (Contains the (state,distrib,value) datasets)
+      |       |      ├── final_models/   (Contains the final weights of the best models)
+      |       |      ├── libs/           (Contains the librairies such as JPY/Ludii...)
+      |       |      ├── models/         (Contains the current models trained thanks to the datasets)
+      |       |      ├── src_java/       (Contains all the source code in java)
+      |       |      ├── src_python/     (Contains all the source code in python)
+      |       |      ├── alphazero.sh    (Script running the whole AlphaZero algorithm)
+      |       |      ├── build.xml       (Build file helping us run java commands and cleaning dirs)
+      |       |      └── notes.txt       (Some notes I left while doing that project)
+      |       └── test/
+      ├── README.md
+      └── LICENSE
+</pre></code>
 
 ## Competition
 
@@ -22,12 +44,11 @@ Three events are proposed :
 
 - Kilothon: Best utility obtained on more than 1,000 games against UCT.
 - General Game Playing (GGP): Competiton on games present or not in our library.
-- Learning: A set of games are announced months before the actual competition, the agents are invited to learn before competing.
-Each event will run if at least 3 participants take part in it."
+- Learning: A set of games are announced months before the actual competition, the agents are invited to learn before competing."
 
 **Here we focus on the learning event.**
 
-Links : 
+Links :
 - https://icga.org/?page_id=3468
 - https://github.com/Ludeme/LudiiAICompetition
 
@@ -45,7 +66,7 @@ The different games of the learning event this year are :
 
 We use deep reinforcement learning algorithms for this competition and we start with AlphaZero as a baseline. AlphaGo is an algorithm which can play Go at a super-human level using supervised learning and reinforcement learning. AlphaGo Zero can basically do the same but starting from scratch, hence the "Zero" in its name. AlphaZero does the same but it is able to play different games such as Chess and Shogi.
 
-Links : 
+Links :
 - https://www.nature.com/articles/nature16961 (AlphaGo)
 - https://discovery.ucl.ac.uk/id/eprint/10045895/1/agz_unformatted_nature.pdf (AlphaGo Zero)
 - https://arxiv.org/abs/1712.01815 (AlphaZero)
@@ -92,11 +113,11 @@ Go to the src/main/ directory and run the next commands in a terminal
 
 `nano src_python/config.py` : set the settings to run AlphaZero such as number of simulations, game type...
 
-`bash alphazero.sh <alphazero_iteration>` : runs the whole loop (MCTS simulation with random moves -> dataset -> train model -> save model -> MCTS simulation with model predicting moves -> dataset -> ...). alphazero_iteration is the number of loop it will achieve.
+`bash alphazero.sh <n_loop>` : runs the whole loop (MCTS simulation with random moves -> dataset -> train model -> save model -> MCTS simulation with model predicting moves -> dataset -> ...). **n_loop** is the number of loop it will achieve.
 
-`ant mcts_trials -Dalphazero_iteration=0` : runs the MCTS simulations only (randomly or using the model depending if there is a model in **models/**) and creates a dataset. Use alphazero_iteration=0 if it's your first time using it.
+`ant mcts_trials -Dalphazero_iteration=<alphazero_iteration>` : runs the MCTS simulations only (randomly or using the model depending if there is a model in **models/**) and creates a dataset. Use alphazero_iteration=0 if it's your first time using it.
 
-`python3 src_python/train_model.py 0` : only trains the model using the dataset and save the best model. The 0 is also the alphazero_iteration parameter.
+`python3 src_python/train_model.py <alphazero_iteration>` : only trains the model using the dataset and save the best model.
 
 `ant mcts_dojo` : runs a 1 versus 1 between the last model (the outsider) and the best current model (the base model) and outputs some stats.
 

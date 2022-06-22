@@ -21,8 +21,8 @@ import other.AI;
 
 public class RunningDojoWithPython{
 
-	private static PyModule pythonTrialModule = null;
-	private static PyObject pythonTrial = null;
+	private static PyModule pythonDojoModule = null;
+	private static PyObject pythonDojo = null;
 	private static boolean initialisedJpy = false;
 
 	public static void main(String[] args){
@@ -48,13 +48,13 @@ public class RunningDojoWithPython{
 			if (!PyLib.isPythonRunning()) {
 				PyLib.startPython(jarPath);
 			}
-			pythonTrialModule = PyModule.importModule("src_python.running_trials");
+			pythonDojoModule = PyModule.importModule("src_python.dojo");
 			initialisedJpy = true;
 		}
-		pythonTrial = pythonTrialModule.call("RunningTrials");
+		pythonDojo = pythonDojoModule.call("Dojo");
 	}
 	
 	public static void run(final Game game, final Trial trial, final Context context, final List<AI> ais){
-		pythonTrial.call("run_dojo", game, trial, context, ais);
+		pythonDojo.call("run_dojo", game, trial, context, ais);
 	}
 }

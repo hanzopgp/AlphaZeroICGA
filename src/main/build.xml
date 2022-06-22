@@ -47,7 +47,6 @@
 	<target name="mcts_trials" depends="build">
 	    	<java classname="alphazero.RunningTrialsWithPython" fork="true">
 	      		<classpath refid="AlphaZero.classpath"/>
-	      		<arg value="${alphazero_iteration}"/>
 	    	</java>
 	</target>
 	

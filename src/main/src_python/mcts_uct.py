@@ -5,15 +5,18 @@ from src_python.utils import *
 ######### Here is the main class to run the MCTS simulation #########
 
 class MCTS_UCT:
-	def __init__(self, alphazero_iteration=0, dojo=False, n=0):
+	# AlphaZero training loop always picks the best model so the model_type is champion by default
+	def __init__(self, dojo=False, model_type="champion"):
 		self._player_id = -1
 		if dojo:
-			self.model = load_nn(n, dojo=True)
+			# If we are fighting between models, one is the champion and
+			# the other one is the outsider
+			self.model = load_nn(model_type=model_type)
+			self.first_step = False
 		else:
-			if exists(MODEL_PATH+GAME_NAME+str(alphazero_iteration-1)+".h5"): 
-				print("--> Using the model:", MODEL_PATH+GAME_NAME+str(alphazero_iteration-1)+".h5", "to chose moves")
+			if exists(MODEL_PATH+GAME_NAME+"_"+model_type+".h5"): 
 				self.first_step = False
-				self.model = load_nn()
+				self.model = load_nn(model_type=model_type)
 			else:
 				print("--> No model found, starting from random policy")
 				self.first_step = True

@@ -23,12 +23,12 @@ from src_python.config import *
 
 ######### Here are the utility function for loading/writing files #########
 
-def load_data(alphazero_iteration):
-	pkl_path = DATASET_PATH+GAME_NAME+str(alphazero_iteration)+".pkl"
+def load_data():
+	pkl_path = DATASET_PATH+GAME_NAME+".pkl"
 	if not exists(pkl_path):
 		print("--> Couldn't find dataset at:", pkl_path)
 		exit()
-	print("--> Loading dataset for the game :", GAME_NAME, ", AlphaZero iteration :", alphazero_iteration)
+	print("--> Loading dataset for the game :", GAME_NAME)
 	data = []
 	with open(pkl_path, 'rb') as fr:
 		try:
@@ -57,13 +57,15 @@ def load_data(alphazero_iteration):
 	print("* X shape", final_X.shape)
 	print("* y_values shape", final_y_values.shape)
 	print("* y_distrib shape", final_y_distrib.shape)
-
 	print("--> Done !")
 	return final_X, final_y_values, final_y_distrib
+	
+def get_random_sample(data):
+	pass
 
-def add_to_dataset(X, y_values, y_distrib, alphazero_iteration):
-	print("--> Saving data to pickle for the game :", GAME_NAME, ", AlphaZero iteration :", alphazero_iteration)
-	pkl_path = DATASET_PATH+GAME_NAME+str(alphazero_iteration)+".pkl"
+def add_to_dataset(X, y_values, y_distrib):
+	print("--> Saving data to pickle for the game :", GAME_NAME)
+	pkl_path = DATASET_PATH+GAME_NAME+".pkl"
 	my_data = {'X': X,
 	   	   'y_values': y_values,
 	   	   'y_distrib': y_distrib}
@@ -75,21 +77,12 @@ def add_to_dataset(X, y_values, y_distrib, alphazero_iteration):
 			pickle.dump(my_data, fp)
 	print("--> Done !")
 
-def load_nn(alphazero_iteration=0, n=0, dojo=False):
-	if dojo:
-		print("--> Dojo mode: loading model for evaluation")
-		print("--> Loading model for the game :", GAME_NAME, ", AlphaZero iteration :", n)
-		model = load_model(
-				MODEL_PATH+GAME_NAME+str(n)+".h5",
-				custom_objects={'softmax_cross_entropy_with_logits': softmax_cross_entropy_with_logits})
-		return model
-	else:
-		print("--> Train mode: loading most recent model")
-		print("--> Loading model for the game :", GAME_NAME, ", AlphaZero iteration :", alphazero_iteration)
-		model = load_model(
-				MODEL_PATH+GAME_NAME+str(alphazero_iteration)+".h5",
-				custom_objects={'softmax_cross_entropy_with_logits': softmax_cross_entropy_with_logits})
-		return model
+def load_nn(model_type):
+	print("--> Loading model for the game :", GAME_NAME, ", model type :", model_type)
+	model = load_model(
+			MODEL_PATH+GAME_NAME+"_"+model_type+".h5",
+			custom_objects={'softmax_cross_entropy_with_logits': softmax_cross_entropy_with_logits})
+	return model
 
 ######### Here are some functions for the model #########
 
@@ -138,7 +131,7 @@ def opp(mover):
 # Apply Dirichlet with the alpha parameters to the policy in order
 # to add some noise in the policy and ensure exploration
 def apply_dirichlet(policy):
-	dira = np.random.dirichlet(np.full(policy.shape, DIRICHLET_ALPHA), size=policy.shape[0])
+	dira = np.random.dirichlet(np.full(policy.shape, DIRICHLET_ALPHA), size=1)
 	return (WEIGHTED_SUM_DIR * policy) + (1 - WEIGHTED_SUM_DIR) * dira
 
 # Define the type of action thanks to position of current and last move

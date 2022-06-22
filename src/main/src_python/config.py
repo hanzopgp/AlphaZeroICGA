@@ -26,7 +26,8 @@ MODEL_PATH = "./models/"
 
 ######### DOJO PARAMETERS #########
 
-NUM_DOJO = 10
+NUM_DOJO = 1
+THINKING_TIME_AGENTS_DOJO = 0.1
 
 ######### GAME PARAMETERS #########
 

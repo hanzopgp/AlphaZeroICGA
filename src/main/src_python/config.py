@@ -48,6 +48,7 @@ N_LEGAL_MOVES = N_ACTION_STACK * 12 # 12 pieces
 # (500, 8, 8, 193) --> too big dataset  
 # (200, 8, 8, 145) --> better
 DIRICHLET_ALPHA = 10/N_LEGAL_MOVES # noise in the estimated policy -> more exploration
+WEIGHTED_SUM_DIR = 0.75 # this value comes from the paper
 TEMPERATURE = 1 # 1 -> no change, 0 -> argmax
 THINKING_TIME_AGENT1 = 0.1
 THINKING_TIME_AGENT2 = 0.1

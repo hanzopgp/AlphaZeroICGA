@@ -135,6 +135,12 @@ def opp(mover):
 	
 ######### Here are the utility functions to format policy #########
 
+# Apply Dirichlet with the alpha parameters to the policy in order
+# to add some noise in the policy and ensure exploration
+def apply_dirichlet(policy):
+	dira = np.random.dirichlet(np.full(policy.shape, DIRICHLET_ALPHA), size=policy.shape[0])
+	return (WEIGHTED_SUM_DIR * policy) + (1 - WEIGHTED_SUM_DIR) * dira
+
 # Define the type of action thanks to position of current and last move
 def index_action(from_, to):
 	# We get the coordinate of both position

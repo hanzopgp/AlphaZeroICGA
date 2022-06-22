@@ -6,7 +6,7 @@
 2. [Project Artchitecture](#project-architecture)
 2. [Competition](#competition)
 3. [Baseline](#baseline)
-4. [Environment & Setup](#environment-&-setup)
+4. [Environment & Setup](#environment--setup)
 5. [Try it](#try-it)
 6. [Fight it](#fight-it)
 

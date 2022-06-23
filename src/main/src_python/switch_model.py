@@ -1,4 +1,6 @@
-from src_python.utils import *
+import sys
+sys.path.append("/home/durande/Bureau/AlphaZeroICGA/src/main/src_python")
+from utils import *
 
 
 outsider = MODEL_PATH+GAME_NAME+"_"+"outsider"+".h5"

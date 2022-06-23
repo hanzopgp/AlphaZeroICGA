@@ -1,5 +1,6 @@
 import math
 
+
 ######### ALPHAZERO PAPER VARIABLES #########
 
 # AlphaZero paper config for chess
@@ -27,9 +28,9 @@ MODEL_PATH = "./models/"
 
 ######### DOJO PARAMETERS #########
 
-NUM_DOJO = 1
+NUM_DOJO = 5
 THINKING_TIME_AGENTS_DOJO = 0.1
-OUTSIDER_MIN_WINRATE = 0.5 
+OUTSIDER_MIN_WINRATE = 0.59 
 
 ######### GAME PARAMETERS #########
 
@@ -53,11 +54,11 @@ N_LEGAL_MOVES = N_ACTION_STACK * 12 # 12 pieces
 DIRICHLET_ALPHA = 10/N_LEGAL_MOVES # noise in the estimated policy -> more exploration
 WEIGHTED_SUM_DIR = 0.75 # this value comes from the paper
 TEMPERATURE = 1 # 1 -> no change, 0 -> argmax
-THINKING_TIME_AGENT1 = 0.1
-THINKING_TIME_AGENT2 = 0.1
-MAX_ITERATION_AGENT1 = -1
-MAX_ITERATION_AGENT2 = -1
-NUM_TRIALS = 1 # 200 games ~ 26000 moves ~ 446 minutes (1s TT)
+THINKING_TIME_AGENT1 = -1
+THINKING_TIME_AGENT2 = -1
+MAX_ITERATION_AGENT1 = 800
+MAX_ITERATION_AGENT2 = 800
+NUM_TRIALS = 10 # 200 games ~ 26000 moves ~ 446 minutes (1s TT)
 MAX_GAME_DURATION = 300 # 300 seconds is fine
 MAX_SAMPLE = 100000 # can decide the size of the dataset 
 
@@ -66,7 +67,7 @@ MAX_SAMPLE = 100000 # can decide the size of the dataset
 RANDOM_SEED = 42
 N_EPOCHS = 1
 BATCH_SIZE = 512 # 256 working
-VERBOSE = True
+VERBOSE = 1
 VALIDATION_SPLIT = 0.2
 LOSS_WEIGHTS = [0.5, 0.5] # first one is value, second one policy
 

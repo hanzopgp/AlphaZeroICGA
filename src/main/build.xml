@@ -16,6 +16,7 @@
 	<target name="init">
 		<mkdir dir="bin"/>
 		<mkdir dir="models/"/>
+		<delete dir="agents"/>
 		<mkdir dir="datasets/"/>
 		<touch file="models/winners.txt"/>
 		<copy includeemptydirs="false" todir="bin">
@@ -28,20 +29,14 @@
 	
 	<target name="clean">
 		<delete dir="bin"/>
-	 	<delete dir="build"/>
-		<delete includeemptydirs="true">
-		    <fileset dir="models" includes="*"/>
-		</delete>
-		<delete includeemptydirs="true">
-		    <fileset dir="datasets" includes="*"/>
-		</delete>
+	 	<delete dir="agents"/>
 		<delete dir="datasets"/>
 		<delete dir="models"/>
 	</target>
 	
 	<target name="build" depends="init">
 		<echo message="${ant.project.name}: ${ant.file}"/>
-		<javac debug="true" debuglevel="${debuglevel}" destdir="bin" includeantruntime="false" source="${source}" target="${target}" compiler="javac1.8" encoding="UTF-8">
+		<javac debug="true" debuglevel="${debuglevel}" destdir="bin" includeantruntime="false" source="${source}" target="${target}" compiler="javac1.8" encoding="UTF-8" nowarn="on">
 			<src path="src_java"/>
 			<classpath refid="AlphaZero.classpath"/>
 		</javac>

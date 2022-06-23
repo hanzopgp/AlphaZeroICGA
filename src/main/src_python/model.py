@@ -1,8 +1,7 @@
-# PROBLEM WHEN RUNNING SCRIPT FROM .sh, ant, or python3...
-#from config import *
-#from utils import *
-from src_python.config import *
-from src_python.utils import *
+import sys
+sys.path.append("/home/durande/Bureau/AlphaZeroICGA/src/main/src_python")
+from config import *
+from utils import *
 
 
 ######### Here is the class that contain our AlphaZero model #########
@@ -44,7 +43,7 @@ class CustomModel():
 		return self.model.summary()
 		
 	def predict(self, x):
-		return self.model.predict(x, verbose=False)
+		return self.model.predict(x, verbose=0)
 
 	def fit(self, X, y, n_epochs, batch_size, verbose, validation_split):
 		return self.model.fit(

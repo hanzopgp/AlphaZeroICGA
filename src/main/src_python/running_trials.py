@@ -1,6 +1,8 @@
-from src_python.config import *
-from src_python.utils import *
-from src_python.mcts_uct import MCTS_UCT
+import sys
+sys.path.append("/home/durande/Bureau/AlphaZeroICGA/src/main/src_python")
+from config import *
+from utils import *
+from mcts_uct import MCTS_UCT
 
 
 ######### Here is the class called in the java file to run trials #########	

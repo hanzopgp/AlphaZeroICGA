@@ -1,5 +1,7 @@
-from src_python.config import *
-from src_python.utils import *
+import sys
+sys.path.append("/home/durande/Bureau/AlphaZeroICGA/src/main/src_python")
+from config import *
+from utils import *
 
 	
 ######### Here is the main class to run the MCTS simulation #########

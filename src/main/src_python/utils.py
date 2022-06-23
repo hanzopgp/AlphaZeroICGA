@@ -16,9 +16,9 @@ from tensorflow.keras.layers import Input, Dense, Conv2D, Flatten, BatchNormaliz
 from tensorflow.keras.optimizers import SGD
 from keras import regularizers
 
-
-from src_python.config import *
-#from config import *
+import sys
+sys.path.append("/home/durande/Bureau/AlphaZeroICGA/src/main/src_python")
+from config import *
 
 
 ######### Here are the utility function for loading/writing files #########

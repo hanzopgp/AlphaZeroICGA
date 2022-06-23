@@ -28,9 +28,9 @@ MODEL_PATH = "./models/"
 
 ######### DOJO PARAMETERS #########
 
-NUM_DOJO = 1 # 5
+NUM_DOJO = 10 
 THINKING_TIME_AGENTS_DOJO = -1
-MAX_ITERATION_AGENTS_DOJO = 10 # 500
+MAX_ITERATION_AGENTS_DOJO = 500 
 OUTSIDER_MIN_WINRATE = 0.55 
 
 ######### GAME PARAMETERS #########
@@ -45,7 +45,6 @@ N_ORIENTATION = 4 # can go only left or right diagonaly, for both players
 N_ACTION_STACK = N_ORIENTATION * N_DISTANCE
 N_ADDITIONAL_FEATURES = 1 # currently only the color of the current player
 N_REPRESENTATION_STACK = N_ADDITIONAL_FEATURES + (N_TIME_STEP * 2) * N_LEVELS 
-#MAX_MOVES_POSSIBLE = N_ROW * N_COL * N_ACTION_STACK * 12 # 12 pieces
 N_LEGAL_MOVES = N_ACTION_STACK * 12 # 12 pieces
 
 ######### MCTS PARAMETERS #########
@@ -58,29 +57,29 @@ WEIGHTED_SUM_DIR = 0.75 # this value comes from the paper
 TEMPERATURE = 1 # 1 -> no change, 0 -> argmax
 THINKING_TIME_AGENT1 = -1
 THINKING_TIME_AGENT2 = -1
-MAX_ITERATION_AGENT1 = 10 # 500
-MAX_ITERATION_AGENT2 = 10
-NUM_TRIALS = 1 # 10 # 200 games ~ 26000 moves ~ 446 minutes (1s TT)
+MAX_ITERATION_AGENT1 = 500
+MAX_ITERATION_AGENT2 = 500
+NUM_TRIALS = 20 
 MAX_GAME_DURATION = math.inf # 300 seconds is fine
 MAX_SAMPLE = 100000 # can decide the size of the dataset 
 
 ######### NN parameters #########
 
-TRAIN_SAMPLE_SIZE = 20 # 1024
+TRAIN_SAMPLE_SIZE = 512
 RANDOM_SEED = 42
-N_EPOCHS = 1 # 3
-BATCH_SIZE = 256 # 256 working
+N_EPOCHS = 10 # 3
+BATCH_SIZE = 128
 VERBOSE = 1
 VALIDATION_SPLIT = 0.2
-LOSS_WEIGHTS = [0.5, 0.5] # first one is value, second one policy
+LOSS_WEIGHTS = [0.33, 0.67] # first one is value, second one policy
 
 MAIN_ACTIVATION = "relu"
-FILTERS = 64
+FILTERS = 128
 KERNEL_SIZE = (3,3)
 KERNEL_INITIALIZER = "random_normal"
 FIRST_KERNEL_SIZE = (3,3) 
 USE_BIAS = False
-N_RES_LAYER = 10
+N_RES_LAYER = 20
 NEURONS_VALUE_HEAD = 128 # number of neurons in last dense layer
 
 OPTIMIZER = "adam"

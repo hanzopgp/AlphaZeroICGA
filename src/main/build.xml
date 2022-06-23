@@ -35,6 +35,8 @@
 		<delete includeemptydirs="true">
 		    <fileset dir="datasets" includes="*"/>
 		</delete>
+		<delete dir="datasets"/>
+		<delete dir="models"/>
 	</target>
 	
 	<target name="build" depends="init">

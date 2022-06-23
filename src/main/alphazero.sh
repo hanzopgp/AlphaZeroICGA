@@ -20,7 +20,7 @@ do
 	echo "********************************************************************************************"
 	echo "***************************************TRAINING MODEL***************************************"
 	echo "********************************************************************************************"
-	python3 src_python/train_model.py
+	ant train_model
 	if [[ $alphazero_iteration -ge 1 ]]     		# If it's the first step we won't
 	then                                    		# go for a dojo since there is only
 		echo "********************************************************************************************"
@@ -30,7 +30,7 @@ do
 		winner=$( tail -n 1 $winners_file )
 		if [[ ${winner::1} == "O" ]]        		# If outsider model won 
 		then						# outsider becomes champion
-			python3 src_python/switch_model.py 	# and we can go back to mcts_trial
+			ant switch_model 			# and we can go back to mcts_trial
 			trial=True              
 		fi
 		elif [[ ${winner::1} == "C" ]]     		# If the champion won we need to

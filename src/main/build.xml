@@ -65,4 +65,10 @@
 	    	</exec>
 	</target>
 	
+	<target name="switch_model" depends="build">
+	    	<exec executable="python3">
+	      		<arg line="src_python/switch_model.py"></arg>
+	    	</exec>
+	</target>
+	
 </project>

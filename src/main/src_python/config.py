@@ -28,9 +28,10 @@ MODEL_PATH = "./models/"
 
 ######### DOJO PARAMETERS #########
 
-NUM_DOJO = 5
-THINKING_TIME_AGENTS_DOJO = 0.1
-OUTSIDER_MIN_WINRATE = 0.59 
+NUM_DOJO = 1 # 5
+THINKING_TIME_AGENTS_DOJO = -1
+MAX_ITERATION_AGENTS_DOJO = 10 # 500
+OUTSIDER_MIN_WINRATE = 0.55 
 
 ######### GAME PARAMETERS #########
 
@@ -51,34 +52,36 @@ N_LEGAL_MOVES = N_ACTION_STACK * 12 # 12 pieces
 # games, row, col, features
 # (500, 8, 8, 193) --> too big dataset  
 # (200, 8, 8, 145) --> better
+CSTE_PUCT = 1 # no idea about the value of this variable in the paper 
 DIRICHLET_ALPHA = 10/N_LEGAL_MOVES # noise in the estimated policy -> more exploration
 WEIGHTED_SUM_DIR = 0.75 # this value comes from the paper
 TEMPERATURE = 1 # 1 -> no change, 0 -> argmax
 THINKING_TIME_AGENT1 = -1
 THINKING_TIME_AGENT2 = -1
-MAX_ITERATION_AGENT1 = 800
-MAX_ITERATION_AGENT2 = 800
-NUM_TRIALS = 10 # 200 games ~ 26000 moves ~ 446 minutes (1s TT)
-MAX_GAME_DURATION = 300 # 300 seconds is fine
+MAX_ITERATION_AGENT1 = 10 # 500
+MAX_ITERATION_AGENT2 = 10
+NUM_TRIALS = 1 # 10 # 200 games ~ 26000 moves ~ 446 minutes (1s TT)
+MAX_GAME_DURATION = math.inf # 300 seconds is fine
 MAX_SAMPLE = 100000 # can decide the size of the dataset 
 
 ######### NN parameters #########
 
+TRAIN_SAMPLE_SIZE = 20 # 1024
 RANDOM_SEED = 42
-N_EPOCHS = 1
-BATCH_SIZE = 512 # 256 working
+N_EPOCHS = 1 # 3
+BATCH_SIZE = 256 # 256 working
 VERBOSE = 1
 VALIDATION_SPLIT = 0.2
 LOSS_WEIGHTS = [0.5, 0.5] # first one is value, second one policy
 
 MAIN_ACTIVATION = "relu"
-FILTERS = 32
+FILTERS = 64
 KERNEL_SIZE = (3,3)
 KERNEL_INITIALIZER = "random_normal"
 FIRST_KERNEL_SIZE = (3,3) 
 USE_BIAS = False
-N_RES_LAYER = 5
-NEURONS_VALUE_HEAD = 64 # number of neurons in last dense layer
+N_RES_LAYER = 10
+NEURONS_VALUE_HEAD = 128 # number of neurons in last dense layer
 
 OPTIMIZER = "adam"
 LEARNING_RATE = 0.002

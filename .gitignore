@@ -1,6 +1,5 @@
 external/
 bin/
-
 datasets/
 models/
 *.h5

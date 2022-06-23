@@ -16,7 +16,7 @@
 	<target name="init">
 		<mkdir dir="bin"/>
 		<mkdir dir="models/"/>
-		<delete dir="agents"/>
+		<mkdir dir="agents"/>
 		<mkdir dir="datasets/"/>
 		<touch file="models/winners.txt"/>
 		<copy includeemptydirs="false" todir="bin">
@@ -64,6 +64,15 @@
 	    	<exec executable="python3">
 	      		<arg line="src_python/switch_model.py"></arg>
 	    	</exec>
+	</target>
+	
+	<target name="create_agent" depends="build">
+		<jar destfile="LudiiAgent.jar" basedir="agents" duplicate="preserve">
+			<zipgroupfileset dir="${LudiiAgent.location}/libs" includes="**/*.jar" >
+				<exclude name="Ludii.jar" />
+				<exclude name="Ludii-javadoc.jar" />
+			</zipgroupfileset>
+		</jar>
 	</target>
 	
 </project>

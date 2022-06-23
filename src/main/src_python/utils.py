@@ -60,8 +60,9 @@ def load_data():
 	print("--> Done !")
 	return final_X, final_y_values, final_y_distrib
 	
-def get_random_sample(data):
-	pass
+def get_random_sample(X, y_distrib, y_values):
+	idx = np.random.choice(np.arange(X.shape[0]), TRAIN_SAMPLE_SIZE, replace=False)
+	return X[idx], y_distrib[idx], y_values[idx]
 
 def add_to_dataset(X, y_values, y_distrib):
 	print("--> Saving data to pickle for the game :", GAME_NAME)
@@ -193,6 +194,7 @@ def reverse_index_action(to_x, to_y, action):
 # re-compute softmax and pick a move randomly according to
 # the new policy
 def chose_move(legal_moves, policy_pred, competitive_mode):
+	prior = 0
 	# New legal policy array starting as everything illegal
 	legal_policy = np.zeros(policy_pred.shape)
 	# Find the legal moves in the policy
@@ -211,6 +213,7 @@ def chose_move(legal_moves, policy_pred, competitive_mode):
 	# If we are playing for real, we chose the best action given by the policy
 	if competitive_mode:
 		chosen_x, chosen_y, chosen_action = np.argmax(legal_policy)
+		prior = np.max(legal_policy)
 	# Else we are training and we use the policy for the MCTS
 	else:
 		# Build a cumulative sum array and chose the move
@@ -219,6 +222,7 @@ def chose_move(legal_moves, policy_pred, competitive_mode):
 		fire = legal_policy[idx_legal]
 		chose_array = np.cumsum(fire)
 		choice = np.where(chose_array >= r)[0][0]
+		prior = fire[choice]
 		chosen_x, chosen_y, chosen_action = idx_legal[0][choice], idx_legal[1][choice], idx_legal[2][choice]
 	# Now we need to find the move in the java object legal moves list
 	chosen_prev_x, chosen_prev_y = reverse_index_action(chosen_x, chosen_y, chosen_action)
@@ -231,8 +235,8 @@ def chose_move(legal_moves, policy_pred, competitive_mode):
 		y = to%N_ROW
 		# Inverse to match our representation
 		if prev_x == chosen_x and prev_y == chosen_y and x == chosen_prev_x and y == chosen_prev_y:
-			return legal_moves[i]
-
+			return legal_moves[i], prior
+		
 ######### Here are the utility functions to format the states #########
 
 # Create a numpy array from the java owned positions

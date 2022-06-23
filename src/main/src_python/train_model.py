@@ -12,6 +12,7 @@ from model import CustomModel
 ######### Training model from loaded data and saving weights #########
 
 X, y_values, y_distrib = load_data()
+X, y_values, y_distrib = get_random_sample(X, y_values, y_distrib)
 X = X.astype("float32")
 y = {"value_head": y_values.astype("float32"), "policy_head": y_distrib.flatten().astype("float32")} 
 
@@ -34,8 +35,7 @@ history = model.fit(
 	verbose=VERBOSE, 
 	validation_split=VALIDATION_SPLIT)
 	
-print(model.predict(np.expand_dims(X[0], axis=0)))	
-	
+#print(model.predict(np.expand_dims(X[0], axis=0)))		
 #model.plot_metrics(history)
 
 # If it is the first step, then there is no model yet and our

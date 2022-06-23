@@ -36,7 +36,7 @@ class CustomModel():
 		self.opt = opt
 		
 	def write(self, model_type):
-		print("--> Saving model for the game :", GAME_NAME, ", model type :", model_type)
+		print("\n\n--> Saving model for the game :", GAME_NAME, ", model type :", model_type)
 		self.model.save(MODEL_PATH+GAME_NAME+"_"+model_type+".h5")
 		
 	def summary(self):

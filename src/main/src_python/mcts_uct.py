@@ -1,7 +1,12 @@
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+
+
 import sys
 sys.path.append("/home/durande/Bureau/AlphaZeroICGA/src/main/src_python")
 from config import *
 from utils import *
+from model import CustomModel
 
 	
 ######### Here is the main class to run the MCTS simulation #########
@@ -87,7 +92,7 @@ class MCTS_UCT:
 				# visit_count variable for each nodes in order to compute UCB scores
 				current.visit_count += 1
 				current.total_visit_count += 1
-				# score_sums variable for each nodes in order to compute UCB scores
+				# score_sums variable for each players in order to compute UCB scores
 				for p in range(1, num_players+1):
 					current.score_sums[p] += utils[p]
 				# We propagate the values from leaves to the root through the whole tree
@@ -107,17 +112,21 @@ class MCTS_UCT:
 			# can pop it since it's already shuffled
 			if self.first_step:
 				move = current.unexpanded_moves.pop()
+				current.prior = 1/(len(current.unexpanded_moves)+1)
 			# If it's not the first step then we use our model to chose a move
 			else:
 				state = format_state(current.context).squeeze()
-				_, policy_pred = self.model.predict(np.expand_dims(state, axis=0))
-				policy_pred = policy_pred[0] # Get ride of useless batch dimension
+				_, policy_pred = self.model.predict(np.expand_dims(state, axis=0), verbose=0)
+				# Get ride of useless batch dimension
+				policy_pred = policy_pred[0] 
 				# Apply Dirichlet to ensure exploration
 				policy_pred = apply_dirichlet(policy_pred)
 				# The output of the network is a flattened array
 				policy_pred = policy_pred.reshape(N_ROW, N_COL, N_ACTION_STACK)
 				# Chose a move in legal moves by randomly firing in the policy
-				move = chose_move(current.unexpanded_moves, policy_pred, competitive_mode=False)
+				move, prior = chose_move(current.unexpanded_moves, policy_pred, competitive_mode=False)
+				## PROBLEM HERE, THE PRIOR HAS TO BE IN CURRENT'S CHILDREN
+				current.prior = prior
 			# We copy the context to play in a simulation
 			context = current.context.deepCopy()
 			# Apply the move in the simulation
@@ -143,6 +152,11 @@ class MCTS_UCT:
 			if self.first_step:
 				exploit = child.score_sums[mover] / child.visit_count
 				explore = math.sqrt(two_parent_log / child.visit_count)
+				
+				# Gotta understand PUCT
+				#exploit = child.score_sums[mover] / child.visit_count
+				#explore = CSTE_PUCT * current.prior * np.sqrt(child.score_sums[mover]) / (1 + current.score_sums[mover])
+				
 				value = exploit + explore
 			# Else we use the model to predict a value
 			else:
@@ -230,6 +244,7 @@ class Node:
 
 		# Variables for MCTS decision
 		self.visit_count = 0
+		self.prior = 0
 		
 		# Variables for normalization
 		self.total_visit_count = 0

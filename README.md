@@ -24,7 +24,7 @@ Implementing deep reinforcement learning algorithms for the ICGA competition. Th
       |       |      ├── agents/         (Contains the jar files of the final agents)
       |       |      ├── bin/            (Contains the binary files compiled from src_java)
       |       |      ├── datasets/       (Contains the (state,distrib,value) datasets)
-      |       |      ├── final_models/   (Contains the final weights of the best models)
+      |       |      ├── final_model/    (Contains the final weights of the best models)
       |       |      ├── libs/           (Contains the librairies such as JPY/Ludii...)
       |       |      ├── models/         (Contains the current models)
       |       |      ├── src_java/       (Contains all the source code in java)
@@ -103,24 +103,30 @@ You also have to specify some paths in the configuration files such as **jpyconf
 
 The required python librairies are :
 - Numpy
-- TensorFlow
 - Matplotlib
+- TensorFlow
 
 ## Try it
 
-Go to the src/main/ directory and run the next commands in a terminal
-
-`ant clean` : clean all the directories (**bin/** **build/** **models/** **datasets/**).
+Go to the src/main/ directory and run the next commands in a terminal :
 
 `nano src_python/config.py` : set the settings to run AlphaZero such as number of simulations, game type...
 
 `bash alphazero.sh <n_loop>` : runs the whole loop (MCTS simulation with random moves -> dataset -> train model -> save model -> MCTS simulation with model predicting moves -> dataset -> ...). **n_loop** is the number of loop it will achieve.
 
-`ant mcts_trials -Dalphazero_iteration=<alphazero_iteration>` : runs the MCTS simulations only (randomly or using the model depending if there is a model in **models/**) and creates a dataset. Use alphazero_iteration=0 if it's your first time using it.
+The bash script does everything, the following commands are for debugging purposes :
 
-`python3 src_python/train_model.py <alphazero_iteration>` : only trains the model using the dataset and save the best model.
+`ant clean` : clean all the directories (**bin/** **build/** **models/** **datasets/**).
 
-`ant mcts_dojo` : runs a 1 versus 1 between the last model (the outsider) and the best current model (the base model) and outputs some stats.
+`ant build` : compile the java file in **bin/**.
+
+`ant mcts_trials` : runs the MCTS simulations only (randomly or using the model depending if there is a model in **models/**) and creates a dataset.
+
+`ant train_model` : only trains the model using the dataset and save the best model.
+
+`ant mcts_dojo` : runs a 1 versus 1 between the last model (the outsider) and the best current model (the champion model) and outputs some stats.
+
+`ant create_agent` : takes the best model and build an agent as a jar file for the Ludii software.
 
 ## Fight it
 

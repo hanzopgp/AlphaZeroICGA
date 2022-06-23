@@ -1,4 +1,5 @@
 external/
+bin/
 
 datasets/
 models/

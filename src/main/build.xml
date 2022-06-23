@@ -67,8 +67,8 @@
 	</target>
 	
 	<target name="create_agent" depends="build">
-		<jar destfile="LudiiAgent.jar" basedir="agents" duplicate="preserve">
-			<zipgroupfileset dir="${LudiiAgent.location}/libs" includes="**/*.jar" >
+		<jar destfile="agents/LudiiAgent.jar" duplicate="preserve">
+			<zipgroupfileset dir="libs" includes="**/*.jar" >
 				<exclude name="Ludii.jar" />
 				<exclude name="Ludii-javadoc.jar" />
 			</zipgroupfileset>

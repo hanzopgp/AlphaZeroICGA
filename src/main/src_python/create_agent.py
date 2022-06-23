@@ -1,6 +1,5 @@
 import sys
 sys.path.append("/home/durande/Bureau/AlphaZeroICGA/src/main/src_python")
-#from config import *
 from utils import load_nn
 from mcts_uct import MCTS_UCT
 
@@ -19,7 +18,6 @@ class Agent:
 	# in the MCTS later
 	def init_ai(self, game, player_id):
 		self._player_id = player_id
-		self.model = load_nn(model_type="champion")
 		self.agent = MCTS_UCT()
 		self.agent.init_ai(game, player_id)
 
@@ -27,7 +25,7 @@ class Agent:
 	# ludii software when playing games. It will just select the best action
 	# depending the MCTS and the loaded pre-trained model
 	def select_action(self, game, context, max_seconds, max_iterations, max_depth):
-		move, _, _ = agent.select_action(game, context, max_seconds, max_iterations, max_depth=max_depth)
+		move, _, _ = self.agent.select_action(game, context, max_seconds, max_iterations, max_depth=max_depth)
 		return move                    
         
 

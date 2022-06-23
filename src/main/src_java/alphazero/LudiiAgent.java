@@ -14,13 +14,13 @@ import other.context.Context;
 import other.move.Move;
 
 
-public class LudiiPythonAI extends AI{
+public class LudiiAgent extends AI{
 	protected int player = -1;
 	private PyModule ludiiPythonModule = null;
 	private PyObject pythonAI = null;
 	private boolean initialisedJpy = false;
 	
-	public LudiiPythonAI(){
+	public LudiiAgent(){
 		this.friendlyName = "BetaOne";
 	}
 	
@@ -43,7 +43,7 @@ public class LudiiPythonAI extends AI{
 	public void initAI(final Game game, final int playerID){
 		this.player = playerID;
 		if (!initialisedJpy){
-			final URL jarLoc = LudiiPythonAI.class.getProtectionDomain().getCodeSource().getLocation();
+			final URL jarLoc = LudiiAgent.class.getProtectionDomain().getCodeSource().getLocation();
 			final String jarPath = 
 					new File(jarLoc.getFile()).getParent()
 					.replaceAll(Pattern.quote("\\"), "/")

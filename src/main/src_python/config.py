@@ -25,8 +25,8 @@ NUM_DOJO = 1
 MAX_ITERATION_AGENTS_DOJO = 50
 
 NUM_TRIALS = 1
-MAX_ITERATION_AGENT1 = 50
-MAX_ITERATION_AGENT2 = 50
+MAX_ITERATION_AGENT1 = 500
+MAX_ITERATION_AGENT2 = 500
 
 ######### CONSTANTE VARIABLES #########
 
@@ -46,7 +46,7 @@ GAME_NAME = "Bashni"
 N_ROW = 8
 N_COL = 8
 N_LEVELS = 24
-N_TIME_STEP = 3 # number of past state we keep for our representation
+N_TIME_STEP = 10 # number of past state we keep for our representation
 N_DISTANCE = 8 # the king can move on the whole diagonal
 N_ORIENTATION = 4 # can go only left or right diagonaly, for both players
 N_ACTION_STACK = N_ORIENTATION * N_DISTANCE
@@ -69,7 +69,7 @@ MAX_SAMPLE = 100000 # can decide the size of the dataset
 
 ######### NN parameters #########
 
-TRAIN_SAMPLE_SIZE = 512
+TRAIN_SAMPLE_SIZE = 40 # 512
 RANDOM_SEED = 42
 N_EPOCHS = 10
 BATCH_SIZE = 128

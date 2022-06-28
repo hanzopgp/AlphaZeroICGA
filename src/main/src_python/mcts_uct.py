@@ -40,7 +40,7 @@ class MCTS_UCT:
 	# Main method called to chose an action at depth 0
 	def select_action(self, game, context, max_seconds, max_iterations, max_depth):
 		# Init an empty node which will be our root
-		root = Node(None, None, context)
+		root = Node(None, None, 0, context)
 		num_players = game.players().count()
 		
 		# Init our visit counter for that move in order to normalize
@@ -94,8 +94,8 @@ class MCTS_UCT:
 					     0,    # max_num_biased_actions
 					     -1,   # max_num_playout_actions
 					     None) # random selector
-				# Compute utilities thanks to our functions for both players
-				utils = utilities(context_end)
+			# Compute utilities thanks to our functions for both players
+			utils = utilities(context_end)
 
 
 

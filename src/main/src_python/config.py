@@ -19,6 +19,15 @@ import math
 # n filters 256
 # mlp neurons 256
 
+######### TIME CONSUMING VARIABLES #########
+
+NUM_DOJO = 1
+MAX_ITERATION_AGENTS_DOJO = 50
+
+NUM_TRIALS = 1
+MAX_ITERATION_AGENT1 = 50
+MAX_ITERATION_AGENT2 = 50
+
 ######### CONSTANTE VARIABLES #########
 
 PLAYER1 = 1
@@ -28,10 +37,8 @@ MODEL_PATH = "./models/"
 
 ######### DOJO PARAMETERS #########
 
-NUM_DOJO = 10 
 THINKING_TIME_AGENTS_DOJO = -1
-MAX_ITERATION_AGENTS_DOJO = 500 
-OUTSIDER_MIN_WINRATE = 0.55 
+OUTSIDER_MIN_WINRATE = 0.55
 
 ######### GAME PARAMETERS #########
 
@@ -57,9 +64,6 @@ WEIGHTED_SUM_DIR = 0.75 # this value comes from the paper
 TEMPERATURE = 1 # 1 -> no change, 0 -> argmax
 THINKING_TIME_AGENT1 = -1
 THINKING_TIME_AGENT2 = -1
-MAX_ITERATION_AGENT1 = 500
-MAX_ITERATION_AGENT2 = 500
-NUM_TRIALS = 20 
 MAX_GAME_DURATION = math.inf # 300 seconds is fine
 MAX_SAMPLE = 100000 # can decide the size of the dataset 
 
@@ -67,7 +71,7 @@ MAX_SAMPLE = 100000 # can decide the size of the dataset
 
 TRAIN_SAMPLE_SIZE = 512
 RANDOM_SEED = 42
-N_EPOCHS = 10 # 3
+N_EPOCHS = 10
 BATCH_SIZE = 128
 VERBOSE = 1
 VALIDATION_SPLIT = 0.2

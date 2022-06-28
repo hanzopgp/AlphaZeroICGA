@@ -118,6 +118,9 @@ def softmax(x, ignore_zero=False):
 ######### Here are the utility function used for the game #########
 	
 # Convert end of game rank into utility value
+# rank 1 -> +1
+# rank 2 -> -1
+# draw (1.5) -> 0
 def rank_to_util(rank):
 	return 1.0 - ((rank - 1.0) * 2.0)
 
@@ -125,7 +128,7 @@ def rank_to_util(rank):
 def utilities(context):
 	ranking = context.trial().ranking() 
 	utils = np.zeros(len(ranking))
-	for p in range(1, len(ranking)): # Avoid first null object
+	for p in range(1, len(ranking)): # Avoid first null object ## CHECK IF ITS STILL THE CASE !!!!!!!
 		rank = ranking[p]
 		if rank == 0.0: # If the game isn't over
 		    rank = context.computeNextDrawRank() # Compute next ranks
@@ -134,7 +137,7 @@ def utilities(context):
 	
 # Returns the opponent of the mover as an int
 def opp(mover):
-	return 2 if mover ==1 else 1
+	return 2 if mover==1 else 1
 	
 ######### Here are the utility functions to format policy #########
 
@@ -144,13 +147,14 @@ def apply_dirichlet(policy):
 	dira = np.random.dirichlet(np.full(policy.shape, DIRICHLET_ALPHA), size=1)
 	return (WEIGHTED_SUM_DIR * policy) + (1 - WEIGHTED_SUM_DIR) * dira
 
+# Transforms board int values into 2D coordinate values
+def get_coord(from_, to):
+	return int(from_/N_ROW), from_%N_ROW, int(to/N_ROW), to%N_ROW
+
 # Define the type of action thanks to position of current and last move
 def index_action(from_, to):
 	# We get the coordinate of both position
-	prev_x = int(from_/N_ROW)
-	prev_y = from_%N_ROW
-	x = int(to/N_ROW)
-	y = to%N_ROW
+	prev_x, prev_y, x, y = get_coord(from_, to)
 	off_y = y - prev_y
 	off_x = x - prev_x
 	# We have distance such as 1, 2, 3, 4... We have orientation such as 
@@ -229,15 +233,20 @@ def chose_move(legal_moves, policy_pred, competitive_mode):
 	for i in range(len(legal_moves)):
 		to = legal_moves[i].to()
 		from_ = getattr(legal_moves[i], "from")()
-		prev_x = int(from_/N_ROW)
-		prev_y = from_%N_ROW
-		x = int(to/N_ROW)
-		y = to%N_ROW
+		prev_x, prev_y, x, y = get_coord(from_, to)
 		# Inverse to match our representation
 		if prev_x == chosen_x and prev_y == chosen_y and x == chosen_prev_x and y == chosen_prev_y:
 			return legal_moves[i], prior
 		
 ######### Here are the utility functions to format the states #########
+
+# Invert the state (-1 become +1 and +1 become -1)
+def invert_state(state):
+	inverted_state = state.copy()
+	inverted_state = np.where(inverted_state==1, 2, inverted_state)
+	inverted_state = np.where(inverted_state==-1, 1, inverted_state)
+	inverted_state = np.where(inverted_state==2, -1, inverted_state)
+	return inverted_state
 
 # Create a numpy array from the java owned positions
 def format_positions(positions, lvl, val):

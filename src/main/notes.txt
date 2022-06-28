@@ -1,3 +1,31 @@
+
+la partie a optimiser est de loin celle faisant intervenir le MCTS, mais c'est aussi la partie la plus facile a paralléliser vu qu'il suffit de lancer les parties sur plusieurs machines et de merge les datasets
+
+je recois pleins de message "depassement de quota" depuis la semaine derniere sur la boite mail lip6 je ne sais pas d'ou ca vient 
+
+- depassement de quota
+- optimization
+- optimization undo()
+- parrellelisation                        oarsub -l /nodes=1/core=12,walltime=100:00:00 python3 -m moral.moral_train
+- MCTS question pour les values
+- MCTS questioon PUCT/UCB
+
+============================================================================
+
+analyze : https://python.plainenglish.io/python-profiling-7456d6268e98
+
+Optimization :
+files -> mcts_uct.py
+	  -> utils.py
+
+utils.py most important function to optimize :
+- chose_move()
+- format_state()
+
+the most long part is the mcts_trial, but since it uses a fix model, we can launch it on many computers at once and merge the datasets produced.
+can do the same with the mcts_dojo part.
+the train_model one is already fast if we activated the GPU
+
 ============================================================================
 
 Run on clusters :

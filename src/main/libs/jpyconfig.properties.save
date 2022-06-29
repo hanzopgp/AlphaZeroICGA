@@ -1,0 +1,7 @@
+# Created by 'jpyutil.py' tool on 2022-06-08 12:15:29.436031
+# This file is read by the jpy Java API (org.jpy.PyLib class) in order to find shared libraries
+jpy.jpyLib = /home/durande/Bureau/AlphaZeroICGA/src/main/libs/jpy.cpython-39-x86_64-linux-gnu.so
+py.jdlLib = /home/durande/Bureau/AlphaZeroICGA/src/main/libs/jdl.cpython-39-x86_64-linux-gnu.so
+jpy.pythonLib = /usr/lib/x86_64-linux-gnu/libpython3.9.so
+jpy.pythonPrefix = /usr
+jpy.pythonExecutable = /usr/bin/python3

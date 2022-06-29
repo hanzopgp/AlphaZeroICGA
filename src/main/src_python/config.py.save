@@ -19,14 +19,7 @@ import math
 # n filters 256
 # mlp neurons 256
 
-######### TIME CONSUMING VARIABLES #########
-
-NUM_DOJO = 1
-MAX_ITERATION_AGENTS_DOJO = 50
-
-NUM_TRIALS = 1
-MAX_ITERATION_AGENT1 = 500
-MAX_ITERATION_AGENT2 = 500
+Mais bon a tt moment ca va ramener leurs gars donc peut etre Nekfeu, Deen etc etc
 
 ######### CONSTANTE VARIABLES #########
 
@@ -37,8 +30,10 @@ MODEL_PATH = "./models/"
 
 ######### DOJO PARAMETERS #########
 
+NUM_DOJO = 10 
 THINKING_TIME_AGENTS_DOJO = -1
-OUTSIDER_MIN_WINRATE = 0.55
+MAX_ITERATION_AGENTS_DOJO = 500 
+OUTSIDER_MIN_WINRATE = 0.55 
 
 ######### GAME PARAMETERS #########
 
@@ -46,7 +41,7 @@ GAME_NAME = "Bashni"
 N_ROW = 8
 N_COL = 8
 N_LEVELS = 24
-N_TIME_STEP = 10 # number of past state we keep for our representation
+N_TIME_STEP = 3 # number of past state we keep for our representation
 N_DISTANCE = 8 # the king can move on the whole diagonal
 N_ORIENTATION = 4 # can go only left or right diagonaly, for both players
 N_ACTION_STACK = N_ORIENTATION * N_DISTANCE
@@ -64,14 +59,17 @@ WEIGHTED_SUM_DIR = 0.75 # this value comes from the paper
 TEMPERATURE = 1 # 1 -> no change, 0 -> argmax
 THINKING_TIME_AGENT1 = -1
 THINKING_TIME_AGENT2 = -1
+MAX_ITERATION_AGENT1 = 500
+MAX_ITERATION_AGENT2 = 500
+NUM_TRIALS = 20 
 MAX_GAME_DURATION = math.inf # 300 seconds is fine
 MAX_SAMPLE = 100000 # can decide the size of the dataset 
 
 ######### NN parameters #########
 
-TRAIN_SAMPLE_SIZE = 40 # 512
+TRAIN_SAMPLE_SIZE = 512
 RANDOM_SEED = 42
-N_EPOCHS = 10
+N_EPOCHS = 10 # 3
 BATCH_SIZE = 128
 VERBOSE = 1
 VALIDATION_SPLIT = 0.2

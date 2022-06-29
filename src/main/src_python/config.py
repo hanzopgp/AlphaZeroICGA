@@ -21,12 +21,16 @@ import math
 
 ######### TIME CONSUMING VARIABLES #########
 
+MAX_WORKERS = 2
+
 NUM_DOJO = 1
 MAX_ITERATION_AGENTS_DOJO = 10
 
 NUM_TRIALS = 1
 MAX_ITERATION_AGENT1 = 10
 MAX_ITERATION_AGENT2 = 10
+
+MAX_GAME_DURATION = 15
 
 ######### CONSTANTE VARIABLES #########
 
@@ -61,7 +65,6 @@ WEIGHTED_SUM_DIR = 0.75 # this value comes from the paper
 TEMPERATURE = 1 # 1 -> no change, 0 -> argmax
 THINKING_TIME_AGENT1 = -1
 THINKING_TIME_AGENT2 = -1
-MAX_GAME_DURATION = math.inf # 300 seconds is fine
 MAX_SAMPLE = 100000 # can decide the size of the dataset 
 
 ######### NN parameters #########

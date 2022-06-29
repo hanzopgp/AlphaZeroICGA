@@ -55,6 +55,7 @@ public class RunningTrialsWithPython{
 	}
 	
 	public static void run(final Game game, final Trial trial, final Context context, final List<AI> ais){
-		pythonTrial.call("run_trial", game, trial, context, ais);
+		//pythonTrial.call("run_trial", game, trial, context, ais);
+		pythonTrial.call("run_parallel_trials", game, trial, context, ais);
 	}
 }

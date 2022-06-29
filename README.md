@@ -102,9 +102,10 @@ If everything worked, you should have a build directory. Copy the content of the
 You also have to specify some paths in the configuration files such as **jpyconfig.py** and **jpyconfig.properties**.
 
 The required python librairies are :
-- Numpy
-- Matplotlib
-- TensorFlow
+- Numpy 1.22.4
+- Matplotlib 3.3.4
+- TensorFlow 2.9.1
+- Pandas 1.1.5
 
 ## Try it
 
@@ -131,3 +132,19 @@ The bash script does everything, the following commands are for debugging purpos
 ## Fight it
 
 When the project will be over, the models will be available in the folder **final_models/** and the Ludii AI will be in the folder **agents/** as jar files in order to load them in Ludii software. You will be able to load it against other AIs or against you on different games.
+
+## What I learned
+
+- Papers implementation and understanding (AlphaGo, AlphaGo Zero, AlphaZero)
+
+- Software architecture with different task communicating with each others (alphazero.sh)
+- Multithreading and GPU clusters (for the self-play games and the model training)
+- Java wrapper for python with JPY
+- Code optimization because the algorithm is very time consuming (use of profilers)
+
+- Multi-headed neural networks (here for policy + value prediction)
+- Huge CNN model with residual blocks and skip connection
+
+- MCTS with UCB/PUCT scores
+- Reinforcement learning things such as temperature, dirichlet in policy for exploration etc...
+

@@ -34,6 +34,7 @@ public class RunningTrialsWithPython{
 		ais.add(null);
 		ais.add(new RandomAI());
 		ais.add(new RandomAI());
+		// Need to give list of objects because we are going to use multi threading !!!
 		run(game, trial, context, ais);	
 	}
 	

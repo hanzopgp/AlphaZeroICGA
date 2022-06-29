@@ -16,16 +16,41 @@ X, y_values, y_distrib = get_random_sample(X, y_values, y_distrib)
 X = X.astype("float32")
 y = {"value_head": y_values.astype("float32"), "policy_head": y_distrib.flatten().astype("float32")} 
 
-model = CustomModel(
-	input_dim=X[0].shape, 
-	output_dim=N_ROW*N_COL*N_ACTION_STACK, # this is the policy head output dim	 
-	n_res_layer=N_RES_LAYER, 
-	learning_rate=LEARNING_RATE, 
-	momentum=MOMENTUM, 
-	reg_const=REG_CONST)
-	
-model.build_model()
-#model.summary()
+champion_path = MODEL_PATH+GAME_NAME+"_"+"champion"+".h5"
+outsider_path = MODEL_PATH+GAME_NAME+"_"+"outsider"+".h5"
+
+# If there is an outsider, always train it
+if exists(outsider_path): 
+	model_type = "outsider"
+	model = load_nn(model_type=model_type)
+# Else if there is no outsider but there is a champion,
+# we are at 2nd step and we create the outsider model
+elif exists(champion_path):
+	model_type = "outsider"
+	print("--> No outsider found, creating one")
+	model = CustomModel(
+		input_dim=X[0].shape, 
+		output_dim=N_ROW*N_COL*N_ACTION_STACK, # this is the policy head output dim	 
+		n_res_layer=N_RES_LAYER, 
+		learning_rate=LEARNING_RATE, 
+		momentum=MOMENTUM, 
+		reg_const=REG_CONST)
+	model.build_model()
+	#model.summary()
+# Else if there is no model at all, we are at first step
+# and we create the champion model
+else:
+	model_type = "champion"
+	print("--> No model found, creating the champion")
+	model = CustomModel(
+		input_dim=X[0].shape, 
+		output_dim=N_ROW*N_COL*N_ACTION_STACK, # this is the policy head output dim	 
+		n_res_layer=N_RES_LAYER, 
+		learning_rate=LEARNING_RATE, 
+		momentum=MOMENTUM, 
+		reg_const=REG_CONST)
+	model.build_model()
+	#model.summary()
 
 history = model.fit(
 	X=X, 
@@ -43,10 +68,7 @@ history = model.fit(
 # competitor yet. If there is a champion then our model will
 # be an outsider and will need to fight later against the
 # champion to become the champion.
-model_path = MODEL_PATH+GAME_NAME+"_"+"champion"+".h5"
-if exists(model_path):
-	model.write("outsider")
-else:
-	model.write("champion")
+model.write(model_type)
+
 
 

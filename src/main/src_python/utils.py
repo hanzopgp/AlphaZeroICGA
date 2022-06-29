@@ -83,6 +83,7 @@ def load_nn(model_type):
 	model = load_model(
 			MODEL_PATH+GAME_NAME+"_"+model_type+".h5",
 			custom_objects={'softmax_cross_entropy_with_logits': softmax_cross_entropy_with_logits})
+	print("--> Done !")
 	return model
 
 def write_winner(outsider_winrate):
@@ -198,7 +199,6 @@ def reverse_index_action(to_x, to_y, action):
 # re-compute softmax and pick a move randomly according to
 # the new policy
 def chose_move(legal_moves, policy_pred, competitive_mode):
-	prior = 0
 	# New legal policy array starting as everything illegal
 	legal_policy = np.zeros(policy_pred.shape)
 	# Find the legal moves in the policy
@@ -211,12 +211,12 @@ def chose_move(legal_moves, policy_pred, competitive_mode):
 		# Get the action index
 		action_index = index_action(from_, to)
 		# Write the value only for the legal moves
-		legal_policy[prev_x, prev_y, action_index] = policy_pred[prev_x, prev_y, action_index]
+		legal_policy[prev_x, prev_y, action_index] = policy_pred[prev_x, prev_y, action_index] ## MAYBE CAN JUST ZERO OUT WITH NP WHERE?
 	# Re-compute softmax after masking out illegal moves
 	legal_policy = softmax(legal_policy, ignore_zero=True)
 	# If we are playing for real, we chose the best action given by the policy
 	if competitive_mode:
-		chosen_x, chosen_y, chosen_action = np.argmax(legal_policy)
+		chosen_x, chosen_y, chosen_action = np.argmax(legal_policy, axis=2)
 		prior = np.max(legal_policy)
 	# Else we are training and we use the policy for the MCTS
 	else:

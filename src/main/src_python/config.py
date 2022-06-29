@@ -25,8 +25,8 @@ NUM_DOJO = 1
 MAX_ITERATION_AGENTS_DOJO = 50
 
 NUM_TRIALS = 1
-MAX_ITERATION_AGENT1 = 500
-MAX_ITERATION_AGENT2 = 500
+MAX_ITERATION_AGENT1 = 50
+MAX_ITERATION_AGENT2 = 50
 
 ######### CONSTANTE VARIABLES #########
 
@@ -46,7 +46,7 @@ GAME_NAME = "Bashni"
 N_ROW = 8
 N_COL = 8
 N_LEVELS = 24
-N_TIME_STEP = 10 # number of past state we keep for our representation
+N_TIME_STEP = 3 # number of past state we keep for our representation
 N_DISTANCE = 8 # the king can move on the whole diagonal
 N_ORIENTATION = 4 # can go only left or right diagonaly, for both players
 N_ACTION_STACK = N_ORIENTATION * N_DISTANCE
@@ -55,9 +55,6 @@ N_REPRESENTATION_STACK = N_ADDITIONAL_FEATURES + (N_TIME_STEP * 2) * N_LEVELS
 N_LEGAL_MOVES = N_ACTION_STACK * 12 # 12 pieces
 
 ######### MCTS PARAMETERS #########
-# games, row, col, features
-# (500, 8, 8, 193) --> too big dataset  
-# (200, 8, 8, 145) --> better
 CSTE_PUCT = 1 # no idea about the value of this variable in the paper 
 DIRICHLET_ALPHA = 10/N_LEGAL_MOVES # noise in the estimated policy -> more exploration
 WEIGHTED_SUM_DIR = 0.75 # this value comes from the paper
@@ -80,7 +77,7 @@ LOSS_WEIGHTS = [0.33, 0.67] # first one is value, second one policy
 MAIN_ACTIVATION = "relu"
 FILTERS = 128
 KERNEL_SIZE = (3,3)
-KERNEL_INITIALIZER = "random_normal"
+KERNEL_INITIALIZER = "zeros" # tf.keras.initializers.GlorotUniform()
 FIRST_KERNEL_SIZE = (3,3) 
 USE_BIAS = False
 N_RES_LAYER = 20

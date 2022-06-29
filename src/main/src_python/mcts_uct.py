@@ -1,9 +1,9 @@
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-
-
 import sys
-sys.path.append("/home/durande/Bureau/AlphaZeroICGA/src/main/src_python")
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+sys.path.append(os.getcwd()+"/src_python")
+
+
 from config import *
 from utils import *
 from model import CustomModel
@@ -220,6 +220,7 @@ class MCTS_UCT:
 				if rand == 0:
 					best_child = child
 				num_best_found += 1
+				
 
 		# Return the best child of the current node according to the PUCT score
 		return best_child

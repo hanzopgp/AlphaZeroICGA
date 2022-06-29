@@ -1,9 +1,9 @@
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
-
-
 import sys
-sys.path.append("/home/durande/Bureau/AlphaZeroICGA/src/main/src_python")
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
+sys.path.append(os.getcwd()+"/src_python")
+
+
 from config import *
 from utils import *
 from model import CustomModel

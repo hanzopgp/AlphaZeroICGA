@@ -1,5 +1,8 @@
 import sys
-sys.path.append("/home/durande/Bureau/AlphaZeroICGA/src/main/src_python")
+import os
+sys.path.append(os.getcwd()+"/src_python")
+
+
 from utils import *
 
 

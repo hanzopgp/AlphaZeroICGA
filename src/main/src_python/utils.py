@@ -6,8 +6,11 @@ import numpy as np
 import os
 import pandas as pd
 import pprint
+import cProfile
 from matplotlib import pyplot as plt
 from os.path import exists
+import sys
+sys.path.append(os.getcwd()+"/src_python")
 
 import tensorflow as tf
 from tensorflow.keras.models import load_model
@@ -16,8 +19,7 @@ from tensorflow.keras.layers import Input, Dense, Conv2D, Flatten, BatchNormaliz
 from tensorflow.keras.optimizers import SGD
 from keras import regularizers
 
-import sys
-sys.path.append("/home/durande/Bureau/AlphaZeroICGA/src/main/src_python")
+
 from config import *
 
 
@@ -216,7 +218,7 @@ def chose_move(legal_moves, policy_pred, competitive_mode):
 	legal_policy = softmax(legal_policy, ignore_zero=True)
 	# If we are playing for real, we chose the best action given by the policy
 	if competitive_mode:
-		chosen_x, chosen_y, chosen_action = np.argmax(legal_policy, axis=2)
+		chosen_x, chosen_y, chosen_action = np.unravel_index(legal_policy.argmax(), legal_policy.shape)
 		prior = np.max(legal_policy)
 	# Else we are training and we use the policy for the MCTS
 	else:

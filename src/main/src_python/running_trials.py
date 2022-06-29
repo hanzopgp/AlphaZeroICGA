@@ -1,11 +1,11 @@
 import sys
-sys.path.append("/home/durande/Bureau/AlphaZeroICGA/src/main/src_python")
+import os
+sys.path.append(os.getcwd()+"/src_python")
+
+
 from config import *
 from utils import *
 from mcts_uct import MCTS_UCT
-
-
-#import cProfile
 
 
 ######### Here is the class called in the java file to run trials #########	

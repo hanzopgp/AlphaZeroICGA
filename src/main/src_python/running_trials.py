@@ -16,24 +16,21 @@ class RunningTrials:
 	def test(self, a, b):
 		return a+b
 
-	def run_parallel_trials(self, game, trial, context, ais):
+	def run_parallel_trials(self, games, trials, contexts, ais, n_objects):
 		X = [] 
 		y_values = [] 
 		y_distrib = []
 		
-		#pool = concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS)
-		#results = {pool.submit(self.run_trial, game, trial, context, ais): n for n in range(MAX_WORKERS)}
-		#for res in results:
-		#	print(len(res.result()))
-		#pool.shutdown()
-		
+		print("--> Starting multi threading with max_workers :", MAX_WORKERS)		
 		with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-			fs = {executor.submit(self.run_trial, game, trial, context, ais): n for n in range(MAX_WORKERS)}
+			fs = []
+			for i in range(MAX_WORKERS):
+				fs.append(executor.submit(self.run_trial, games[i], trials[i], contexts[i], ais[i]))
 			#fs = {executor.submit(self.test, n, n): n for n in range(10)}
+			
 			for i, f in enumerate(concurrent.futures.as_completed(fs)):
 				try:
 					print(f.result())
-					#print(len(f.result()))
 					X_, y_values_, y_distrib_ = f.result()
 					X.append(X_)
 					y_values.append(y_values_)
@@ -41,7 +38,8 @@ class RunningTrials:
 				except Exception as e:
 					print("--> Exception:", e)
 				else:
-					print("--> Trial number", i, "is over")			
+					print("--> Trial number", i, "is over")	
+							
 		print("--> Trials were run on parallel thanks to", MAX_WORKERS, "workers !")
 		
 		X, y_values, y_distrib = np.array(X, dtype=object), np.array(y_values, dtype=object), np.array(y_distrib, dtype=object)
@@ -53,8 +51,6 @@ class RunningTrials:
 		#	       y_values.reshape(-1), 
 		#	       y_distrib.reshape(-1, N_ROW, N_COL, N_ACTION_STACK))
 
-	# Need to give a Java List object here, if we give 2 ais and make it a python array
-	# it won't work and we get no java overload error
 	def run_trial(self, game, trial, context, ais):
 		#prof = cProfile.Profile()
 		#prof.enable()

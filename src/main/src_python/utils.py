@@ -68,9 +68,14 @@ def get_random_sample(X, y_distrib, y_values):
 	idx = np.random.choice(np.arange(X.shape[0]), TRAIN_SAMPLE_SIZE, replace=False)
 	return X[idx], y_distrib[idx], y_values[idx]
 
-def add_to_dataset(X, y_values, y_distrib):
+def get_random_hash():
+	return str(np.random.rand() * time.time()).replace(".", "")
+
+def add_to_dataset(X, y_values, y_distrib, hash_code=""):
 	print("--> Saving data to pickle for the game :", GAME_NAME)
-	pkl_path = DATASET_PATH+GAME_NAME+".pkl"
+	if len(hash_code) >= 1:
+		print("--> Hash code :", hash_code)
+	pkl_path = DATASET_PATH+GAME_NAME+hash_code+".pkl"
 	my_data = {'X': X,
 	   	   'y_values': y_values,
 	   	   'y_distrib': y_distrib}

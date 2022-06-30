@@ -113,9 +113,9 @@ Go to the src/main/ directory and run the next commands in a terminal :
 
 `nano src_python/config.py` : set the settings to run AlphaZero such as number of simulations, game type...
 
-`bash alphazero.sh <n_loop>` : runs the whole loop (MCTS simulation with random moves -> dataset -> train model -> save model -> MCTS simulation with model predicting moves -> dataset -> ...). **n_loop** is the number of loop it will achieve.
+`python3 alphazero.py <n_loop>` : runs the whole loop (MCTS simulation with random moves -> dataset -> train model -> save model -> MCTS simulation with model predicting moves -> dataset -> ...). **n_loop** is the number of loop it will achieve.
 
-The bash script does everything, the following commands are for debugging purposes :
+The python alphazero script does everything, the following commands are for debugging purposes :
 
 `ant clean` : clean all the directories (**bin/** **build/** **models/** **datasets/**).
 

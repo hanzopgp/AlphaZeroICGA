@@ -203,7 +203,7 @@ class RunningTrials:
 		print("* Max game duration", duration.max())
 		
 		# Save values to dataset
-		add_to_dataset(X, y_values, y_distrib)
+		add_to_dataset(X, y_values, y_distrib, get_random_hash())
 
 		#prof.disable()
 		#prof.print_stats()

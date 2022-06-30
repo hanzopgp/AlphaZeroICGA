@@ -31,7 +31,8 @@ public class RunningTrialsWithPython{
 
 	public static void main(String[] args) throws FileNotFoundException{
 		initJPY();
-		final int nObjects = getNObjects();
+		
+		/*final int nObjects = getNObjects();
 		System.out.println("--> Loading " + nObjects + " game objects...");
 		final Game[] games = new Game[nObjects];
 		final Trial[] trials = new Trial[nObjects];
@@ -52,7 +53,16 @@ public class RunningTrialsWithPython{
 			ais[i].add(new RandomAI());
 		}
 		System.out.println("--> Done !");
-		run(games, trials, contexts, ais, nObjects);
+		run(games, trials, contexts, ais, nObjects);*/
+		
+		final Game game = GameLoader.loadGameFromName("Bashni.lud");
+		final Trial trial = new Trial(game);
+		final Context context = new Context(game, trial);
+		final ArrayList<AI> ais = new ArrayList<AI>();
+		ais.add(null);
+		ais.add(new RandomAI());
+		ais.add(new RandomAI());
+		run(game, trial, context, ais);
 	}
 	
 	public static void initJPY(){
@@ -92,8 +102,11 @@ public class RunningTrialsWithPython{
 		return nObjects;
 	}
 	
-	public static void run(final Game[] games, final Trial[] trials, final Context[] contexts, final List<AI>[] ais, final int nObjects){
-		//pythonTrial.call("run_trial", game, trial, context, ais);
-		pythonTrial.call("run_parallel_trials", games, trials, contexts, ais, nObjects);
+	public static void run(final Game game, final Trial trial, final Context context, final List<AI> ais){
+		pythonTrial.call("run_trial", game, trial, context, ais);
 	}
+	
+	/*public static void run(final Game[] games, final Trial[] trials, final Context[] contexts, final List<AI>[] ais, final int nObjects){
+		pythonTrial.call("run_parallel_trials", games, trials, contexts, ais, nObjects);
+	}*/
 }

@@ -82,7 +82,7 @@ public class RunningTrialsWithPython{
 				String line = scanner.nextLine();
 				lineNum++;
 				if(line.contains("MAX_WORKERS")) { 
-					nObjects = Integer.parseInt(line.substring(14, 15));
+					nObjects = Integer.parseInt(line.substring(14));
 					return nObjects;
 				}
 			}

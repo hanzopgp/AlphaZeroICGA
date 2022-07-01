@@ -113,7 +113,7 @@ Go to the src/main/ directory and run the next commands in a terminal :
 
 `nano src_python/config.py` : set the settings to run AlphaZero such as number of simulations, game type...
 
-`python3 alphazero.py <n_loop>` : runs the whole loop (MCTS simulation with random moves -> dataset -> train model -> save model -> MCTS simulation with model predicting moves -> dataset -> ...). **n_loop** is the number of loop it will achieve.
+`python3 alphazero.py <n_loop> <n_workers>` : runs the whole loop (MCTS simulation with random moves -> dataset -> train model -> save model -> MCTS simulation with model predicting moves -> dataset -> ...). **n_loop** is the number of loop it will achieve. **n_workers** is the number of processes which will be executed in parallel.
 
 The python alphazero script does everything, the following commands are for debugging purposes :
 

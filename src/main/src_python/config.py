@@ -1,6 +1,3 @@
-import math
-
-
 ######### ALPHAZERO PAPER VARIABLES #########
 
 # AlphaZero paper config for chess
@@ -21,16 +18,14 @@ import math
 
 ######### TIME CONSUMING VARIABLES #########
 
-MAX_WORKERS = 4
-
 NUM_DOJO = 1
-MAX_ITERATION_AGENTS_DOJO = 10
+MAX_ITERATION_AGENTS_DOJO = 800
 
 NUM_TRIALS = 1
-MAX_ITERATION_AGENT1 = 10
-MAX_ITERATION_AGENT2 = 10
+MAX_ITERATION_AGENT1 = 800
+MAX_ITERATION_AGENT2 = 800
 
-MAX_GAME_DURATION = 15
+MAX_GAME_DURATION = -1
 
 ######### CONSTANTE VARIABLES #########
 
@@ -39,6 +34,7 @@ PLAYER1 = 1
 PLAYER2 = 2
 DATASET_PATH = "./datasets/"
 MODEL_PATH = "./models/"
+WINNERS_FILE="./models/save_winners.txt"
 
 ######### DOJO PARAMETERS #########
 

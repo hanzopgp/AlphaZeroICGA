@@ -55,11 +55,13 @@ class RunningTrials:
 			X_mover = []
 			move_check = []
 			
+			stop_time = math.inf if MAX_GAME_DURATION < 0 else MAX_GAME_DURATION
+			
 			# Main game loop			
 			while not trial.over():
 				# Sometimes the game is way too long and has to be stopped
 				# and considered as a draw
-				if time.time() - start_time  > MAX_GAME_DURATION:
+				if time.time() - start_time  > stop_time:
 					if DEBUG_PRINT: print("--> Ended one game because it was too long")
 					break
 					

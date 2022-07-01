@@ -19,6 +19,7 @@ def read_txts():
 	for path in f:
 		with open(MODEL_PATH+path, "r") as file:
 			if "txt" in MODEL_PATH+path and "save" not in MODEL_PATH+path:
+				print("--> Reading file :", MODEL_PATH+path)
 				first_line = file.readline()
 				outsider_winrate += float(re.findall("\d+\.\d+", first_line)[0])
 				#print(MODEL_PATH+path," ",outsider_winrate)
@@ -27,6 +28,7 @@ def read_txts():
 	final_winrate = outsider_winrate/total
 	#print(final_winrate)
 	write_winner(final_winrate)
+
 
 if __name__ == '__main__':
 	read_txts()

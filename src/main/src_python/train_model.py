@@ -23,7 +23,15 @@ if __name__ == '__main__':
 	# If there is an outsider, always train it
 	if exists(outsider_path): 
 		model_type = "outsider"
-		model = load_nn(model_type=model_type)
+		model = CustomModel(
+			input_dim=X[0].shape, 
+			output_dim=N_ROW*N_COL*N_ACTION_STACK, # this is the policy head output dim	 
+			n_res_layer=N_RES_LAYER, 
+			learning_rate=LEARNING_RATE, 
+			momentum=MOMENTUM, 
+			reg_const=REG_CONST)
+		model.set_model(load_nn(model_type=model_type))
+		
 	# Else if there is no outsider but there is a champion,
 	# we are at 2nd step and we create the outsider model
 	elif exists(champion_path):
@@ -31,7 +39,7 @@ if __name__ == '__main__':
 		print("--> Found a champion model, creating an outsider")
 		model = CustomModel(
 			input_dim=X[0].shape, 
-			output_dim=N_ROW*N_COL*N_ACTION_STACK, # this is the policy head output dim	 
+			output_dim=N_ROW*N_COL*N_ACTION_STACK,	 
 			n_res_layer=N_RES_LAYER, 
 			learning_rate=LEARNING_RATE, 
 			momentum=MOMENTUM, 
@@ -44,7 +52,7 @@ if __name__ == '__main__':
 		print("--> No model found, creating the champion model")
 		model = CustomModel(
 			input_dim=X[0].shape, 
-			output_dim=N_ROW*N_COL*N_ACTION_STACK, # this is the policy head output dim	 
+			output_dim=N_ROW*N_COL*N_ACTION_STACK,	 
 			n_res_layer=N_RES_LAYER, 
 			learning_rate=LEARNING_RATE, 
 			momentum=MOMENTUM, 
@@ -53,11 +61,12 @@ if __name__ == '__main__':
 		
 	#model.summary()
 
+	#print("\n")
 	history = model.fit(
 		X=X, 
 		y=y, 
-		n_epochs=N_EPOCHS, 
 		batch_size=BATCH_SIZE, 
+		n_epochs=N_EPOCHS, 
 		verbose=VERBOSE, 
 		validation_split=VALIDATION_SPLIT)
 		

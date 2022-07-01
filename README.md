@@ -149,7 +149,7 @@ When the project will be over, the models will be available in the folder **fina
 - Reinforcement learning things such as temperature, dirichlet in policy for exploration etc...
 
 **- Time and memory optimization :**
-    - Multithreading and GPU clusters (for the self-play games and the model training)
-    - Code optimization because the algorithm is very time consuming (use of profilers)
-    - Precomputing functions which are called huge amount of time (in MCTS algorithm)
+- Multithreading and GPU clusters (for the self-play games and the model training)
+- Code optimization because the algorithm is very time consuming (use of profilers)
+- Precomputing functions which are called huge amount of time (in MCTS algorithm)
 

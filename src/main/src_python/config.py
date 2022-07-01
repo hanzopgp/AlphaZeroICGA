@@ -62,17 +62,17 @@ WEIGHTED_SUM_DIR = 0.75 # this value comes from the paper
 TEMPERATURE = 1 # 1 -> no change, 0 -> argmax
 THINKING_TIME_AGENT1 = -1
 THINKING_TIME_AGENT2 = -1
-MAX_SAMPLE = 100000 # can decide the size of the dataset 
+MAX_SAMPLE = 10000 # can decide the size of the dataset 
 
 ######### NN parameters #########
 
-TRAIN_SAMPLE_SIZE = 40 # 512
+TRAIN_SAMPLE_SIZE = 1024 # 512
 RANDOM_SEED = 42
 N_EPOCHS = 10
-BATCH_SIZE = 128
+BATCH_SIZE = 256
 VERBOSE = 1
 VALIDATION_SPLIT = 0.2
-LOSS_WEIGHTS = [0.33, 0.67] # first one is value, second one policy
+LOSS_WEIGHTS = [0.5, 0.5] # first one is value, second one policy
 
 MAIN_ACTIVATION = "relu"
 FILTERS = 128
@@ -84,6 +84,6 @@ N_RES_LAYER = 20
 NEURONS_VALUE_HEAD = 128 # number of neurons in last dense layer
 
 OPTIMIZER = "adam"
-LEARNING_RATE = 0.002
+LEARNING_RATE = 0.02
 MOMENTUM = 0.9
 REG_CONST = 1e-4 # L2 reg

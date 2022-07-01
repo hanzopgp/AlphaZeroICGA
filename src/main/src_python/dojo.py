@@ -65,14 +65,15 @@ class Dojo:
 
 			duration[i] = time.time() - start_time
 		
-		# Print some dojo stats
-		print("* Champion AI winrate:", champion_mcts_win/total)
-		print("* Outsider AI winrate:", outsider_mcts_win/total)
-		print("* Draws:", draw/total)
-		print("* Mean game duration", duration.mean())
-		print("* Max game duration", duration.max())
+		if DEBUG_PRINT:
+			# Print some dojo stats
+			print("* Champion AI winrate:", champion_mcts_win/total)
+			print("* Outsider AI winrate:", outsider_mcts_win/total)
+			print("* Draws:", draw/total)
+			print("* Mean game duration", duration.mean())
+			print("* Max game duration", duration.max())
 		
 		# Return 1 or -1 depending the winner so we can decide what
 		# is the next step to do in our script
-		write_winner(outsider_mcts_win/total)
+		write_winner(outsider_mcts_win/total, get_random_hash())
 		

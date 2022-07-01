@@ -34,6 +34,7 @@ MAX_GAME_DURATION = 15
 
 ######### CONSTANTE VARIABLES #########
 
+DEBUG_PRINT = True
 PLAYER1 = 1
 PLAYER2 = 2
 DATASET_PATH = "./datasets/"

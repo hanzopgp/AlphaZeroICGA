@@ -5,6 +5,7 @@ import pickle
 import numpy as np
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+from subprocess import Popen
 import pandas as pd
 import pprint
 import cProfile
@@ -95,14 +96,16 @@ def load_nn(model_type):
 	print("--> Done !")
 	return model
 
-def write_winner(outsider_winrate):
-	f = open(MODEL_PATH+"winners.txt", "a")
-	if outsider_winrate >= OUTSIDER_MIN_WINRATE:
-		f.write("Outsider model won with winrate: "+str(outsider_winrate)+"\n")
-	else:
-		f.write("Champion model won with winrate: "+str(1-outsider_winrate)+"\n")
+def write_winner(outsider_winrate, hash_code=""):
+	if len(hash_code) >= 1:
+		file_name = "winners" + hash_code + ".txt"
+		f = open(MODEL_PATH+file_name, "w")
+	else: 
+		file_name = "save_winners.txt"
+		f = open(MODEL_PATH+file_name, "a")
+	f.write("Outsider model winrate: %.3f\n" % outsider_winrate)
 	f.close()
-	print("--> Saved the winner of the dojo in winners.txt")
+	print("--> Saved the winner of the dojo in", file_name)
 
 ######### Here are some functions for the model #########
 

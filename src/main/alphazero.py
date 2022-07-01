@@ -3,7 +3,7 @@ import sys
 from subprocess import Popen
 
 
-def decide_if_switch_model():
+def decide_if_switch_model(winners_file):
 	with open(winners_file, "r") as file:
 		for last_line in file:
 			pass
@@ -13,6 +13,12 @@ def decide_if_switch_model():
 		# If the champion won we need to train the model again without executing mcts_trial
 		else:
 			return False
+			
+def parallelize_command(command, n):
+	string = "ant -q " + command + " &"
+	for _ in range(n-1):
+		string += "ant -q " + command + " &"
+	return string + " wait"
 			
 def init():
 	print("********************************************************************************************")
@@ -32,41 +38,58 @@ def conclude():
 	print("********************************************************************************************")
 	print("*****************************************AGENT READY****************************************")
 	print("********************************************************************************************")
+	
+def main_loop(alphazero_iteration, trial_activated, winners_file):
+	if trial_activated: # We train the outsider until it wins against the champion
+		print("********************************************************************************************")
+		print("****************************************MCTS TRIALS*****************************************")
+		print("********************************************************************************************")
+		Popen(parallelize_command("mcts_trials", n_workers), shell=True).wait()
+		
+		print("********************************************************************************************")
+		print("***************************************MERGING DATASETS*************************************")
+		print("********************************************************************************************")
+		Popen("python3 src_python/scripts/merge_datasets.py", shell=True).wait()
+		
+	print("********************************************************************************************")
+	print("***************************************TRAINING MODEL***************************************")
+	print("********************************************************************************************")
+	Popen("python3 src_python/train_model.py", shell=True).wait()
+	
+	if alphazero_iteration >= 1: # If it's the first step we won't go for a dojo since there is only one model ready	 
+		print("********************************************************************************************")
+		print("*****************************************MCTS DOJO******************************************")
+		print("********************************************************************************************")
+		Popen(parallelize_command("mcts_dojo", n_workers), shell=True).wait()
+		
+		print("********************************************************************************************")
+		print("****************************************MERGING TXTS****************************************")
+		print("********************************************************************************************")
+		Popen("python3 src_python/scripts/merge_txts.py", shell=True).wait()
+		
+		trial_activated = decide_if_switch_model(winners_file)
+		if trial_activated:
+			print("********************************************************************************************")
+			print("**************************************SWITCHING MODELS***************************************")
+			print("********************************************************************************************")
+			Popen("python3 src_python/scripts/switch_model.py", shell=True).wait()
+			
+	alphazero_iteration += 1
 			
 if __name__ == '__main__':
-	winners_file="./models/winners.txt"
+	winners_file="./models/save_winners.txt"
 	alphazero_iteration=0
-	trial=True
+	trial_activated=True
+	n_iteration = int(sys.argv[1])
+	n_workers = int(sys.argv[2])
 
 	init()	
 
-	while(alphazero_iteration < int(sys.argv[1])):
+	while(alphazero_iteration < n_iteration):
 		print("============================================================================================")
 		print("==================================ITERATION ALPHAZERO", alphazero_iteration, "====================================")
 		print("============================================================================================")
-		if trial:
-			print("********************************************************************************************")
-			print("****************************************MCTS TRIALS*****************************************")
-			print("********************************************************************************************")
-			Popen("ant mcts_trials & ant mcts_trials & ant mcts_trials & wait", shell=True).wait()
-			print("********************************************************************************************")
-			print("***************************************MERGING DATASETS*************************************")
-			print("********************************************************************************************")
-			Popen("python3 src_python/merge_datasets.py", shell=True).wait()
-		print("********************************************************************************************")
-		print("***************************************TRAINING MODEL***************************************")
-		print("********************************************************************************************")
-		Popen("python3 src_python/train_model.py", shell=True).wait()
-		# If it's the first step we won't go for a dojo since there is only one model ready
-		if alphazero_iteration >= 1:	
-			print("********************************************************************************************")
-			print("*****************************************MCTS DOJO******************************************")
-			print("********************************************************************************************")
-			Popen("ant mcts_dojo", shell=True).wait()
-			trial = decide_if_switch_model()
-			if trial:
-				Popen("python3 src_python/switch_model.py", shell=True).wait()
-		alphazero_iteration += 1
+		main_loop(alphazero_iteration, trial_activated, winners_file)
 		
 	conclude()
 	

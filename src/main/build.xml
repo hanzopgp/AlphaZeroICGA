@@ -18,7 +18,7 @@
 		<mkdir dir="models/"/>
 		<mkdir dir="agents"/>
 		<mkdir dir="datasets/"/>
-		<touch file="models/winners.txt"/>
+		<touch file="models/save_winners.txt"/>
 		<copy includeemptydirs="false" todir="bin">
 			<fileset dir="src_java">
 	 		<exclude name="**/*.launch"/>
@@ -35,7 +35,7 @@
 	</target>
 	
 	<target name="build" depends="init">
-		<echo message="${ant.project.name}: ${ant.file}"/>
+		<!--<echo message="${ant.project.name}: ${ant.file}"/>-->
 		<javac debug="true" debuglevel="${debuglevel}" destdir="bin" includeantruntime="false" source="${source}" target="${target}" compiler="javac1.8" encoding="UTF-8" nowarn="on">
 			<src path="src_java"/>
 			<classpath refid="AlphaZero.classpath"/>

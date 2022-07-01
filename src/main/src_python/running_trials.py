@@ -2,9 +2,7 @@ import sys
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 sys.path.append(os.getcwd()+"/src_python")
-
-
-import jpype
+#import jpype
 #import snappy
 #from snappy import jpy
 
@@ -17,66 +15,10 @@ from mcts_uct import MCTS_UCT
 ######### Here is the class called in the java file to run trials #########	
 
 class RunningTrials:
-
-	def test(self, a, b):
-		return a+b
-
-	def run_parallel_trials(self, games, trials, contexts, ais, n_objects):
-		X = [] 
-		y_values = [] 
-		y_distrib = []
-		
-		#run_trial(games[0], trials[0], contexts[0], ais[0])
-		
-		print("--> Starting multi threading with max_workers :", MAX_WORKERS)		
-		with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-		
-			#if jpype.isJVMStarted() and not jpype.isThreadAttachedToJVM():
-			#	jpype.attachThreadToJVM()
-			#else:
-			#	print("--> Didn't manage to attach the thread to the JVM")
-			#	return
-		
-			fs = []
-			for i in range(MAX_WORKERS):
-				fs.append(executor.submit(self.run_trial, games[i], trials[i], contexts[i], ais[i]))
-			#fs = {executor.submit(self.test, n, n): n for n in range(10)}
-			
-			for i, f in enumerate(concurrent.futures.as_completed(fs)):
-				try:
-					print(f.result())
-					#print("iiiii",i)
-					X_, y_values_, y_distrib_ = f.result()
-					X.append(X_)
-					y_values.append(y_values_)
-					y_distrib.append(y_distrib_)
-				except Exception as e:
-					print("--> Exception:", e)
-				else:
-					print("--> Trial number", i, "is over")	
-							
-		print("--> Trials were run on parallel thanks to", MAX_WORKERS, "workers !")
-		
-		X, y_values, y_distrib = np.array(X, dtype=object), np.array(y_values, dtype=object), np.array(y_distrib, dtype=object)
-		print(X.shape)
-		print(y_values.shape)
-		print(y_distrib.shape)
-		
-		#add_to_dataset(X.reshape(-1, N_ROW, N_COL, N_REPRESENTATION_STACK), 
-		#	       y_values.reshape(-1), 
-		#	       y_distrib.reshape(-1, N_ROW, N_COL, N_ACTION_STACK))
-
+	# This function is called from java in RunningTrialsWithPython.java
 	def run_trial(self, game, trial, context, ais):
 		#prof = cProfile.Profile()
 		#prof.enable()
-		
-		
-		#if not jpype.isJVMStarted():
-			#jpy.destroyJVM()
-			#jpy.create_jvm(snappy.jpyutil.get_jvm_options())
-			#jpype.startJVM(jpype.getDefaultJVMPath())
-			
-		
 		
 		# Init both agents
 		mcts1 = MCTS_UCT()
@@ -118,7 +60,7 @@ class RunningTrials:
 				# Sometimes the game is way too long and has to be stopped
 				# and considered as a draw
 				if time.time() - start_time  > MAX_GAME_DURATION:
-					print("--> Ended one game because it was too long")
+					if DEBUG_PRINT: print("--> Ended one game because it was too long")
 					break
 					
 				if idx_sample >= MAX_SAMPLE:
@@ -190,24 +132,70 @@ class RunningTrials:
 		#for i in range(X.shape[3]):
 		#	print(X[idx_move,:,:,i])
 		
-		# Print our generated dataset shapes
-		print("* X shape", X.shape)	
-		print("* y_values shape", y_values.shape)
-		print("* y_distrib shape", y_distrib.shape)
-		
-		# Print some trial stats
-		print("* AI1 winrate:", ai1_win/total)
-		print("* AI2 winrate:", ai2_win/total)
-		print("* Draws:", draw/total)
-		print("* Mean game duration", duration.mean())
-		print("* Max game duration", duration.max())
-		
+		if DEBUG_PRINT:
+			# Print our generated dataset shapes
+			print("* X shape", X.shape)	
+			print("* y_values shape", y_values.shape)
+			print("* y_distrib shape", y_distrib.shape)
+			
+			# Print some trial stats
+			print("* AI1 winrate:", ai1_win/total)
+			print("* AI2 winrate:", ai2_win/total)
+			print("* Draws:", draw/total)
+			print("* Mean game duration", duration.mean())
+			print("* Max game duration", duration.max())
+			
+		print("--> Trials are over")
+			
 		# Save values to dataset
 		add_to_dataset(X, y_values, y_distrib, get_random_hash())
 
 		#prof.disable()
 		#prof.print_stats()
 		
-		#return X, y_values, y_distrib
+	# This function doesn't work but I might try to make it work later for multithreading
+	def run_parallel_trials(self, games, trials, contexts, ais, n_objects):
+		X = [] 
+		y_values = [] 
+		y_distrib = []
 		
+		#run_trial(games[0], trials[0], contexts[0], ais[0])
+		
+		print("--> Starting multi threading with max_workers :", MAX_WORKERS)		
+		with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+		
+			#if jpype.isJVMStarted() and not jpype.isThreadAttachedToJVM():
+			#	jpype.attachThreadToJVM()
+			#else:
+			#	print("--> Didn't manage to attach the thread to the JVM")
+			#	return
+		
+			fs = []
+			for i in range(MAX_WORKERS):
+				fs.append(executor.submit(self.run_trial, games[i], trials[i], contexts[i], ais[i]))
+			#fs = {executor.submit(self.test, n, n): n for n in range(10)}
+			
+			for i, f in enumerate(concurrent.futures.as_completed(fs)):
+				try:
+					print(f.result())
+					#print("iiiii",i)
+					X_, y_values_, y_distrib_ = f.result()
+					X.append(X_)
+					y_values.append(y_values_)
+					y_distrib.append(y_distrib_)
+				except Exception as e:
+					print("--> Exception:", e)
+				else:
+					print("--> Trial number", i, "is over")	
+							
+		print("--> Trials were run on parallel thanks to", MAX_WORKERS, "workers !")
+		
+		X, y_values, y_distrib = np.array(X, dtype=object), np.array(y_values, dtype=object), np.array(y_distrib, dtype=object)
+		print(X.shape)
+		print(y_values.shape)
+		print(y_distrib.shape)
+		
+		#add_to_dataset(X.reshape(-1, N_ROW, N_COL, N_REPRESENTATION_STACK), 
+		#	       y_values.reshape(-1), 
+		#	       y_distrib.reshape(-1, N_ROW, N_COL, N_ACTION_STACK))
 	

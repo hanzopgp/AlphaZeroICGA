@@ -160,6 +160,25 @@ class RunningTrials:
 
 		prof.disable()
 		prof.print_stats()
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 		
 	# This function doesn't work but I might try to make it work later for multithreading
 	def run_parallel_trials(self, games, trials, contexts, ais, n_objects):

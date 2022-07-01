@@ -129,9 +129,15 @@ The python alphazero script does everything, the following commands are for debu
 
 `ant create_agent` : takes the best model and build an agent as a jar file for the Ludii software.
 
+`python3 src_python/merge_datasets.py` : merges all the datasets in **datasets/** with an hash into a unique dataset.
+
+`python3 src_python/merge_txts.py` : merges all the text files in **models/** with an hash into a unique txt file.
+
+`python3 src_python/switch_model.py` : switch optimizer into champion and champion into old_star.
+
 ## Fight it
 
-When the project will be over, the models will be available in the folder **final_models/** and the Ludii AI will be in the folder **agents/** as jar files in order to load them in Ludii software. You will be able to load it against other AIs or against you on different games.
+When the project will be over, the model will be available in the folder **models/final_model/** and the Ludii AI will be in the folder **agents/** as a jar file in order to load it in Ludii software. You will be able to load it against other AIs or against you on different games.
 
 ## What I learned
 
@@ -146,7 +152,7 @@ When the project will be over, the models will be available in the folder **fina
 
 **Reinforcement learning :**
 - MCTS with UCB/PUCT scores
-- Reinforcement learning things such as temperature, dirichlet in policy for exploration etc...
+- State and action representation, reward system, temperature, dirichlet in policy for exploration etc...
 
 **- Time and memory optimization :**
 - Multithreading and GPU clusters (for the self-play games and the model training)

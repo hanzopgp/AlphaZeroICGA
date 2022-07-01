@@ -56,10 +56,12 @@ class MCTS_UCT:
 			from_ = getattr(legal_moves[i], "from")()
 			prev_x = from_ // N_ROW
 			prev_y = from_ % N_ROW
+			
 			# Precomputed function	
 			# Get the action index
 			action_index = index_action(from_, to)
 			#action_index = self.pre_action_index[from_][to]
+			
 			# Write the value only for the legal moves
 			legal_policy[prev_x, prev_y, action_index] = policy_pred[prev_x, prev_y, action_index] ## MAYBE CAN JUST ZERO OUT WITH NP WHERE?
 			

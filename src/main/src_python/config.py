@@ -1,3 +1,5 @@
+import tensorflow as tf
+
 ######### ALPHAZERO PAPER VARIABLES #########
 
 # AlphaZero paper config for chess
@@ -18,18 +20,19 @@
 
 ######### TIME CONSUMING VARIABLES #########
 
-NUM_DOJO = 1
-MAX_ITERATION_AGENTS_DOJO = 400
+NUM_DOJO = 2
+MAX_ITERATION_AGENTS_DOJO = 300
 
-NUM_TRIALS = 1
-MAX_ITERATION_AGENT1 = 400
-MAX_ITERATION_AGENT2 = 400
+NUM_TRIALS = 3
+MAX_ITERATION_AGENT1 = 300
+MAX_ITERATION_AGENT2 = 300
 
 MAX_GAME_DURATION = -1
 
 ######### CONSTANTE VARIABLES #########
 
 DEBUG_PRINT = True
+profiling_activated = False
 PLAYER1 = 1
 PLAYER2 = 2
 DATASET_PATH = "./datasets/"
@@ -68,23 +71,26 @@ MAX_SAMPLE = 10000 # can decide the size of the dataset
 
 TRAIN_SAMPLE_SIZE = 2048
 RANDOM_SEED = 42
-N_EPOCHS = 10
+N_EPOCHS = 20
 BATCH_SIZE = 256
 VERBOSE = 1
 VALIDATION_SPLIT = 0.2
 LOSS_WEIGHTS = [0.5, 0.5] # first one is value, second one policy
 
 MAIN_ACTIVATION = "relu"
-FILTERS = 128
+#MAIN_ACTIVATION = tf.keras.layers.LeakyReLU(alpha=0.5)
+#MAIN_ACTIVATION = "tanh"
+FILTERS = 64
 KERNEL_SIZE = (3,3)
-KERNEL_INITIALIZER = "zeros" # tf.keras.initializers.GlorotUniform()
-FIRST_KERNEL_SIZE = (3,3) 
+KERNEL_INITIALIZER = tf.keras.initializers.GlorotNormal() # Xavier uniform
+#KERNEL_INITIALIZER = "random_uniform"
+FIRST_KERNEL_SIZE = (3,3)
 USE_BIAS = False
-N_RES_LAYER = 20
-NEURONS_VALUE_HEAD = 128 # number of neurons in last dense layer
+N_RES_LAYER = 10
+NEURONS_VALUE_HEAD = 32 # number of neurons in last dense layer
 
 OPTIMIZER = "adam"
-LEARNING_RATE = 0.02
+LEARNING_RATE = 0.1
 MOMENTUM = 0.9
 REG_CONST = 1e-4 # L2 reg
 

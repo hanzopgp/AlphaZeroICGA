@@ -99,9 +99,7 @@ def add_to_dataset(X, y_values, y_distrib, hash_code=""):
 
 def load_nn(model_type):
 	print("--> Loading model for the game :", GAME_NAME, ", model type :", model_type)
-	model = load_model(
-			MODEL_PATH+GAME_NAME+"_"+model_type+".h5",
-			custom_objects={'softmax_cross_entropy_with_logits': softmax_cross_entropy_with_logits})
+	model = load_model(MODEL_PATH+GAME_NAME+"_"+model_type+".h5", custom_objects={'softmax_cross_entropy_with_logits': softmax_cross_entropy_with_logits})
 	print("--> Done !")
 	return model
 

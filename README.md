@@ -71,6 +71,7 @@ Links :
 - https://www.nature.com/articles/nature16961 (AlphaGo)
 - https://discovery.ucl.ac.uk/id/eprint/10045895/1/agz_unformatted_nature.pdf (AlphaGo Zero)
 - https://arxiv.org/abs/1712.01815 (AlphaZero)
+- https://arxiv.org/pdf/1903.08129.pdf (Hyper-parameters sweep on AlphaZero)
 
 ## Environment & Setup
 
@@ -129,11 +130,11 @@ The python alphazero script does everything, the following commands are for debu
 
 `ant create_agent` : takes the best model and build an agent as a jar file for the Ludii software.
 
-`python3 src_python/merge_datasets.py` : merges all the datasets in **datasets/** with an hash into a unique dataset.
+`python3 src_python/scripts/merge_datasets.py` : merges all the datasets in **datasets/** with an hash into a unique dataset.
 
-`python3 src_python/merge_txts.py` : merges all the text files in **models/** with an hash into a unique txt file.
+`python3 src_python/scripts/merge_txts.py` : merges all the text files in **models/** with an hash into a unique txt file.
 
-`python3 src_python/switch_model.py` : switch optimizer into champion and champion into old_star.
+`python3 src_python/scripts/switch_model.py` : switch optimizer into champion and champion into old_star.
 
 ## Fight it
 

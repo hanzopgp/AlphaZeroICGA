@@ -18,8 +18,9 @@ from optimization.precompute import *
 class RunningTrials:
 	# This function is called from java in RunningTrialsWithPython.java
 	def run_trial(self, game, trial, context, ais):
-		prof = cProfile.Profile()
-		prof.enable()
+		if profiling_activated:
+			prof = cProfile.Profile()
+			prof.enable()
 
 		# Precompute some functions
 		pre_action_index, pre_reverse_action_index, pre_coords = precompute_all()
@@ -158,8 +159,9 @@ class RunningTrials:
 		# Save values to dataset
 		add_to_dataset(X, y_values, y_distrib, get_random_hash())
 
-		prof.disable()
-		prof.print_stats()
+		if profiling_activated:
+			prof.disable()
+			prof.print_stats()
 	
 	
 	

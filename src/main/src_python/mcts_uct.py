@@ -59,8 +59,8 @@ class MCTS_UCT:
 			
 			# Precomputed function	
 			# Get the action index
-			action_index = index_action(from_, to)
-			#action_index = self.pre_action_index[from_][to]
+			#action_index = index_action(from_, to)
+			action_index = self.pre_action_index[from_][to]
 			
 			# Write the value only for the legal moves
 			legal_policy[prev_x, prev_y, action_index] = policy_pred[prev_x, prev_y, action_index] ## MAYBE CAN JUST ZERO OUT WITH NP WHERE?
@@ -84,16 +84,16 @@ class MCTS_UCT:
 			chosen_x, chosen_y, chosen_action = idx_legal[0][choice], idx_legal[1][choice], idx_legal[2][choice]
 			
 		# Precomputed function	
-		chosen_prev_x, chosen_prev_y = reverse_index_action(chosen_x, chosen_y, chosen_action)
-		#chosen_prev_x, chosen_prev_y = self.pre_reverse_action_index[chosen_x][chosen_y][chosen_action]
+		#chosen_prev_x, chosen_prev_y = reverse_index_action(chosen_x, chosen_y, chosen_action)
+		chosen_prev_x, chosen_prev_y = self.pre_reverse_action_index[chosen_x][chosen_y][chosen_action]
 		
 		# Now we need to find the move in the java object legal moves list
 		for i in range(len(legal_moves)):
 			to = legal_moves[i].to()
 			from_ = getattr(legal_moves[i], "from")()
 			# Precomputed function			
-			prev_x, prev_y, x, y = get_coord(from_, to)
-			#prev_x, prev_y, x, y = self.pre_coords[from_][to]
+			#prev_x, prev_y, x, y = get_coord(from_, to)
+			prev_x, prev_y, x, y = self.pre_coords[from_][to]
 			# Inverse to match our representation
 			if prev_x == chosen_x and prev_y == chosen_y and x == chosen_prev_x and y == chosen_prev_y:
 				return legal_moves[i], prior

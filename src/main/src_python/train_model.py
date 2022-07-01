@@ -61,7 +61,7 @@ if __name__ == '__main__':
 		
 	#model.summary()
 
-	#print("\n")
+	print("\n")
 	history = model.fit(
 		X=X, 
 		y=y, 
@@ -69,8 +69,13 @@ if __name__ == '__main__':
 		n_epochs=N_EPOCHS, 
 		verbose=VERBOSE, 
 		validation_split=VALIDATION_SPLIT)
+	
+	#for i in range(N_REPRESENTATION_STACK):
+	#	print(X[0,:,:,i])
+	#print(y_values[0])
+	#print(y_distrib[0])
 		
-	#print(model.predict(np.expand_dims(X[0], axis=0)))		
+	print(model.predict(np.expand_dims(X[0], axis=0)))		
 	#model.plot_metrics(history)
 
 	# If it is the first step, then there is no model yet and our

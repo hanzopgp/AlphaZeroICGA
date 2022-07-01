@@ -96,6 +96,7 @@ class CustomModel():
 		model = Model(inputs=[input_layer], outputs=[val_head, pol_head])
 		model.compile(
 			loss={"value_head": "mean_squared_error", "policy_head": softmax_cross_entropy_with_logits},
+			#loss={"value_head": "mean_squared_error", "policy_head": tf.keras.losses.CategoricalCrossentropy(from_logits=True)},
 			loss_weights={"value_head": LOSS_WEIGHTS[0], "policy_head": LOSS_WEIGHTS[1]},
 			#metrics={"value_head": "mean_squared_error", "policy_head": "accuracy"},
 			optimizer=self.opt)
@@ -114,7 +115,7 @@ class CustomModel():
 			activation=MAIN_ACTIVATION, 
 			kernel_regularizer=regularizers.l2(self.reg_const)
 		)(x)
-		x = BatchNormalization(axis=1)(x)
+		x = BatchNormalization(axis=3)(x)
 		x = LeakyReLU()(x)
 		return (x)
 		
@@ -132,7 +133,7 @@ class CustomModel():
 			activation=MAIN_ACTIVATION, 
 			kernel_regularizer=regularizers.l2(self.reg_const)
 		)(x)
-		x = BatchNormalization(axis=1)(x)
+		x = BatchNormalization(axis=3)(x)
 		x = add([input_layer, x]) # Skip connection
 		x = LeakyReLU()(x)
 		return (x)
@@ -151,7 +152,7 @@ class CustomModel():
 			activation="linear", 
 			kernel_regularizer=regularizers.l2(self.reg_const)
 		)(x)
-		x = BatchNormalization(axis=1)(x)
+		x = BatchNormalization(axis=3)(x)
 		x = LeakyReLU()(x)
 		x = Flatten()(x)
 		x = Dense(
@@ -184,13 +185,13 @@ class CustomModel():
 			activation="linear", 
 			kernel_regularizer=regularizers.l2(self.reg_const)
 		)(x)
-		x = BatchNormalization(axis=1)(x)
+		x = BatchNormalization(axis=3)(x)
 		x = LeakyReLU()(x)
 		x = Flatten()(x)
 		x = Dense(
 			self.output_dim, 
 			use_bias=USE_BIAS, 
-			activation="linear", # We are a softmax cross entropy with logits loss
+			activation="linear",
 			kernel_initializer=KERNEL_INITIALIZER,
 			kernel_regularizer=regularizers.l2(self.reg_const),
 			name="policy_head"

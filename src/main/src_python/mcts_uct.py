@@ -37,7 +37,7 @@ class MCTS_UCT:
 	def init_ai(self, game, player_id):
 		self._player_id = player_id
 		
-	def set_precompute(pre_action_index, pre_reverse_action_index, pre_coords):
+	def set_precompute(self, pre_action_index, pre_reverse_action_index, pre_coords):
 		self.pre_action_index = pre_action_index
 		self.pre_reverse_action_index = pre_reverse_action_index
 		self.pre_coords = pre_coords
@@ -48,6 +48,7 @@ class MCTS_UCT:
 	def chose_move(self, legal_moves, policy_pred, competitive_mode):
 		# New legal policy array starting as everything illegal
 		legal_policy = np.zeros(policy_pred.shape)
+		
 		# Find the legal moves in the policy
 		for i in range(len(legal_moves)):
 			# Get the N_ROW, N_COL coordinates
@@ -55,19 +56,16 @@ class MCTS_UCT:
 			from_ = getattr(legal_moves[i], "from")()
 			prev_x = from_ // N_ROW
 			prev_y = from_ % N_ROW
-			
-			
-			
+			# Precomputed function	
 			# Get the action index
-			#action_index = index_action(from_, to)
-			action_index = self.pre_action_index[from_][to]
-			
-			
-			
+			action_index = index_action(from_, to)
+			#action_index = self.pre_action_index[from_][to]
 			# Write the value only for the legal moves
 			legal_policy[prev_x, prev_y, action_index] = policy_pred[prev_x, prev_y, action_index] ## MAYBE CAN JUST ZERO OUT WITH NP WHERE?
+			
 		# Re-compute softmax after masking out illegal moves
 		legal_policy = softmax(legal_policy, ignore_zero=True)
+		
 		# If we are playing for real, we chose the best action given by the policy
 		if competitive_mode:
 			chosen_x, chosen_y, chosen_action = np.unravel_index(legal_policy.argmax(), legal_policy.shape)
@@ -83,26 +81,17 @@ class MCTS_UCT:
 			prior = fire[choice]
 			chosen_x, chosen_y, chosen_action = idx_legal[0][choice], idx_legal[1][choice], idx_legal[2][choice]
 			
-			
-			
+		# Precomputed function	
+		chosen_prev_x, chosen_prev_y = reverse_index_action(chosen_x, chosen_y, chosen_action)
+		#chosen_prev_x, chosen_prev_y = self.pre_reverse_action_index[chosen_x][chosen_y][chosen_action]
+		
 		# Now we need to find the move in the java object legal moves list
-		#chosen_prev_x, chosen_prev_y = reverse_index_action(chosen_x, chosen_y, chosen_action)
-		chosen_prev_x = self.pre_reverse_action_index[chosen_x][chosen_y][chosen_action][0]
-		chosen_prev_y = self.pre_reverse_action_index[chosen_x][chosen_y][chosen_action][1]
-		
-		
-		
 		for i in range(len(legal_moves)):
 			to = legal_moves[i].to()
 			from_ = getattr(legal_moves[i], "from")()
-			
-			
-			
-			#prev_x, prev_y, x, y = get_coord(from_, to)
-			prev_x, prev_y, x, y = self.pre_coords[from_][to]
-			
-			
-			
+			# Precomputed function			
+			prev_x, prev_y, x, y = get_coord(from_, to)
+			#prev_x, prev_y, x, y = self.pre_coords[from_][to]
 			# Inverse to match our representation
 			if prev_x == chosen_x and prev_y == chosen_y and x == chosen_prev_x and y == chosen_prev_y:
 				return legal_moves[i], prior
@@ -221,18 +210,25 @@ class MCTS_UCT:
 			else:
 				state = format_state(current.context).squeeze()
 				_, policy_pred = self.model.predict(np.expand_dims(state, axis=0), verbose=0)
+				
 				# Get ride of useless batch dimension
 				policy_pred = policy_pred[0] 
+				
 				# Apply Dirichlet to ensure exploration
 				policy_pred = apply_dirichlet(policy_pred)
+				
 				# The output of the network is a flattened array
 				policy_pred = policy_pred.reshape(N_ROW, N_COL, N_ACTION_STACK)
+				
 				# Chose a move in legal moves by randomly firing in the policy
 				move, prior = self.chose_move(current.unexpanded_moves, policy_pred, competitive_mode=self.dojo)
+				
 			# We copy the context to play in a simulation
 			context = current.context.deepCopy()
+			
 			# Apply the move in the simulation
 			context.game().apply(context, move)
+			
 			# Return a new node, with the new child (which is the move played), and the prior 
 			return Node(current, move, prior, context)
 

@@ -37,9 +37,9 @@ def precompute_all():
 	return precompute_action_index(), precompute_reverse_action_index(), precompute_get_coord()
 	
 	
-print(precompute_action_index().shape)
-print(precompute_reverse_action_index().shape)
-print(precompute_get_coord().shape)
+#print(precompute_action_index().shape)
+#print(precompute_reverse_action_index().shape)
+#print(precompute_get_coord().shape)
 
 #print(precompute_reverse_action_index()[1][0][0][0])
 #print(precompute_reverse_action_index()[1][0][0][1])

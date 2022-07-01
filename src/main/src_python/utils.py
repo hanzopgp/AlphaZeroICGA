@@ -30,9 +30,13 @@ from config import *
 
 def load_data():
 	pkl_path = DATASET_PATH+GAME_NAME+".pkl"
+	
+	# Exit program if there is a dataset
 	if not exists(pkl_path):
 		print("--> Couldn't find dataset at:", pkl_path)
 		exit()
+		
+	# Open the dataset file
 	print("--> Loading dataset for the game :", GAME_NAME)
 	data = []
 	with open(pkl_path, 'rb') as fr:
@@ -41,6 +45,8 @@ def load_data():
 		    		data.append(pickle.load(fr))
 		except EOFError:
 			pass
+			
+	# Extrat what's inside the dataset
 	X = []
 	y_values = []
 	y_distrib = []
@@ -58,6 +64,8 @@ def load_data():
 		final_X = np.concatenate((final_X, X[i]), axis=0)
 		final_y_values = np.concatenate((final_y_values, y_values[i]), axis=0)
 		final_y_distrib = np.concatenate((final_y_distrib, y_distrib[i]), axis=0)
+		
+	# Print some stats
 	print("* Number of examples in the dataset :", final_X.shape[0])
 	print("* X shape", final_X.shape)
 	print("* y_values shape", final_y_values.shape)
@@ -114,10 +122,13 @@ def softmax_cross_entropy_with_logits(y_true, y_pred):
 	# Find where the values of the labels are 0
 	zero = tf.zeros(shape=tf.shape(y_true), dtype=tf.float32)
 	where = tf.equal(y_true, zero)
+	
 	# Create a -100 values array
 	filler = tf.fill(tf.shape(y_true), -100.0)
+	
 	# Switch 0 values by -100 values for the predictions
 	y_pred = tf.where(where, filler, y_pred)
+	
 	# Apply and return the classical softmax crossentropy loss
 	return tf.nn.softmax_cross_entropy_with_logits(labels=y_true, logits=y_pred) 
 
@@ -171,6 +182,7 @@ def index_action(from_, to):
 	prev_x, prev_y, x, y = get_coord(from_, to)
 	off_y = y - prev_y
 	off_x = x - prev_x
+	
 	# We have distance such as 1, 2, 3, 4... We have orientation such as 
 	# SE, SW, NE, NW. We create an index such as :
 	# index = orientation * N_ROW + (abs(distance)-1)
@@ -203,7 +215,7 @@ def reverse_index_action(to_x, to_y, action):
 	from_x = to_x + INDEX_ACTION_TAB_SIGN[orientation][0] * (distance + 1)
 	from_y = to_y + INDEX_ACTION_TAB_SIGN[orientation][1] * (distance + 1)
 	return from_x, from_y
-
+	
 	#if orientation == 0: # SE
 	#	from_x = to_x + (distance + 1)
 	#	from_y = to_y + (distance + 1)
@@ -242,10 +254,13 @@ def format_positions(positions, lvl, val):
 # Build the input of the NN for AlphaZero algorithm thanks to the context object
 def format_state(context):
 	res = np.zeros(((N_TIME_STEP*2), N_LEVELS, N_ROW, N_COL))
+	
 	# Here we copy the state since we are going to need to undo moves
 	context_copy = context.deepCopy()
+	
 	# Get the game model so we can undo move on the context_copy object
 	game = context_copy.game()
+	
 	# Fill owned position for each player at each time step
 	for i in range(0, N_TIME_STEP*2, 2):
 		# Get the state and the owned positions for both players
@@ -262,10 +277,13 @@ def format_state(context):
 		# Break in case we can't undo a move (start of game for example)
 		except: 
 			break
+			
 	# Need to first merge the time steps and levels into a representation stack
 	res = res.reshape(-1, N_ROW, N_COL)
+	
 	# And then move the axis the get the NWHC format
 	res = np.moveaxis(res, 0, -1)
+	
 	# This was a big misstake leading to a wrong representation
 	#res = res.reshape(N_ROW, N_COL, -1)
 	

@@ -18,8 +18,8 @@ from optimization.precompute import *
 class RunningTrials:
 	# This function is called from java in RunningTrialsWithPython.java
 	def run_trial(self, game, trial, context, ais):
-		#prof = cProfile.Profile()
-		#prof.enable()
+		prof = cProfile.Profile()
+		prof.enable()
 
 		# Precompute some functions
 		pre_action_index, pre_reverse_action_index, pre_coords = precompute_all()
@@ -158,8 +158,8 @@ class RunningTrials:
 		# Save values to dataset
 		add_to_dataset(X, y_values, y_distrib, get_random_hash())
 
-		#prof.disable()
-		#prof.print_stats()
+		prof.disable()
+		prof.print_stats()
 		
 	# This function doesn't work but I might try to make it work later for multithreading
 	def run_parallel_trials(self, games, trials, contexts, ais, n_objects):

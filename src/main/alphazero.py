@@ -6,7 +6,6 @@ from subprocess import Popen
 
 
 from config import *
-from 
 
 
 def decide_if_switch_model():

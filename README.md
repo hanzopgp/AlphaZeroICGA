@@ -135,16 +135,21 @@ When the project will be over, the models will be available in the folder **fina
 
 ## What I learned
 
+**General knowledge :**
 - Papers implementation and understanding (AlphaGo, AlphaGo Zero, AlphaZero)
-
 - Software architecture with different task communicating with each others (alphazero.sh)
-- Multithreading and GPU clusters (for the self-play games and the model training)
 - Java wrapper for python with JPY
-- Code optimization because the algorithm is very time consuming (use of profilers)
 
+**Deep learning :**
 - Multi-headed neural networks (here for policy + value prediction)
 - Huge CNN model with residual blocks and skip connection
 
+**Reinforcement learning :**
 - MCTS with UCB/PUCT scores
 - Reinforcement learning things such as temperature, dirichlet in policy for exploration etc...
+
+**- Time and memory optimization :**
+    - Multithreading and GPU clusters (for the self-play games and the model training)
+    - Code optimization because the algorithm is very time consuming (use of profilers)
+    - Precomputing functions which are called huge amount of time (in MCTS algorithm)
 

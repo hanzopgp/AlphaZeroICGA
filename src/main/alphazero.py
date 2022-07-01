@@ -22,9 +22,14 @@ def decide_if_switch_model():
 		return False
 			
 def parallelize_command(command, n):
-	string = "ant -q " + command + " &"
-	for _ in range(n-1):
-		string += "ant -q " + command + " &"
+	if not DEBUG_PRINT:
+		string = "ant -q " + command + " &"
+		for _ in range(n-1):
+			string += "ant -q " + command + " &"
+	else:
+		string = "ant " + command + " &"
+		for _ in range(n-1):
+			string += "ant " + command + " &"
 	return string + " wait"
 			
 def init():
@@ -49,7 +54,7 @@ def conclude():
 def main_loop(alphazero_iteration, trial_activated, n_iteration, n_workers):
 	while(alphazero_iteration < n_iteration):
 		print("============================================================================================")
-		print("================================== ITERATION ALPHAZERO", alphazero_iteration, "====================================")
+		print("================================== ITERATION ALPHAZERO", alphazero_iteration, "===================================")
 		print("============================================================================================")
 		if trial_activated: # We train the outsider until it wins against the champion
 			print("********************************************************************************************")

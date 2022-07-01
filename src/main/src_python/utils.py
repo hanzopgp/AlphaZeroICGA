@@ -66,7 +66,8 @@ def load_data():
 	return final_X, final_y_values, final_y_distrib
 	
 def get_random_sample(X, y_distrib, y_values):
-	idx = np.random.choice(np.arange(X.shape[0]), TRAIN_SAMPLE_SIZE, replace=False)
+	train_sample = TRAIN_SAMPLE_SIZE if TRAIN_SAMPLE_SIZE < X.shape[0] else X.shape[0]
+	idx = np.random.choice(np.arange(X.shape[0]), train_sample, replace=False)
 	return X[idx], y_distrib[idx], y_values[idx]
 
 def get_random_hash():

@@ -10,6 +10,7 @@ sys.path.append(os.getcwd()+"/src_python")
 from config import *
 from utils import *
 from mcts_uct import MCTS_UCT
+from optimization.precompute import * 
 
 
 ######### Here is the class called in the java file to run trials #########	
@@ -19,12 +20,17 @@ class RunningTrials:
 	def run_trial(self, game, trial, context, ais):
 		#prof = cProfile.Profile()
 		#prof.enable()
-		
+
+		# Precompute some functions
+		pre_action_index, pre_reverse_action_index, pre_coords = precompute_all()
+
 		# Init both agents
 		mcts1 = MCTS_UCT()
-		mcts2 = MCTS_UCT()
 		mcts1.init_ai(game, PLAYER1)
+		mcts1.set_precompute(pre_action_index, pre_reverse_action_index, pre_coords)
+		mcts2 = MCTS_UCT()
 		mcts2.init_ai(game, PLAYER2)
+		mcts2.set_precompute(pre_action_index, pre_reverse_action_index, pre_coords)
 		
 		# Declare some variables for statistics
 		ai1_win = 0

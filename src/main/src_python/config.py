@@ -66,7 +66,7 @@ MAX_SAMPLE = 10000 # can decide the size of the dataset
 
 ######### NN parameters #########
 
-TRAIN_SAMPLE_SIZE = 1024 # 512
+TRAIN_SAMPLE_SIZE = 2048
 RANDOM_SEED = 42
 N_EPOCHS = 10
 BATCH_SIZE = 256
@@ -87,3 +87,11 @@ OPTIMIZER = "adam"
 LEARNING_RATE = 0.02
 MOMENTUM = 0.9
 REG_CONST = 1e-4 # L2 reg
+
+######### OPTIMIZATION VARIABLES #########
+
+INDEX_ACTION_TAB_SIGN = [[1,1], [-1,1], [1,-1], [-1,-1]]
+
+
+
+

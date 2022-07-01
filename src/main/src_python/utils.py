@@ -163,7 +163,7 @@ def apply_dirichlet(policy):
 
 # Transforms board int values into 2D coordinate values
 def get_coord(from_, to):
-	return int(from_/N_ROW), from_%N_ROW, int(to/N_ROW), to%N_ROW
+	return from_//N_ROW, from_%N_ROW, to//N_ROW, to%N_ROW
 
 # Define the type of action thanks to position of current and last move
 def index_action(from_, to):
@@ -176,81 +176,48 @@ def index_action(from_, to):
 	# index = orientation * N_ROW + (abs(distance)-1)
 	# for example if the move is a NE with 3 as the distance we get the index :
 	# 2 * 8 + (3-1) = 18, the number of index is N_DISTANCE * N_ORIENTATION. 
-	# If we want to get back the values easily using int() and %
+	# If we want to get back the values easily using // and %
 	if off_y >= 1: # S
 		if off_x >= 1: # E
 			index = 0 * N_DISTANCE + (np.abs(off_y) - 1)
-		else: # W
+		elif off_x <= -1: # W
 			index = 1 * N_DISTANCE + (np.abs(off_y) - 1)
+		else:
+			index = -1
 	elif off_y <= -1: # N
 		if off_x >= 1: # E
 			index = 2 * N_DISTANCE + (np.abs(off_y) - 1)
-		else: # W
+		elif off_x <= -1:  # W
 			index = 3 * N_DISTANCE + (np.abs(off_y) - 1)
+		else:
+			index = -1
+	else:
+		index = -1
 	return index 
 
 # Returns the position of the pawn after going to (to_x, to_y)
 # thanks to action <action>
 def reverse_index_action(to_x, to_y, action):
-	distance = (action % N_DISTANCE)
-	orientation = int(action / N_DISTANCE)
-	if orientation == 0: # SE
-		from_x = to_x + (distance + 1)
-		from_y = to_y + (distance + 1)
-	elif orientation == 1: # SW
-		from_x = to_x - (distance + 1)
-		from_y = to_y + (distance + 1)
-	elif orientation == 2: # NE
-		from_x = to_x + (distance + 1)
-		from_y = to_y - (distance + 1)
-	else: # NW
-		from_x = to_x - (distance + 1)
-		from_y = to_y - (distance + 1)
+	distance = action % N_DISTANCE
+	orientation = action // N_DISTANCE
+	from_x = to_x + INDEX_ACTION_TAB_SIGN[orientation][0] * (distance + 1)
+	from_y = to_y + INDEX_ACTION_TAB_SIGN[orientation][1] * (distance + 1)
 	return from_x, from_y
 
-# Get the policy on every moves, mask out the illegal moves,
-# re-compute softmax and pick a move randomly according to
-# the new policy
-def chose_move(legal_moves, policy_pred, competitive_mode):
-	# New legal policy array starting as everything illegal
-	legal_policy = np.zeros(policy_pred.shape)
-	# Find the legal moves in the policy
-	for i in range(len(legal_moves)):
-		# Get the N_ROW, N_COL coordinates
-		to = legal_moves[i].to()
-		from_ = getattr(legal_moves[i], "from")()
-		prev_x = int(from_ / N_ROW)
-		prev_y = from_ % N_ROW
-		# Get the action index
-		action_index = index_action(from_, to)
-		# Write the value only for the legal moves
-		legal_policy[prev_x, prev_y, action_index] = policy_pred[prev_x, prev_y, action_index] ## MAYBE CAN JUST ZERO OUT WITH NP WHERE?
-	# Re-compute softmax after masking out illegal moves
-	legal_policy = softmax(legal_policy, ignore_zero=True)
-	# If we are playing for real, we chose the best action given by the policy
-	if competitive_mode:
-		chosen_x, chosen_y, chosen_action = np.unravel_index(legal_policy.argmax(), legal_policy.shape)
-		prior = np.max(legal_policy)
-	# Else we are training and we use the policy for the MCTS
-	else:
-		# Build a cumulative sum array and chose the move
-		r = np.random.rand()
-		idx_legal = np.where(legal_policy != 0)
-		fire = legal_policy[idx_legal]
-		chose_array = np.cumsum(fire)
-		choice = np.where(chose_array >= r)[0][0]
-		prior = fire[choice]
-		chosen_x, chosen_y, chosen_action = idx_legal[0][choice], idx_legal[1][choice], idx_legal[2][choice]
-	# Now we need to find the move in the java object legal moves list
-	chosen_prev_x, chosen_prev_y = reverse_index_action(chosen_x, chosen_y, chosen_action)
-	for i in range(len(legal_moves)):
-		to = legal_moves[i].to()
-		from_ = getattr(legal_moves[i], "from")()
-		prev_x, prev_y, x, y = get_coord(from_, to)
-		# Inverse to match our representation
-		if prev_x == chosen_x and prev_y == chosen_y and x == chosen_prev_x and y == chosen_prev_y:
-			return legal_moves[i], prior
-		
+	#if orientation == 0: # SE
+	#	from_x = to_x + (distance + 1)
+	#	from_y = to_y + (distance + 1)
+	#elif orientation == 1: # SW
+	#	from_x = to_x - (distance + 1)
+	#	from_y = to_y + (distance + 1)
+	#elif orientation == 2: # NE
+	#	from_x = to_x + (distance + 1)
+	#	from_y = to_y - (distance + 1)
+	#else: # NW
+	#	from_x = to_x - (distance + 1)
+	#	from_y = to_y - (distance + 1)
+	#return from_x, from_y
+
 ######### Here are the utility functions to format the states #########
 
 # Invert the state (-1 become +1 and +1 become -1)

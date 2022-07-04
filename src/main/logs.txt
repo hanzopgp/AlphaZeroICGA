@@ -1,0 +1,40 @@
+Buildfile: /home/durande/Bureau/AlphaZeroICGA/src/main/build.xml
+
+clean:
+   [delete] Deleting directory /home/durande/Bureau/AlphaZeroICGA/src/main/bin
+   [delete] Deleting directory /home/durande/Bureau/AlphaZeroICGA/src/main/agents
+   [delete] Deleting directory /home/durande/Bureau/AlphaZeroICGA/src/main/datasets
+   [delete] Deleting directory /home/durande/Bureau/AlphaZeroICGA/src/main/models
+
+BUILD SUCCESSFUL
+Total time: 0 seconds
+Buildfile: /home/durande/Bureau/AlphaZeroICGA/src/main/build.xml
+
+init:
+    [mkdir] Created dir: /home/durande/Bureau/AlphaZeroICGA/src/main/bin
+    [mkdir] Created dir: /home/durande/Bureau/AlphaZeroICGA/src/main/models
+    [mkdir] Created dir: /home/durande/Bureau/AlphaZeroICGA/src/main/agents
+    [mkdir] Created dir: /home/durande/Bureau/AlphaZeroICGA/src/main/datasets
+    [touch] Creating /home/durande/Bureau/AlphaZeroICGA/src/main/models/save_winners.txt
+     [copy] Copying 2 files to /home/durande/Bureau/AlphaZeroICGA/src/main/bin
+
+build:
+    [javac] Compiling 3 source files to /home/durande/Bureau/AlphaZeroICGA/src/main/bin
+********************************************************************************************
+*************************************** INITIALIZING ***************************************
+********************************************************************************************
+********************************************************************************************
+**************************************** COMPILING *****************************************
+********************************************************************************************
+Traceback (most recent call last):
+  File "/home/durande/Bureau/AlphaZeroICGA/src/main/alphazero.py", line 101, in <module>
+    init()	
+  File "/home/durande/Bureau/AlphaZeroICGA/src/main/alphazero.py", line 43, in init
+    Popen("ant build", shell=True).wait()
+  File "/usr/lib/python3.9/subprocess.py", line 1189, in wait
+    return self._wait(timeout=timeout)
+  File "/usr/lib/python3.9/subprocess.py", line 1919, in _wait
+    (pid, sts) = self._try_wait(0)
+  File "/usr/lib/python3.9/subprocess.py", line 1877, in _try_wait
+    (pid, sts) = os.waitpid(self.pid, wait_flags)
+KeyboardInterrupt

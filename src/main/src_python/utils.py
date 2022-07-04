@@ -1,3 +1,4 @@
+
 import math
 import random
 import time
@@ -173,6 +174,11 @@ def apply_dirichlet(policy):
 # Transforms board int values into 2D coordinate values
 def get_coord(from_, to):
 	return from_//N_ROW, from_%N_ROW, to//N_ROW, to%N_ROW
+	
+# Transforms an int value into 3D coord
+def get_3D_coord(value):
+	tmp = value // (N_ACTION_STACK)
+	return tmp // N_ROW, tmp % N_COL, value % N_ACTION_STACK
 
 # Define the type of action thanks to position of current and last move
 def index_action(from_, to):
@@ -203,7 +209,7 @@ def index_action(from_, to):
 			index = -1
 	else:
 		index = -1
-	return index 
+	return int(index)
 
 # Returns the position of the pawn after going to (to_x, to_y)
 # thanks to action <action>
@@ -212,7 +218,7 @@ def reverse_index_action(to_x, to_y, action):
 	orientation = action // N_DISTANCE
 	from_x = to_x + INDEX_ACTION_TAB_SIGN[orientation][0] * (distance + 1)
 	from_y = to_y + INDEX_ACTION_TAB_SIGN[orientation][1] * (distance + 1)
-	return from_x, from_y
+	return int(from_x), int(from_y)
 	
 	#if orientation == 0: # SE
 	#	from_x = to_x + (distance + 1)

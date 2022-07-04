@@ -37,17 +37,19 @@ class MCTS_UCT:
 	def init_ai(self, game, player_id):
 		self._player_id = player_id
 		
-	def set_precompute(self, pre_action_index, pre_reverse_action_index, pre_coords):
+	def set_precompute(self, pre_action_index, pre_reverse_action_index, pre_coords, pre_3D_coords):
 		self.pre_action_index = pre_action_index
 		self.pre_reverse_action_index = pre_reverse_action_index
 		self.pre_coords = pre_coords
+		self.pre_3D_coords = pre_3D_coords
 		
 	# Get the policy on every moves, mask out the illegal moves,
 	# re-compute softmax and pick a move randomly according to
-	# the new policy
+	# the new policy then return the move and its prio
 	def chose_move(self, legal_moves, policy_pred, competitive_mode):
 		# New legal policy array starting as everything illegal
 		legal_policy = np.zeros(policy_pred.shape)
+		
 		
 		# Find the legal moves in the policy
 		for i in range(len(legal_moves)):
@@ -59,7 +61,6 @@ class MCTS_UCT:
 			
 			# Precomputed function	
 			# Get the action index
-			#action_index = index_action(from_, to)
 			action_index = self.pre_action_index[from_][to]
 			
 			# Write the value only for the legal moves
@@ -74,17 +75,34 @@ class MCTS_UCT:
 			prior = np.max(legal_policy)
 		# Else we are training and we use the policy for the MCTS
 		else:
-			# Build a cumulative sum array and chose the move
+			# Get a random number between 0 and 1
 			r = np.random.rand()
-			idx_legal = np.where(legal_policy != 0)
-			fire = legal_policy[idx_legal]
-			chose_array = np.cumsum(fire)
-			choice = np.where(chose_array >= r)[0][0]
-			prior = fire[choice]
-			chosen_x, chosen_y, chosen_action = idx_legal[0][choice], idx_legal[1][choice], idx_legal[2][choice]
 			
+			
+			# Transform the array into a cumulativ sum array
+			#start = time.time()
+			#chose_array = np.cumsum(legal_policy.flatten()).reshape(N_ROW, N_COL, N_ACTION_STACK)
+			# Find the index of the first value which is higher than r
+			# those index will represent the move to play
+			#choice = np.where(chose_array >= r)
+			#chosen_x, chosen_y, chosen_action = choice[0][0], choice[1][0], choice[2][0]
+			#TEST1 += time.time() - start
+			#print("OK1", TEST1)
+			
+			# Check if that's faster
+			start = time.time()
+			chose_array = np.cumsum(legal_policy.flatten())
+			choice = np.where(chose_array >= r)
+			# Precomputed function
+			chosen_x, chosen_y, chosen_action = self.pre_3D_coords[choice[0][0]]
+			#TEST2 += time.time() - start
+			#print("OK2", TEST2)
+			
+			# The prior is the value at those index which represent the
+			# probability it was picked
+			prior = legal_policy[chosen_x][chosen_y][chosen_action]			
+
 		# Precomputed function	
-		#chosen_prev_x, chosen_prev_y = reverse_index_action(chosen_x, chosen_y, chosen_action)
 		chosen_prev_x, chosen_prev_y = self.pre_reverse_action_index[chosen_x][chosen_y][chosen_action]
 		
 		# Now we need to find the move in the java object legal moves list
@@ -92,7 +110,6 @@ class MCTS_UCT:
 			to = legal_moves[i].to()
 			from_ = getattr(legal_moves[i], "from")()
 			# Precomputed function			
-			#prev_x, prev_y, x, y = get_coord(from_, to)
 			prev_x, prev_y, x, y = self.pre_coords[from_][to]
 			# Inverse to match our representation
 			if prev_x == chosen_x and prev_y == chosen_y and x == chosen_prev_x and y == chosen_prev_y:

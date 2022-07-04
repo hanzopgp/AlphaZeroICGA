@@ -23,15 +23,15 @@ class RunningTrials:
 			prof.enable()
 
 		# Precompute some functions
-		pre_action_index, pre_reverse_action_index, pre_coords = precompute_all()
+		pre_action_index, pre_reverse_action_index, pre_coords, pre_3D_coords = precompute_all()
 
 		# Init both agents
 		mcts1 = MCTS_UCT()
 		mcts1.init_ai(game, PLAYER1)
-		mcts1.set_precompute(pre_action_index, pre_reverse_action_index, pre_coords)
+		mcts1.set_precompute(pre_action_index, pre_reverse_action_index, pre_coords, pre_3D_coords)
 		mcts2 = MCTS_UCT()
 		mcts2.init_ai(game, PLAYER2)
-		mcts2.set_precompute(pre_action_index, pre_reverse_action_index, pre_coords)
+		mcts2.set_precompute(pre_action_index, pre_reverse_action_index, pre_coords, pre_3D_coords)
 		
 		# Declare some variables for statistics
 		ai1_win = 0

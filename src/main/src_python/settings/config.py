@@ -2,8 +2,7 @@ import tensorflow as tf
 
 ######### ALPHAZERO PAPER VARIABLES #########
 
-# AlphaZero paper config for chess
-# thiking_time 40ms
+# thinking_time 40ms
 # total number of games 44M
 # number of trials 25 000
 # sample 2048 positions from the last 500 000 games
@@ -20,20 +19,19 @@ import tensorflow as tf
 
 ######### TIME CONSUMING VARIABLES #########
 
-	
-TEST1 = 0
-TEST2 = 0
-
 NUM_DOJO = 1 
 MAX_ITERATION_AGENTS_DOJO = 30 # 300
+THINKING_TIME_AGENTS_DOJO = -1
 
 NUM_EPISODE = 1 
 MAX_ITERATION_AGENT1 = 30
 MAX_ITERATION_AGENT2 = 30
+THINKING_TIME_AGENT1 = -1
+THINKING_TIME_AGENT2 = -1
 
-MAX_GAME_DURATION = -1
+MAX_GAME_DURATION = 300
 
-######### CONSTANTE VARIABLES #########
+######### CONSTANT VARIABLES #########
 
 DEBUG_PRINT = True
 PROFILING_ACTIVATED = True
@@ -43,19 +41,14 @@ DATASET_PATH = "./datasets/"
 MODEL_PATH = "./models/"
 WINNERS_FILE="./models/save_winners.txt"
 N_MOVES_TYPICAL_POSITION_BASHNI = 20 # need to think a bit more about this one !	
-
-######### DOJO PARAMETERS #########
-
-THINKING_TIME_AGENTS_DOJO = -1
 OUTSIDER_MIN_WINRATE = 0.55
 
 ######### MCTS PARAMETERS #########
+
 CSTE_PUCT = 1 # no idea about the value of this variable in the paper 
 DIRICHLET_ALPHA = 10/N_MOVES_TYPICAL_POSITION_BASHNI # noise in the estimated policy -> more exploration
 WEIGHTED_SUM_DIR = 0.75 # this value comes from the paper
 TEMPERATURE = 1 # 1 -> no change, 0 -> argmax
-THINKING_TIME_AGENT1 = -1
-THINKING_TIME_AGENT2 = -1
 MAX_SAMPLE = 10000 # can decide the max size of the dataset 
 
 ######### NN parameters #########
@@ -69,8 +62,6 @@ VALIDATION_SPLIT = 0.2
 LOSS_WEIGHTS = [0.5, 0.5] # first one is value, second one policy
 
 MAIN_ACTIVATION = "relu"
-#MAIN_ACTIVATION = tf.keras.layers.LeakyReLU(alpha=0.3)
-#MAIN_ACTIVATION = "tanh"
 FILTERS = 64
 KERNEL_SIZE = (3,3)
 KERNEL_INITIALIZER = tf.keras.initializers.GlorotNormal() # Xavier uniform

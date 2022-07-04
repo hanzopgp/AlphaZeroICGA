@@ -30,6 +30,10 @@ class MCTS_UCT_alphazero:
 		self.pre_coords = pre_coords
 		self.pre_3D_coords = pre_3D_coords
 		
+	# Use the model to predict a policy and a value
+	def predict_with_model(self, state):
+		return self.model.predict(state, verbose=0)
+		
 	# Get the policy on every moves, mask out the illegal moves,
 	# re-compute softmax and pick a move randomly according to
 	# the new policy then return the move and its prio
@@ -131,8 +135,8 @@ class MCTS_UCT_alphazero:
 				# Predict playout values with the network instead of the playout
 				utils = np.zeros(num_players+1)
 				state = np.expand_dims(format_state(current_context).squeeze(), axis=0)
-				value, _ = self.model.predict(state, verbose=0)
-				value_opp, _ = self.model.predict(invert_state(state), verbose=0)
+				value, _ = self.predict_with_model(state)
+				value_opp, _ = self.predict_with_model(invert_state(state))
 				utils[PLAYER1], utils[PLAYER2] = value, value_opp
 			# If we are in a terminal node we can compute ground truth utilities
 			else:
@@ -165,7 +169,7 @@ class MCTS_UCT_alphazero:
 		
 			# Get the representation and get the prediction
 			state = format_state(context).squeeze()
-			_, policy_pred = self.model.predict(np.expand_dims(state, axis=0), verbose=0)
+			_, policy_pred = self.model.predict(np.expand_dims(state, axis=0))
 			
 			# Get ride of useless batch dimension
 			policy_pred = policy_pred[0] 
@@ -189,9 +193,11 @@ class MCTS_UCT_alphazero:
 		# so we need to init some variables according to PUCT
 		best_child = None
 		best_value = -math.inf
-		two_parent_log = 2.0 * math.log(max(1, current.visit_count))
 		num_best_found = 0
 		num_children = len(current.children)
+		
+		# For UCB score
+		#two_parent_log = 2.0 * math.log(max(1, current.visit_count))
 
 		# The mover can be both of the players since the games are alternating move games
 		mover = current.context.state().mover()
@@ -200,13 +206,14 @@ class MCTS_UCT_alphazero:
 		for i in range(num_children):
 			child = current.children[i]
 
-			# Compute the PUCT score
-			exploit = child.score_sums[mover] / child.visit_count
-			explore = math.sqrt(two_parent_log / child.visit_count)
-			
-			# Gotta understand PUCT
+			# Compute the UCB score
 			#exploit = child.score_sums[mover] / child.visit_count
-			#explore = CSTE_PUCT * current.prior * (np.sqrt(child.score_sums[mover]) / (1 + current.score_sums[mover]))
+			#explore = math.sqrt(two_parent_log / child.visit_count)
+			
+			# Compute the PUCT score
+			# The score depends on low visit count, high move probability and high value
+			exploit = child.score_sums[mover] / child.visit_count
+			explore = CSTE_PUCT * current.prior * (np.sqrt(child.score_sums[mover]) / (1 + current.score_sums[mover]))
 			
 			value = exploit + explore
 

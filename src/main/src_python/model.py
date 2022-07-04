@@ -52,7 +52,7 @@ class CustomModel():
 		return self.model.summary()
 		
 	def predict(self, x):
-		return self.model.predict(x, verbose=0)
+		return self.model.predict(x)
 
 	def fit(self, X, y, n_epochs, batch_size, verbose, validation_split):
 		return self.model.fit(

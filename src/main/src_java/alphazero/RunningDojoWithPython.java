@@ -48,10 +48,10 @@ public class RunningDojoWithPython{
 			if (!PyLib.isPythonRunning()) {
 				PyLib.startPython(jarPath);
 			}
-			pythonDojoModule = PyModule.importModule("src_python.dojo");
+			pythonDojoModule = PyModule.importModule("src_python.running_dojos");
 			initialisedJpy = true;
 		}
-		pythonDojo = pythonDojoModule.call("Dojo");
+		pythonDojo = pythonDojoModule.call("RunningDojos");
 	}
 	
 	public static void run(final Game game, final Trial trial, final Context context, final List<AI> ais){

@@ -10,13 +10,23 @@ sys.path.append(os.getcwd()+"/src_python")
 from settings.config import *
 from utils import *
 from settings.game_settings import *
-from mcts_uct import MCTS_UCT
+from mcts_uct_vanilla import MCTS_UCT_vanilla
+from mcts_uct_alphazero import MCTS_UCT_alphazero
 from optimization.precompute import * 
 
 
 ######### Here is the class called in the java file to run trials #########	
 
 class RunningTrials:
+	# This function checks if we are going to use the vanilla MCTS
+	# because we don't have a model yet or if we are going to use
+	# the alphazero MCTS
+	def check_if_first_step(self):
+		if exists(MODEL_PATH+GAME_NAME+"_"+"champion"+".h5"):
+			return False
+		print("--> No model found, starting from random policy")
+		return True
+
 	# This function is called from java in RunningTrialsWithPython.java
 	def run_trial(self, game, trial, context, ais):
 		if profiling_activated:
@@ -27,11 +37,15 @@ class RunningTrials:
 		pre_action_index, pre_reverse_action_index, pre_coords, pre_3D_coords = precompute_all()
 
 		# Init both agents
-		mcts1 = MCTS_UCT()
+		if self.check_if_first_step():
+			mcts1 = MCTS_UCT_vanilla()
+			mcts2 = MCTS_UCT_vanilla()
+		else:
+			mcts1 = MCTS_UCT_alphazero()
+			mcts2 = MCTS_UCT_alphazero()
 		mcts1.init_ai(game, PLAYER1)
-		mcts1.set_precompute(pre_action_index, pre_reverse_action_index, pre_coords, pre_3D_coords)
-		mcts2 = MCTS_UCT()
 		mcts2.init_ai(game, PLAYER2)
+		mcts1.set_precompute(pre_action_index, pre_reverse_action_index, pre_coords, pre_3D_coords)
 		mcts2.set_precompute(pre_action_index, pre_reverse_action_index, pre_coords, pre_3D_coords)
 		
 		# Declare some variables for statistics

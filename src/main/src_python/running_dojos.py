@@ -17,10 +17,10 @@ class RunningDojos:
 	# it won't work and we get no java overload error
 	def run_dojo(self, game, trial, context, ais):
 		# The champion MCTS player gets the best model untill now
-		champion_mcts = MCTS_UCT(dojo=True, model_type="champion")
+		champion_mcts = MCTS_UCT_alphazero(dojo=True, model_type="champion")
 		champion_mcts.init_ai(game, PLAYER1)
 		# The outsider MCTS player gets the latest model which has to be evaluated
-		outsider_mcts = MCTS_UCT(dojo=True, model_type="outsider")
+		outsider_mcts = MCTS_UCT_alphazero(dojo=True, model_type="outsider")
 		outsider_mcts.init_ai(game, PLAYER2)
 		
 		# Declare some variables for statistics
@@ -35,13 +35,16 @@ class RunningDojos:
 		for i in range(NUM_DOJO):
 			start_time = time.time()
 			game.start(context)
+			
 			model = context.model()
+			
+			stop_time = math.inf if MAX_GAME_DURATION < 0 else MAX_GAME_DURATION
 			
 			# Main game loop			
 			while not trial.over():
 				# Sometimes the game is way too long and has to be stopped
 				# and considered as a draw
-				if time.time() - start_time  > MAX_GAME_DURATION:
+				if time.time() - start_time  > stop_time:
 					print("--> Ended one game because it was too long")
 					break
 					

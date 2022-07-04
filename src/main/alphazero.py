@@ -5,7 +5,7 @@ import re
 from subprocess import Popen
 
 
-from config import *
+from settings.config import *
 
 
 def decide_if_switch_model():

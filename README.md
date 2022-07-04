@@ -21,17 +21,20 @@ Implementing deep reinforcement learning algorithms for the ICGA competition. Th
 <pre><code>AlphaZeroICGA/
       ├── src/
       |       ├── main/
-      |       |      ├── agents/         (Contains the jar files of the final agents)
-      |       |      ├── bin/            (Contains the binary files compiled from src_java)
-      |       |      ├── datasets/       (Contains the (state,distrib,value) datasets)
-      |       |      ├── final_model/    (Contains the final weights of the best models)
-      |       |      ├── libs/           (Contains the librairies such as JPY/Ludii...)
-      |       |      ├── models/         (Contains the current models)
-      |       |      ├── src_java/       (Contains all the source code in java)
-      |       |      ├── src_python/     (Contains all the source code in python)
-      |       |      ├── alphazero.sh    (Script running the whole AlphaZero algorithm)
-      |       |      ├── build.xml       (Build file helping us run java commands, clean...)
-      |       |      └── notes.txt       (Some notes I left while doing that project)
+      |       |      ├── agents/               (Contains the jar files of the final agents)
+      |       |      ├── bin/                  (Contains the binary files compiled from src_java)
+      |       |      ├── datasets/             (Contains the (state,distrib,value) datasets)
+      |       |      ├── final_model/          (Contains the final weights of the best models)
+      |       |      ├── libs/                 (Contains the librairies such as JPY/Ludii...)
+      |       |      ├── models/               (Contains the current models)
+      |       |      ├── src_java/             (Contains all the source code in java)
+      |       |      ├── src_python/           (Contains all the source code in python)
+      |       |      |      ├── optimization/  (Contains the optimization part such as precomputations)
+      |       |      |      ├── scripts/       (Contains all the scripts such as merge_datasets.py)
+      |       |      |      └── settings/      (Contains the hyperparameters and games settings)
+      |       |      ├── alphazero.py          (Script running the whole AlphaZero algorithm)
+      |       |      ├── build.xml             (Build file helping us run java commands, clean...)
+      |       |      └── notes.txt             (Some notes I left while doing that project)
       |       └── test/
       ├── README.md
       └── LICENSE
@@ -79,7 +82,7 @@ The games are hosted on the Ludii software, which is in java. Since we use pytho
 We also need the **Ludii** software to run our algorithms in the environment.
 We compile a jar file in order to export our AI on Ludii thanks to ant so it is also required even though you can do it otherwise.
 
-Links : 
+Links :
 - https://github.com/Ludeme/LudiiPythonAI
 - https://github.com/jpy-consortium/jpy
 - https://visualstudio.microsoft.com/visual-cpp-build-tools/
@@ -112,7 +115,7 @@ The required python librairies are :
 
 Go to the src/main/ directory and run the next commands in a terminal :
 
-`nano src_python/config.py` : set the settings to run AlphaZero such as number of simulations, game type...
+`nano src_python/settings/config.py` : set the settings to run AlphaZero such as number of simulations, game type...
 
 `python3 alphazero.py <n_loop> <n_workers>` : runs the whole loop (MCTS simulation with random moves -> dataset -> train model -> save model -> MCTS simulation with model predicting moves -> dataset -> ...). **n_loop** is the number of loop it will achieve. **n_workers** is the number of processes which will be executed in parallel.
 

@@ -24,7 +24,8 @@ from tensorflow.keras.optimizers import SGD
 from keras import regularizers
 
 
-from config import *
+from settings.config import *
+from settings.game_settings import *
 
 
 ######### Here are the utility function for loading/writing files #########

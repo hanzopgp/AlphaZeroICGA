@@ -7,8 +7,9 @@ sys.path.append(os.getcwd()+"/src_python")
 #from snappy import jpy
 
 
-from config import *
+from settings.config import *
 from utils import *
+from settings.game_settings import *
 from mcts_uct import MCTS_UCT
 from optimization.precompute import * 
 

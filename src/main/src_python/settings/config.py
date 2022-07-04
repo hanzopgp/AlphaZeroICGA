@@ -48,23 +48,10 @@ WINNERS_FILE="./models/save_winners.txt"
 THINKING_TIME_AGENTS_DOJO = -1
 OUTSIDER_MIN_WINRATE = 0.55
 
-######### GAME PARAMETERS #########
-
-GAME_NAME = "Bashni"
-N_ROW = 8
-N_COL = 8
-N_LEVELS = 24
-N_TIME_STEP = 3 # number of past state we keep for our representation
-N_DISTANCE = 8 # the king can move on the whole diagonal
-N_ORIENTATION = 4 # can go only left or right diagonaly, for both players
-N_ACTION_STACK = N_ORIENTATION * N_DISTANCE
-N_ADDITIONAL_FEATURES = 1 # currently only the color of the current player
-N_REPRESENTATION_STACK = N_ADDITIONAL_FEATURES + (N_TIME_STEP * 2) * N_LEVELS 
-N_LEGAL_MOVES = N_ACTION_STACK * 12 # 12 pieces
-
 ######### MCTS PARAMETERS #########
 CSTE_PUCT = 1 # no idea about the value of this variable in the paper 
-DIRICHLET_ALPHA = 10/N_LEGAL_MOVES # noise in the estimated policy -> more exploration
+#DIRICHLET_ALPHA = 10/N_LEGAL_MOVES # noise in the estimated policy -> more exploration
+DIRICHLET_ALPHA = 1
 WEIGHTED_SUM_DIR = 0.75 # this value comes from the paper
 TEMPERATURE = 1 # 1 -> no change, 0 -> argmax
 THINKING_TIME_AGENT1 = -1

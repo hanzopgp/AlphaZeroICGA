@@ -4,14 +4,15 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 sys.path.append(os.getcwd()+"/src_python")
 
 
-from config import *
+from settings.config import *
+from settings.game_settings import *
 from utils import *
 from mcts_uct import MCTS_UCT
 
 
 ######### Here is the class called in the java file to run dojo #########	
 
-class Dojo:
+class RunningDojos:
 	# Need to give a Java List object here, if we give 2 ais and make it a python array
 	# it won't work and we get no java overload error
 	def run_dojo(self, game, trial, context, ais):

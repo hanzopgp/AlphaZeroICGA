@@ -7,7 +7,7 @@ sys.path.append(os.getcwd()+"/src_python")
 from os import walk
 
 
-from config import *
+from settings.config import *
 from utils import add_to_dataset
 
 

@@ -4,7 +4,7 @@ sys.path.append(os.getcwd()+"/src_python")
 import re
 
 
-from config import *
+from settings.config import *
 from utils import *
 
 

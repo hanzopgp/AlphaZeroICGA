@@ -5,6 +5,7 @@ sys.path.append(os.getcwd()+"/src_python")
 
 
 from utils import *
+from settings.game_settings import *
 
 
 def precompute_action_index():

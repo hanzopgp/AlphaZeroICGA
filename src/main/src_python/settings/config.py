@@ -24,10 +24,10 @@ import tensorflow as tf
 TEST1 = 0
 TEST2 = 0
 
-NUM_DOJO = 1 # 2
-MAX_ITERATION_AGENTS_DOJO = 10 # 300
+NUM_DOJO = 1 
+MAX_ITERATION_AGENTS_DOJO = 30 # 300
 
-NUM_TRIALS = 1 # 3
+NUM_EPISODE = 1 
 MAX_ITERATION_AGENT1 = 30
 MAX_ITERATION_AGENT2 = 30
 
@@ -36,7 +36,7 @@ MAX_GAME_DURATION = -1
 ######### CONSTANTE VARIABLES #########
 
 DEBUG_PRINT = True
-profiling_activated = False
+PROFILING_ACTIVATED = True
 PLAYER1 = 1
 PLAYER2 = 2
 DATASET_PATH = "./datasets/"
@@ -56,7 +56,7 @@ WEIGHTED_SUM_DIR = 0.75 # this value comes from the paper
 TEMPERATURE = 1 # 1 -> no change, 0 -> argmax
 THINKING_TIME_AGENT1 = -1
 THINKING_TIME_AGENT2 = -1
-MAX_SAMPLE = 10000 # can decide the size of the dataset 
+MAX_SAMPLE = 10000 # can decide the max size of the dataset 
 
 ######### NN parameters #########
 
@@ -69,12 +69,11 @@ VALIDATION_SPLIT = 0.2
 LOSS_WEIGHTS = [0.5, 0.5] # first one is value, second one policy
 
 MAIN_ACTIVATION = "relu"
-#MAIN_ACTIVATION = tf.keras.layers.LeakyReLU(alpha=0.5)
+#MAIN_ACTIVATION = tf.keras.layers.LeakyReLU(alpha=0.3)
 #MAIN_ACTIVATION = "tanh"
 FILTERS = 64
 KERNEL_SIZE = (3,3)
 KERNEL_INITIALIZER = tf.keras.initializers.GlorotNormal() # Xavier uniform
-#KERNEL_INITIALIZER = "random_uniform"
 FIRST_KERNEL_SIZE = (3,3)
 USE_BIAS = False
 N_RES_LAYER = 10

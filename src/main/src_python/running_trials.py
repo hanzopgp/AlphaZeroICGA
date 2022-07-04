@@ -2,14 +2,11 @@ import sys
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 sys.path.append(os.getcwd()+"/src_python")
-#import jpype
-#import snappy
-#from snappy import jpy
 
 
 from settings.config import *
-from utils import *
 from settings.game_settings import *
+from utils import *
 from mcts_uct_vanilla import MCTS_UCT_vanilla
 from mcts_uct_alphazero import MCTS_UCT_alphazero
 from optimization.precompute import * 
@@ -29,12 +26,9 @@ class RunningTrials:
 
 	# This function is called from java in RunningTrialsWithPython.java
 	def run_trial(self, game, trial, context, ais):
-		if profiling_activated:
+		if PROFILING_ACTIVATED:
 			prof = cProfile.Profile()
 			prof.enable()
-
-		# Precompute some functions
-		pre_action_index, pre_reverse_action_index, pre_coords, pre_3D_coords = precompute_all()
 
 		# Init both agents
 		if self.check_if_first_step():
@@ -45,15 +39,15 @@ class RunningTrials:
 			mcts2 = MCTS_UCT_alphazero()
 		mcts1.init_ai(game, PLAYER1)
 		mcts2.init_ai(game, PLAYER2)
+		
+		# Precompute some functions
+		pre_action_index, pre_reverse_action_index, pre_coords, pre_3D_coords = precompute_all()
 		mcts1.set_precompute(pre_action_index, pre_reverse_action_index, pre_coords, pre_3D_coords)
 		mcts2.set_precompute(pre_action_index, pre_reverse_action_index, pre_coords, pre_3D_coords)
 		
 		# Declare some variables for statistics
-		ai1_win = 0
-		ai2_win = 0
-		draw = 0
-		total = 0
-		duration = np.zeros(NUM_TRIALS)
+		ai1_win, ai2_win, draw, total = 0, 0, 0, 0
+		duration = np.zeros(NUM_EPISODE)
 		
 		# Declare some variables to save the dataset
 		idx_sample = 0
@@ -61,12 +55,12 @@ class RunningTrials:
 		y_distrib = np.zeros((MAX_SAMPLE, N_ROW, N_COL, N_ACTION_STACK))
 		y_values = []
 		
-		print("--> Running", NUM_TRIALS, "games")
+		print("--> Running", NUM_EPISODE, "episodes")
 		
 		breaker = False
 		
 		# Main trial loop, we play one game per trial
-		for i in range(NUM_TRIALS):
+		for i in range(NUM_EPISODE):
 		
 			if breaker: break
 			
@@ -104,7 +98,8 @@ class RunningTrials:
 				else:
 					move, state, tmp_arr_move = mcts2.select_action(game, context, THINKING_TIME_AGENT2, MAX_ITERATION_AGENT2, max_depth=-1)
 					
-				if not move.isForced(): # Avoid to add useless moves when games is over
+				# Avoid to add useless moves when games is over
+				if not move.isForced(): 
 					# Save X state
 					X[idx_sample] = state
 					# Apply softmax on the visit count to get a distribution from the MCTS
@@ -150,12 +145,7 @@ class RunningTrials:
 		y_values = np.array(y_values)
 		y_values = y_values[:idx_sample]
 		y_distrib = y_distrib[:idx_sample]
-		
-		# Test print
-		#idx_move = 15
-		#for i in range(X.shape[3]):
-		#	print(X[idx_move,:,:,i])
-		
+
 		if DEBUG_PRINT:
 			# Print our generated dataset shapes
 			print("* X shape", X.shape)	
@@ -169,23 +159,16 @@ class RunningTrials:
 			print("* Mean game duration", duration.mean())
 			print("* Max game duration", duration.max())
 			
-		print("--> Trials are over")
+		print("--> Episodes are over")
 			
 		# Save values to dataset
 		add_to_dataset(X, y_values, y_distrib, get_random_hash())
 
-		if profiling_activated:
+		if PROFILING_ACTIVATED:
 			prof.disable()
 			prof.print_stats()
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
+
 	
 	
 	

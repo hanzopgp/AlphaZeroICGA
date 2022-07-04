@@ -5,8 +5,8 @@ sys.path.append(os.getcwd()+"/src_python")
 
 
 from settings.config import *
-from utils import *
 from settings.game_settings import *
+from utils import *
 from model import CustomModel
 
 	

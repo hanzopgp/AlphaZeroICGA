@@ -79,6 +79,7 @@ class MCTS_UCT_vanilla:
 					     0,    # max_num_biased_actions
 					     -1,   # max_num_playout_actions
 					     None) # random selector
+					     
 			# Compute utilities thanks to our functions for both players
 			utils = utilities(context_end)
 

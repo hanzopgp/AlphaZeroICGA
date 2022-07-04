@@ -52,6 +52,9 @@ def conclude():
 	print("********************************************************************************************")
 	
 def main_loop(alphazero_iteration, trial_activated, n_iteration, n_workers):
+	alphazero_iteration=0
+	trial_activated=True
+
 	while(alphazero_iteration < n_iteration):
 		print("============================================================================================")
 		print("================================== ITERATION ALPHAZERO", alphazero_iteration, "===================================")
@@ -93,14 +96,9 @@ def main_loop(alphazero_iteration, trial_activated, n_iteration, n_workers):
 		alphazero_iteration += 1
 			
 if __name__ == '__main__':
-	alphazero_iteration=0
-	trial_activated=True
 	n_iteration = int(sys.argv[1])
 	n_workers = int(sys.argv[2])
-
 	init()	
-
-	main_loop(alphazero_iteration, trial_activated, n_iteration, n_workers)
-		
+	main_loop(n_iteration, n_workers)
 	conclude()
 	

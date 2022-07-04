@@ -87,16 +87,6 @@ class MCTS_UCT_alphazero:
 		# Now we need to find the move in the java object legal moves list
 		return legal_moves_python[chosen_x][chosen_y][chosen_prev_x][chosen_prev_y], prior
 		
-		# Now we need to find the move in the java object legal moves list
-		#for i in range(len(legal_moves)):
-		#	to = legal_moves[i].to()
-		#	from_ = getattr(legal_moves[i], "from")()
-		#	# Precomputed function			
-		#	prev_x, prev_y, x, y = self.pre_coords[from_][to]
-		#	# Inverse to match our representation
-		#	if prev_x == chosen_x and prev_y == chosen_y and x == chosen_prev_x and y == chosen_prev_y:
-		#		return legal_moves[i], prior
-		
 	# Main method called to chose an action at depth 0
 	def select_action(self, game, context, max_seconds, max_iterations, max_depth):
 		# Init an empty node which will be our root
@@ -119,11 +109,12 @@ class MCTS_UCT_alphazero:
 		while num_iterations < max_its and time.time() < stop_time:
 			# Our current node will be the root to start
 			current = root
+			current_context = current.context
 
 			# We are looping until we reach a terminal state on the current node
 			while True:
 				# Here the game is over so we break out, then we compute the utilities and backpropagate the values
-				if current.context.trial().over():
+				if current_context.trial().over():
 				    break
 			
 				# Here we chose a current node and it is a new one, selected thanks the model policy 
@@ -136,13 +127,17 @@ class MCTS_UCT_alphazero:
 
 			# If we broke out because we expanded a new node and not because the trial is over then it is time
 			# estimate the value thanks to the model
-			if not current.context.trial().over():
+			if not current_context.trial().over():
 				# Predict playout values with the network instead of the playout
 				utils = np.zeros(num_players+1)
-				state = np.expand_dims(format_state(current.context).squeeze(), axis=0)
+				state = np.expand_dims(format_state(current_context).squeeze(), axis=0)
 				value, _ = self.model.predict(state, verbose=0)
 				value_opp, _ = self.model.predict(invert_state(state), verbose=0)
 				utils[PLAYER1], utils[PLAYER2] = value, value_opp
+			# If we are in a terminal node we can compute ground truth utilities
+			else:
+				# Compute utilities thanks to our functions for both players
+				utils = utilities(current_context)
 
 			# We propagate the values from the current node to the root
 			while current is not None:
@@ -165,8 +160,11 @@ class MCTS_UCT_alphazero:
 	def select_node(self, current):
 		# If we have some moves to expand
 		if len(current.unexpanded_moves) > 0:
+			# We copy the context to play in a simulation
+			context = current.context.deepCopy()
+		
 			# Get the representation and get the prediction
-			state = format_state(current.context).squeeze()
+			state = format_state(context).squeeze()
 			_, policy_pred = self.model.predict(np.expand_dims(state, axis=0), verbose=0)
 			
 			# Get ride of useless batch dimension
@@ -181,9 +179,6 @@ class MCTS_UCT_alphazero:
 			# Chose a move in legal moves by randomly firing in the policy
 			move, prior = self.chose_move(current.unexpanded_moves, policy_pred, competitive_mode=self.dojo)
 				
-			# We copy the context to play in a simulation
-			context = current.context.deepCopy()
-			
 			# Apply the move in the simulation
 			context.game().apply(context, move)
 			
@@ -205,30 +200,15 @@ class MCTS_UCT_alphazero:
 		for i in range(num_children):
 			child = current.children[i]
 
-			## NOT SURE IF WE USE THE VALUE PREDICTION HERE OR INSTEAD OF PLAYOUT
-			# If we don't have a model yet we compute the PUCT score
-			if self.first_step:
-				exploit = child.score_sums[mover] / child.visit_count
-				explore = math.sqrt(two_parent_log / child.visit_count)
-				
-				# Gotta understand PUCT
-				#exploit = child.score_sums[mover] / child.visit_count
-				#explore = CSTE_PUCT * current.prior * (np.sqrt(child.score_sums[mover]) / (1 + current.score_sums[mover]))
-				
-				value = exploit + explore
-			# Else we use the model to predict a value
-			else:
-				value, _ = self.model.predict(np.expand_dims(state, axis=0))
-
-
-
-
+			# Compute the PUCT score
+			exploit = child.score_sums[mover] / child.visit_count
+			explore = math.sqrt(two_parent_log / child.visit_count)
+			
+			# Gotta understand PUCT
 			#exploit = child.score_sums[mover] / child.visit_count
-			#explore = math.sqrt(two_parent_log / child.visit_count)
-			#value = exploit + explore
-
-
-
+			#explore = CSTE_PUCT * current.prior * (np.sqrt(child.score_sums[mover]) / (1 + current.score_sums[mover]))
+			
+			value = exploit + explore
 
 			# Keep track of the best_child which has the best PUCT score
 			if value > best_value:

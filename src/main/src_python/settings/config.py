@@ -24,10 +24,10 @@ import tensorflow as tf
 TEST1 = 0
 TEST2 = 0
 
-NUM_DOJO = 2 # 2
-MAX_ITERATION_AGENTS_DOJO = 30 # 300
+NUM_DOJO = 1 # 2
+MAX_ITERATION_AGENTS_DOJO = 10 # 300
 
-NUM_TRIALS = 2 # 3
+NUM_TRIALS = 1 # 3
 MAX_ITERATION_AGENT1 = 30
 MAX_ITERATION_AGENT2 = 30
 
@@ -42,6 +42,7 @@ PLAYER2 = 2
 DATASET_PATH = "./datasets/"
 MODEL_PATH = "./models/"
 WINNERS_FILE="./models/save_winners.txt"
+N_MOVES_TYPICAL_POSITION_BASHNI = 20 # need to think a bit more about this one !	
 
 ######### DOJO PARAMETERS #########
 
@@ -50,8 +51,7 @@ OUTSIDER_MIN_WINRATE = 0.55
 
 ######### MCTS PARAMETERS #########
 CSTE_PUCT = 1 # no idea about the value of this variable in the paper 
-#DIRICHLET_ALPHA = 10/N_LEGAL_MOVES # noise in the estimated policy -> more exploration
-DIRICHLET_ALPHA = 1
+DIRICHLET_ALPHA = 10/N_MOVES_TYPICAL_POSITION_BASHNI # noise in the estimated policy -> more exploration
 WEIGHTED_SUM_DIR = 0.75 # this value comes from the paper
 TEMPERATURE = 1 # 1 -> no change, 0 -> argmax
 THINKING_TIME_AGENT1 = -1

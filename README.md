@@ -9,6 +9,7 @@
 4. [Environment & Setup](#environment--setup)
 5. [Try it](#try-it)
 6. [Fight it](#fight-it)
+7. [What I learned](#what-i-learned)
 
 ## Presentation
 

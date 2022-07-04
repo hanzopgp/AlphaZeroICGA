@@ -1,4 +1,4 @@
-
+import snakeviz
 import math
 import random
 import time
@@ -269,8 +269,7 @@ def format_state(context):
 	# Fill owned position for each player at each time step
 	for i in range(0, N_TIME_STEP*2, 2):
 		# Get the state and the owned positions for both players
-		state = context_copy.state()
-		owned = state.owned()
+		owned = context_copy.state().owned()
 		# We fill levels positions for each time step
 		for j in range(N_LEVELS):
 			res[i][j] = format_positions(owned.positions(PLAYER1), lvl=j, val=1)

@@ -7,7 +7,8 @@ sys.path.append(os.getcwd()+"/src_python")
 from settings.config import *
 from settings.game_settings import *
 from utils import *
-from mcts_uct import MCTS_UCT
+from mcts_uct_alphazero import MCTS_UCT_alphazero
+from optimization.precompute import *
 
 
 ######### Here is the class called in the java file to run dojo #########	
@@ -22,14 +23,15 @@ class RunningDojos:
 		# The outsider MCTS player gets the latest model which has to be evaluated
 		outsider_mcts = MCTS_UCT_alphazero(dojo=True, model_type="outsider")
 		outsider_mcts.init_ai(game, PLAYER2)
-		
+	
+		pre_action_index, pre_reverse_action_index, pre_coords, pre_3D_coords = precompute_all()		
+		champion_mcts.set_precompute(pre_action_index, pre_reverse_action_index, pre_coords, pre_3D_coords)
+		outsider_mcts.set_precompute(pre_action_index, pre_reverse_action_index, pre_coords, pre_3D_coords)
+
 		# Declare some variables for statistics
-		champion_mcts_win = 0
-		outsider_mcts_win = 0
-		draw = 0
-		total = 0
+		champion_mcts_win, outsider_mcts_win, draw, total = 0, 0, 0, 0
 		duration = np.zeros(NUM_DOJO)
-		
+
 		print("--> Running", NUM_DOJO, "games")
 		
 		for i in range(NUM_DOJO):

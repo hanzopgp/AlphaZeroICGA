@@ -38,11 +38,11 @@ def convert_models_onnx():
 	print("************************************** CONVERT TO ONNX *************************************")
 	print("********************************************************************************************")
 	if os.path.exists(MODEL_PATH+GAME_NAME+"_"+"outsider"+".h5"):
-		Popen("python3 -m tf2onnx.convert --saved-model " + MODEL_PATH + GAME_NAME + "_outsider" + " --output " + MODEL_PATH + GAME_NAME + "_outsider.onnx", shell=True).wait()
-		Popen("rm -rf " + MODEL_PATH + GAME_NAME + "_outsider/")
+		Popen("python3 -m tf2onnx.convert --saved-model "+MODEL_PATH+GAME_NAME+"_outsider --output "+MODEL_PATH+GAME_NAME+"_outsider.onnx", shell=True).wait()
+		Popen("rm -rf "+MODEL_PATH+GAME_NAME+"_outsider/", shell=True).wait()
 	elif os.path.exists(MODEL_PATH+GAME_NAME+"_"+"champion"+".h5"):
-		Popen("python3 -m tf2onnx.convert --saved-model " + MODEL_PATH + GAME_NAME + "_champion" + " --output " + MODEL_PATH + GAME_NAME + "_champion.onnx", shell=True).wait()
-		Popen("rm -rf " + MODEL_PATH + GAME_NAME + "_champion/")
+		Popen("python3 -m tf2onnx.convert --saved-model "+MODEL_PATH+GAME_NAME+"_champion --output "+MODEL_PATH+GAME_NAME+"_champion.onnx", shell=True).wait()
+		Popen("rm -rf "+MODEL_PATH+GAME_NAME+"_champion/", shell=True).wait()
 			
 def init():
 	print("********************************************************************************************")

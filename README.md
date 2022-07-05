@@ -165,4 +165,4 @@ When the project will be over, the model will be available in the folder **model
 - Multithreading and GPU clusters (for the self-play games and the model training)
 - Code optimization because the algorithm is very time consuming (use of profilers)
 - Precomputing functions which are called huge amount of time (in MCTS algorithm)
-
+- ONNX format for faster inference with models

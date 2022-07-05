@@ -42,8 +42,21 @@ def precompute_get_3D_coord():
 			pre_3D_coords[value][index_return] = get_3D_coord(value)[index_return]
 	return pre_3D_coords
 	
+#def precompute_format_positions():
+#	n_returns = 1
+#	pre_position = np.zeros((N_ROW*N_COL), dtype=object)
+#	for pos in range(N_ROW*N_COL):
+#		for level in range(N_LEVEL):
+#			for index_return in range(n_returns):
+#				pre_position[value][level][index_return] = format_positions(pos, level, val=1)[index_return]
+#	return pre_position.reshape(N_ROW, N_COL)	
+	
 def precompute_all():
 	return precompute_action_index(), precompute_reverse_action_index(), precompute_get_coord(), precompute_get_3D_coord()
+
+
+
+#precompute_format_positions()
 
 
 #r = np.random.rand()

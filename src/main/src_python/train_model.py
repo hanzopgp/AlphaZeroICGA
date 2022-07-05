@@ -31,8 +31,7 @@ if __name__ == '__main__':
 			learning_rate=LEARNING_RATE, 
 			momentum=MOMENTUM, 
 			reg_const=REG_CONST)
-		model.set_model(load_nn(model_type=model_type))
-		
+		model.set_model(load_nn(model_type=model_type, inference=False))
 	# Else if there is no outsider but there is a champion,
 	# we are at 2nd step and we create the outsider model
 	elif exists(champion_path):

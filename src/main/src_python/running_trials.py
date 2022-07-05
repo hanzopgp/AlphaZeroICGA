@@ -167,7 +167,7 @@ class RunningTrials:
 		if PROFILING_ACTIVATED:
 			#prof.disable()
 			#prof.print_stats()
-			prof.dump_stats("logs")
+			prof.dump_stats("profiler_stats.pstats")
 
 
 	

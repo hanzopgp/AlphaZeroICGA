@@ -5,18 +5,18 @@ import time
 import pickle
 import numpy as np
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-from subprocess import Popen
+import sys
+import onnxruntime
 import pandas as pd
 import pprint
 import cProfile
 import concurrent.futures
+import tensorflow as tf
+from subprocess import Popen
 from matplotlib import pyplot as plt
 from os.path import exists
-import sys
 sys.path.append(os.getcwd()+"/src_python")
-
-import tensorflow as tf
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 from tensorflow.keras.models import load_model
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input, Dense, Conv2D, Flatten, BatchNormalization, LeakyReLU, add
@@ -99,12 +99,16 @@ def add_to_dataset(X, y_values, y_distrib, hash_code=""):
 			pickle.dump(my_data, fp)
 	print("--> Done !")
 
-def load_nn(model_type):
+def load_nn(model_type, inference):
 	print("--> Loading model for the game :", GAME_NAME, ", model type :", model_type)
-	model = load_model(MODEL_PATH+GAME_NAME+"_"+model_type+".h5", custom_objects={'softmax_cross_entropy_with_logits': softmax_cross_entropy_with_logits})
+	if inference:
+		model = onnxruntime.InferenceSession(MODEL_PATH+GAME_NAME+"_"+model_type+".onnx")
+		model.get_modelmeta()
+	else:
+		model = load_model(MODEL_PATH+GAME_NAME+"_"+model_type+".h5", custom_objects={'softmax_cross_entropy_with_logits': softmax_cross_entropy_with_logits})
 	print("--> Done !")
 	return model
-
+	
 def write_winner(outsider_winrate, hash_code=""):
 	if len(hash_code) >= 1:
 		file_name = "winners" + hash_code + ".txt"
@@ -296,8 +300,7 @@ def format_state(context):
 	# of additional feature but we could also add the number of moves
 	# played until now etc...
 	current_mover = context.state().mover()
-	current_player = 0 if current_mover==PLAYER1 else 1
-	res = np.append(res, np.full((N_ROW, N_COL, 1), current_player), axis=2)
+	res = np.append(res, np.full((N_ROW, N_COL, 1), current_mover - 1), axis=2)
 	return res	
 
 

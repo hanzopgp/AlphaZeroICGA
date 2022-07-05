@@ -111,6 +111,8 @@ The required python librairies are :
 - Matplotlib 3.3.4
 - TensorFlow 2.9.1
 - Pandas 1.1.5
+- tf22onnx 1.11.1
+- onnxruntime 1.11.1
 
 ## Try it
 

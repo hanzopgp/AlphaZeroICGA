@@ -44,8 +44,11 @@ class CustomModel():
 		self.model = model
 		
 	def write(self, model_type):
+		# Save in h5 to reload and train later
 		print("\n--> Saving model for the game :", GAME_NAME, ", model type :", model_type)
 		self.model.save(MODEL_PATH+GAME_NAME+"_"+model_type+".h5")
+		# Save in save_model mode to convert in onnx format for inference
+		tf.saved_model.save(self.model, MODEL_PATH+GAME_NAME+"_"+model_type)
 		print("--> Done !")
 		
 	def summary(self):

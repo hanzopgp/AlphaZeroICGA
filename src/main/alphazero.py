@@ -6,6 +6,7 @@ from subprocess import Popen
 
 
 from settings.config import *
+from settings.game_settings import *
 
 
 def decide_if_switch_model():
@@ -31,6 +32,17 @@ def parallelize_command(command, n):
 		for _ in range(n-1):
 			string += "ant " + command + " &"
 	return string + " wait"
+	
+def convert_models_onnx():
+	print("********************************************************************************************")
+	print("************************************** CONVERT TO ONNX *************************************")
+	print("********************************************************************************************")
+	if os.path.exists(MODEL_PATH+GAME_NAME+"_"+"outsider"+".h5"):
+		Popen("python3 -m tf2onnx.convert --saved-model " + MODEL_PATH + GAME_NAME + "_outsider" + " --output " + MODEL_PATH + GAME_NAME + "_outsider.onnx", shell=True).wait()
+		Popen("rm -rf " + MODEL_PATH + GAME_NAME + "_outsider/")
+	elif os.path.exists(MODEL_PATH+GAME_NAME+"_"+"champion"+".h5"):
+		Popen("python3 -m tf2onnx.convert --saved-model " + MODEL_PATH + GAME_NAME + "_champion" + " --output " + MODEL_PATH + GAME_NAME + "_champion.onnx", shell=True).wait()
+		Popen("rm -rf " + MODEL_PATH + GAME_NAME + "_champion/")
 			
 def init():
 	print("********************************************************************************************")
@@ -51,7 +63,7 @@ def conclude():
 	print("**************************************** AGENT READY ***************************************")
 	print("********************************************************************************************")
 	
-def main_loop(alphazero_iteration, trial_activated, n_iteration, n_workers):
+def main_loop(n_iteration, n_workers):
 	alphazero_iteration=0
 	trial_activated=True
 
@@ -74,6 +86,7 @@ def main_loop(alphazero_iteration, trial_activated, n_iteration, n_workers):
 		print("************************************** TRAINING MODEL **************************************")
 		print("********************************************************************************************")
 		Popen("python3 src_python/train_model.py", shell=True).wait()
+		convert_models_onnx()
 		
 		if alphazero_iteration >= 1: # If it's the first step we won't go for a dojo since there is only one model ready	 
 			print("********************************************************************************************")

@@ -17,7 +17,7 @@ class MCTS_UCT_alphazero:
 	def __init__(self, dojo=False, model_type="champion"):
 		self._player_id = -1
 		self.dojo = dojo
-		self.model = load_nn(model_type=model_type)
+		self.model = load_nn(model_type=model_type, inference=True)
 
 	# Fix the player who will play with MCTS in case we load this class with Ludii
 	def init_ai(self, game, player_id):
@@ -31,8 +31,9 @@ class MCTS_UCT_alphazero:
 		self.pre_3D_coords = pre_3D_coords
 		
 	# Use the model to predict a policy and a value
-	def predict_with_model(self, state):
-		return self.model.predict(state, verbose=0)
+	def predict_with_onnx_model(self, state, output=["value_head", "policy_head"]):
+		return np.array(self.model.run(output, {"input_1": state.astype(np.float32)}))[0]
+		#return self.model.predict(state, verbose=0)
 		
 	# Get the policy on every moves, mask out the illegal moves,
 	# re-compute softmax and pick a move randomly according to
@@ -119,7 +120,7 @@ class MCTS_UCT_alphazero:
 			while True:
 				# Here the game is over so we break out, then we compute the utilities and backpropagate the values
 				if current_context.trial().over():
-				    break
+					break
 			
 				# Here we chose a current node and it is a new one, selected thanks the model policy 
 				# (if the current node has still unexpanded moves)
@@ -132,11 +133,10 @@ class MCTS_UCT_alphazero:
 			# If we broke out because we expanded a new node and not because the trial is over then it is time
 			# estimate the value thanks to the model
 			if not current_context.trial().over():
-				# Predict playout values with the network instead of the playout
 				utils = np.zeros(num_players+1)
 				state = np.expand_dims(format_state(current_context).squeeze(), axis=0)
-				value, _ = self.predict_with_model(state)
-				value_opp, _ = self.predict_with_model(invert_state(state))
+				value = self.predict_with_onnx_model(state, output=["value_head"])
+				value_opp = self.predict_with_onnx_model(invert_state(state), output=["value_head"])
 				utils[PLAYER1], utils[PLAYER2] = value, value_opp
 			# If we are in a terminal node we can compute ground truth utilities
 			else:
@@ -169,7 +169,12 @@ class MCTS_UCT_alphazero:
 		
 			# Get the representation and get the prediction
 			state = format_state(context).squeeze()
-			_, policy_pred = self.model.predict(np.expand_dims(state, axis=0))
+			
+			# Estimate policy with the model
+			policy_pred = self.predict_with_onnx_model(np.expand_dims(state, axis=0), output=["policy_head"])
+			
+			#print("*"*20)
+			#print(policy_pred.shape)
 			
 			# Get ride of useless batch dimension
 			policy_pred = policy_pred[0] 

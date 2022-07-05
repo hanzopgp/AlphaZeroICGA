@@ -2,7 +2,8 @@ import sys
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 sys.path.append(os.getcwd()+"/src_python")
-
+import absl.logging
+absl.logging.set_verbosity(absl.logging.ERROR)
 
 from settings.config import *
 from utils import *

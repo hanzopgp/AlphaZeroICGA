@@ -112,7 +112,13 @@ The required python librairies are :
 - TensorFlow 2.9.1
 - Pandas 1.1.5
 - tf22onnx 1.11.1
-- onnxruntime 1.11.1
+- CUDA 11.2
+- cuDNN 8.2.4
+- onnxruntime-gpu 1.11.1 (or onnxruntime 1.11.1 if no GPU available)
+- tensorrt 8.2.5.1
+
+https://developer.nvidia.com/rdp/cudnn-download
+https://developer.nvidia.com/nvidia-tensorrt-download
 
 ## Try it
 

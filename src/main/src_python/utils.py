@@ -103,7 +103,7 @@ def load_nn(model_type, inference):
 		if ONNX_INFERENCE:
 			#opts = onnxruntime.SessionOptions()
 			#opts.intra_op_num_threads = 8
-			model = onnxruntime.InferenceSession(MODEL_PATH+GAME_NAME+"_"+model_type+".onnx", providers=['TensorrtExecutionProvider', 'CUDAExecutionProvider', 'CPUExecutionProvider'])
+			model = onnxruntime.InferenceSession(MODEL_PATH+GAME_NAME+"_"+model_type+".onnx", providers=onnxruntime.get_available_providers())
 			model.get_modelmeta()
 		else:
 			model = load_model(MODEL_PATH+GAME_NAME+"_"+model_type+".h5", custom_objects={'softmax_cross_entropy_with_logits': softmax_cross_entropy_with_logits})

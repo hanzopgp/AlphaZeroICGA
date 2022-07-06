@@ -100,7 +100,7 @@ def add_to_dataset(X, y_values, y_distrib, hash_code=""):
 def load_nn(model_type, inference):
 	print("--> Loading model for the game :", GAME_NAME, ", model type :", model_type)
 	if inference:
-        	if ONNX_INFERENCE:
+		if ONNX_INFERENCE:
 			#opts = onnxruntime.SessionOptions()
 			#opts.intra_op_num_threads = 8
 			model = onnxruntime.InferenceSession(MODEL_PATH+GAME_NAME+"_"+model_type+".onnx", providers=['TensorrtExecutionProvider', 'CUDAExecutionProvider', 'CPUExecutionProvider'])

@@ -1,7 +1,15 @@
+download tensorrt : https://developer.nvidia.com/nvidia-tensorrt-8x-download
 
-la partie a optimiser est de loin celle faisant intervenir le MCTS, mais c'est aussi la partie la plus facile a paralléliser vu qu'il suffit de lancer les parties sur plusieurs machines et de merge les datasets
+wget https://developer.nvidia.com/compute/machine-learning/tensorrt/secure/8.2.5.1/tars/tensorrt-8.2.5.1.linux.x86_64-gnu.cuda-11.4.cudnn8.2.tar.gz
+tar -xf tensorrt-8.2.5.1.linux.x86_64-gnu.cuda-11.4.cudnn8.2.tar.gz
+rm tensorrt-8.2.5.1.linux.x86_64-gnu.cuda-11.4.cudnn8.2.tar.gz
 
-je recois pleins de message "depassement de quota" depuis la semaine derniere sur la boite mail lip6 je ne sais pas d'ou ca vient 
+onnxruntime :  git clone https://github.com/microsoft/onnxruntime
+cd onnxruntime
+
+./build.sh --parallel --use_cuda --cuda_version=11.2 --cuda_home=/usr/lib/cuda --cudnn_home=/usr/lib/cuda --use_tensorrt --tensorrt_home=/home/durande/Bureau/tensorrt/TensorRT-8.2.5.1 --build_shared_lib --enable_pybind --build_wheel --skip_test --cmake_path /usr/bin/cmake
+
+============================================================================
 
 - depassement de quota
 - optimization

@@ -21,9 +21,11 @@ if __name__ == '__main__':
 	champion_path = MODEL_PATH+GAME_NAME+"_"+"champion"+".h5"
 	outsider_path = MODEL_PATH+GAME_NAME+"_"+"outsider"+".h5"
 
-	# If there is an outsider, always train it
+	# If there is an outsider, always train it because we are in the case
+	# of re-training since there is both a champion and an outsider
 	if exists(outsider_path): 
 		model_type = "outsider"
+		print("--> Found an outsider, re-training it")
 		model = CustomModel(
 			input_dim=X[0].shape, 
 			output_dim=N_ROW*N_COL*N_ACTION_STACK, # this is the policy head output dim	 
@@ -31,9 +33,9 @@ if __name__ == '__main__':
 			learning_rate=LEARNING_RATE, 
 			momentum=MOMENTUM, 
 			reg_const=REG_CONST)
-		model.set_model(load_nn(model_type=model_type, inference=False))
-	# Else if there is no outsider but there is a champion,
-	# we are at 2nd step and we create the outsider model
+		model.set_model(load_nn(model_type="outsider", inference=False))
+	# Else if there is no outsider but there is a champion, we are at 2nd step 
+	# and we create the outsider model with the champion as a baseline
 	elif exists(champion_path):
 		model_type = "outsider"
 		print("--> Found a champion model, creating an outsider")
@@ -44,9 +46,9 @@ if __name__ == '__main__':
 			learning_rate=LEARNING_RATE, 
 			momentum=MOMENTUM, 
 			reg_const=REG_CONST)
-		model.build_model()
-	# Else if there is no model at all, we are at first step
-	# and we create the champion model
+		model.set_model(load_nn(model_type="champion", inference=False))
+	# Else if there is no model at all, we are at first step and we create the 
+	# champion model from scratch
 	else:
 		model_type = "champion"
 		print("--> No model found, creating the champion model")

@@ -1,4 +1,3 @@
-import snakeviz
 import math
 import random
 import time
@@ -7,7 +6,6 @@ import numpy as np
 import os
 import sys
 import onnxruntime
-import pandas as pd
 import pprint
 import cProfile
 import concurrent.futures

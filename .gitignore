@@ -1,3 +1,4 @@
+*.pstats
 external/
 bin/
 datasets/

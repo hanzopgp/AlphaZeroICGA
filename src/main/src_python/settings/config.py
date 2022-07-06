@@ -19,6 +19,8 @@ import tensorflow as tf
 
 ######### TIME CONSUMING VARIABLES #########
 
+ONNX_INFERENCE = True
+
 NUM_DOJO = 2
 MAX_ITERATION_AGENTS_DOJO = 200 # 300
 THINKING_TIME_AGENTS_DOJO = -1

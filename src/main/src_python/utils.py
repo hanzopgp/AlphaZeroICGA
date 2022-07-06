@@ -100,10 +100,13 @@ def add_to_dataset(X, y_values, y_distrib, hash_code=""):
 def load_nn(model_type, inference):
 	print("--> Loading model for the game :", GAME_NAME, ", model type :", model_type)
 	if inference:
-		#opts = onnxruntime.SessionOptions()
-        	#opts.intra_op_num_threads = 8
-		model = onnxruntime.InferenceSession(MODEL_PATH+GAME_NAME+"_"+model_type+".onnx", providers=['TensorrtExecutionProvider', 'CUDAExecutionProvider', 'CPUExecutionProvider'])
-		model.get_modelmeta()
+        	if ONNX_INFERENCE:
+			#opts = onnxruntime.SessionOptions()
+			#opts.intra_op_num_threads = 8
+			model = onnxruntime.InferenceSession(MODEL_PATH+GAME_NAME+"_"+model_type+".onnx", providers=['TensorrtExecutionProvider', 'CUDAExecutionProvider', 'CPUExecutionProvider'])
+			model.get_modelmeta()
+		else:
+			model = load_model(MODEL_PATH+GAME_NAME+"_"+model_type+".h5", custom_objects={'softmax_cross_entropy_with_logits': softmax_cross_entropy_with_logits})
 	else:
 		model = load_model(MODEL_PATH+GAME_NAME+"_"+model_type+".h5", custom_objects={'softmax_cross_entropy_with_logits': softmax_cross_entropy_with_logits})
 	print("--> Done !")

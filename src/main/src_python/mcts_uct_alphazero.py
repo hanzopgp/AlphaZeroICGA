@@ -32,8 +32,10 @@ class MCTS_UCT_alphazero:
 		
 	# Use the model to predict a policy and a value
 	def predict_with_onnx_model(self, state, output=["value_head", "policy_head"]):
-		return np.array(self.model.run(output, {"input_1": state.astype(np.float32)}))[0]
-		#return self.model.predict(state, verbose=0)
+		if ONNX_INFERENCE:
+			return np.array(self.model.run(output, {"input_1": state.astype(np.float32)}))[0]
+		else:
+			return self.model.predict(state, verbose=0)
 		
 	# Get the policy on every moves, mask out the illegal moves,
 	# re-compute softmax and pick a move randomly according to
@@ -135,8 +137,12 @@ class MCTS_UCT_alphazero:
 			if not current_context.trial().over():
 				utils = np.zeros(num_players+1)
 				state = np.expand_dims(format_state(current_context).squeeze(), axis=0)
-				value = self.predict_with_onnx_model(state, output=["value_head"])
-				value_opp = self.predict_with_onnx_model(invert_state(state), output=["value_head"])
+				if ONNX_INFERENCE:
+					value = self.predict_with_onnx_model(state, output=["value_head"])
+					value_opp = self.predict_with_onnx_model(invert_state(state), output=["value_head"])
+				else:
+					value, _ = self.predict_with_onnx_model(state, output=["value_head"])
+					value_opp, _ = self.predict_with_onnx_model(invert_state(state), output=["value_head"])
 				utils[PLAYER1], utils[PLAYER2] = value, value_opp
 			# If we are in a terminal node we can compute ground truth utilities
 			else:
@@ -171,10 +177,10 @@ class MCTS_UCT_alphazero:
 			state = format_state(context).squeeze()
 			
 			# Estimate policy with the model
-			policy_pred = self.predict_with_onnx_model(np.expand_dims(state, axis=0), output=["policy_head"])
-			
-			#print("*"*20)
-			#print(policy_pred.shape)
+			if ONNX_INFERENCE:
+				policy_pred = self.predict_with_onnx_model(np.expand_dims(state, axis=0), output=["policy_head"])
+			else:
+				_, policy_pred = self.predict_with_onnx_model(np.expand_dims(state, axis=0), output=["policy_head"])
 			
 			# Get ride of useless batch dimension
 			policy_pred = policy_pred[0] 

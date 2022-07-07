@@ -66,7 +66,8 @@ class CustomModel():
 				verbose=verbose, 
 				validation_split=validation_split, 
 				shuffle=True,
-				batch_size=batch_size)
+				batch_size=batch_size,
+				callbacks=self.get_callbacks())
 			
 	def plot_metrics(self, history):
 		plt.plot(history.history['policy_head_accuracy'])
@@ -84,6 +85,18 @@ class CustomModel():
 		plt.xlabel('epoch')
 		plt.legend(['train', 'val'], loc='upper left')
 		plt.show()
+		
+	def get_callbacks(self):
+		es = EarlyStopping(
+		    monitor='val_loss',
+		    min_delta=0,
+		    patience=EARLY_STOPPING_PATIENCE,
+		    verbose=0,
+		    mode='auto',
+		    baseline=None,
+		    restore_best_weights=True)
+		return [es]
+
 		
 	# This method builds our entire neural network
 	def build_model(self):

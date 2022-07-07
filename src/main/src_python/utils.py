@@ -6,9 +6,9 @@ import numpy as np
 import os
 import sys
 import onnxruntime
-import pprint
+#import pprint
 import cProfile
-import concurrent.futures
+#import concurrent.futures
 import tensorflow as tf
 from subprocess import Popen
 from matplotlib import pyplot as plt
@@ -18,6 +18,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 from tensorflow.keras.models import load_model
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Input, Dense, Conv2D, Flatten, BatchNormalization, LeakyReLU, add
+from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.optimizers import SGD
 from keras import regularizers
 

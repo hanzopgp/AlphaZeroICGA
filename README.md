@@ -106,21 +106,12 @@ If everything worked, you should have a build directory. Copy the content of the
 
 You also have to specify some paths in the configuration files such as **jpyconfig.py** and **jpyconfig.properties**.
 
-The required python librairies are :
-- Numpy 1.22.4
-- Matplotlib 3.3.4
-- TensorFlow 2.9.1
-- tf2onnx 1.11.1
-- CUDA 11.2
-- cuDNN 8.2.4
-- onnxruntime-gpu 1.11.1 (or onnxruntime 1.11.1 if no GPU available)
-- tensorrt 8.2.5.1
-- 
-- nvidia-tensorrt 8.4.1.5
-- nvidia-cudnn-8.2.0.51
+There is an **alphazero_env.yml** file which can be used to create a conda environnement from scratch with all the required librairies with the command `conda env create -f alphazero_env.yml`.
 
-https://developer.nvidia.com/rdp/cudnn-download
-https://developer.nvidia.com/nvidia-tensorrt-download
+The required python librairies are :
+- tensorflow-gpu (CUDA, cuDNN, TensorFlow...)
+- onnx, onnxruntime, onnxruntime-gpu, tf2onnx
+- numpy, matplotlib, keras
 
 ## Try it
 

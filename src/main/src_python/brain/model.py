@@ -1,13 +1,21 @@
 import sys
 import os
+import absl.logging
+import tensorflow as tf
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 sys.path.append(os.getcwd()+"/src_python")
-import absl.logging
 absl.logging.set_verbosity(absl.logging.ERROR)
 
-from settings.config import *
-from utils import *
-from settings.game_settings import *
+
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Input, Dense, Conv2D, Flatten, BatchNormalization, LeakyReLU, add
+from tensorflow.keras.callbacks import EarlyStopping
+from keras import regularizers
+
+
+from settings.config import OPTIMIZER, MODEL_PATH, EARLY_STOPPING_PATIENCE, LOSS_WEIGHTS, MAIN_ACTIVATION, FILTERS, KERNEL_SIZE, USE_BIAS, FIRST_KERNEL_SIZE, NEURONS_VALUE_HEAD, ONNX_INFERENCE
+from settings.game_settings import GAME_NAME
+from utils import softmax_cross_entropy_with_logits
 
 
 ######### Here is the class that contain our AlphaZero model #########
@@ -49,7 +57,8 @@ class CustomModel():
 		print("\n--> Saving model for the game :", GAME_NAME, ", model type :", model_type)
 		self.model.save(MODEL_PATH+GAME_NAME+"_"+model_type+".h5")
 		# Save in save_model mode to convert in onnx format for inference
-		tf.saved_model.save(self.model, MODEL_PATH+GAME_NAME+"_"+model_type)
+		if ONNX_INFERENCE:
+			tf.saved_model.save(self.model, MODEL_PATH+GAME_NAME+"_"+model_type)
 		print("--> Done !")
 		
 	def summary(self):
@@ -126,7 +135,7 @@ class CustomModel():
 		x = Conv2D(
 			filters=filters, 
 			kernel_size=kernel_size,
-			kernel_initializer=KERNEL_INITIALIZER,
+			kernel_initializer=tf.keras.initializers.GlorotNormal(),
 			#data_format="channels_first",
 			padding="same", 
 			use_bias=USE_BIAS, 
@@ -144,7 +153,7 @@ class CustomModel():
 		x = Conv2D(
 			filters=filters, 
 			kernel_size=kernel_size, 
-			kernel_initializer=KERNEL_INITIALIZER,
+			kernel_initializer=tf.keras.initializers.GlorotNormal(),
 			#data_format="channels_first",
 			padding="same", 
 			use_bias=USE_BIAS, 
@@ -163,7 +172,7 @@ class CustomModel():
 		x = Conv2D(
 			filters=1, # AlphaZero paper
 			kernel_size=(1,1), # AlphaZero paper
-			kernel_initializer=KERNEL_INITIALIZER,
+			kernel_initializer=tf.keras.initializers.GlorotNormal(),
 			#data_format="channels_first",
 			padding="same", 
 			use_bias=USE_BIAS, 
@@ -184,7 +193,7 @@ class CustomModel():
 			1, 
 			use_bias=USE_BIAS, 
 			activation="tanh", # Value is between -1 and 1 
-			kernel_initializer=KERNEL_INITIALIZER,
+			kernel_initializer=tf.keras.initializers.GlorotNormal(),
 			kernel_regularizer=regularizers.l2(self.reg_const),
 			name="value_head"
 		)(x)
@@ -196,7 +205,7 @@ class CustomModel():
 		x = Conv2D(
 			filters=2, # AlphaZero paper
 			kernel_size=(1,1), # AlphaZero paper 
-			kernel_initializer=KERNEL_INITIALIZER,
+			kernel_initializer=tf.keras.initializers.GlorotNormal(),
 			#data_format="channels_first",
 			padding="same", 
 			use_bias=USE_BIAS, 
@@ -210,7 +219,7 @@ class CustomModel():
 			self.output_dim, 
 			use_bias=USE_BIAS, 
 			activation="linear",
-			kernel_initializer=KERNEL_INITIALIZER,
+			kernel_initializer=tf.keras.initializers.GlorotNormal(),
 			kernel_regularizer=regularizers.l2(self.reg_const),
 			name="policy_head"
 		)(x)

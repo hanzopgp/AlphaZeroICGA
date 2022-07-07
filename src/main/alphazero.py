@@ -1,12 +1,12 @@
 import os
 import sys
-sys.path.append(os.getcwd()+"/src_python")
 import re
 from subprocess import Popen
+sys.path.append(os.getcwd()+"/src_python")
 
 
-from settings.config import *
-from settings.game_settings import *
+from settings.config import WINNERS_FILE, OUTSIDER_MIN_WINRATE, DEBUG_PRINT, MODEL_PATH, ONNX_INFERENCE
+from settings.game_settings import GAME_NAME
 
 
 def decide_if_switch_model():
@@ -16,10 +16,10 @@ def decide_if_switch_model():
 			pass
 		outsider_winrate = float(re.findall("\d+\.\d+", last_line)[0])
 		print("--> Outsider winrate for last dojo :", outsider_winrate)
-		# If outsider model won, outsider becomes champion and we can go back to mcts_trial
+		# If outsider model won, outsider becomes champion and we can go back to run_trials
 		if outsider_winrate >= OUTSIDER_MIN_WINRATE:
 			return True
-		# If the champion won we need to train the model again without executing mcts_trial
+		# If the champion won we need to train the model again without executing run_trials
 		return False
 			
 def parallelize_command(command, n):
@@ -73,9 +73,9 @@ def main_loop(n_iteration, n_workers):
 		print("============================================================================================")
 		if trial_activated: # We train the outsider until it wins against the champion
 			print("********************************************************************************************")
-			print("*************************************** MCTS TRIALS ****************************************")
+			print("************************************** RUNNING TRIALS ***************************************")
 			print("********************************************************************************************")
-			Popen(parallelize_command("mcts_trials", n_workers), shell=True).wait()
+			Popen(parallelize_command("run_trials", n_workers), shell=True).wait()
 			
 			print("********************************************************************************************")
 			print("************************************** MERGING DATASETS ************************************")
@@ -85,14 +85,15 @@ def main_loop(n_iteration, n_workers):
 		print("********************************************************************************************")
 		print("************************************** TRAINING MODEL **************************************")
 		print("********************************************************************************************")
-		Popen("python3 src_python/train_model.py", shell=True).wait()
-		convert_models_onnx()
+		Popen("python3 src_python/brain/train_model.py", shell=True).wait()
+		if ONNX_INFERENCE: 
+			convert_models_onnx()
 		
 		if alphazero_iteration >= 1: # If it's the first step we won't go for a dojo since there is only one model ready	 
 			print("********************************************************************************************")
-			print("**************************************** MCTS DOJO *****************************************")
+			print("*************************************** RUNNING DOJO ****************************************")
 			print("********************************************************************************************")
-			Popen(parallelize_command("mcts_dojo", n_workers), shell=True).wait()
+			Popen(parallelize_command("run_dojos", n_workers), shell=True).wait()
 			
 			print("********************************************************************************************")
 			print("*************************************** MERGING TXTS ***************************************")

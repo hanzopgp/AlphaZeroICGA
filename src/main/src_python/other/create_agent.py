@@ -1,4 +1,4 @@
-from mcts_uct_alphazero import MCTS_UCT_alphazero
+from mcts.mcts_uct_alphazero import MCTS_UCT_alphazero
 
 
 class Agent:

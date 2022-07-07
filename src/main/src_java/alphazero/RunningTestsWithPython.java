@@ -15,11 +15,14 @@ import game.Game;
 import other.trial.Trial;
 import other.context.Context;
 import other.GameLoader;
-import utils.RandomAI;
+
 import other.AI;
+import utils.RandomAI;
+
+import search.mcts.MCTS;
 
 
-public class RunningDojoWithPython{
+public class RunningTestsWithPython{
 
 	private static PyModule pythonDojoModule = null;
 	private static PyObject pythonDojo = null;
@@ -30,11 +33,7 @@ public class RunningDojoWithPython{
 		final Game game = GameLoader.loadGameFromName("Bashni.lud");
 		final Trial trial = new Trial(game);
 		final Context context = new Context(game, trial);
-		final List<AI> ais = new ArrayList<AI>();
-		ais.add(null);
-		ais.add(new RandomAI());
-		ais.add(new RandomAI());
-		run(game, trial, context, ais);	
+		run(game, trial, context, new RandomAI());	
 	}
 	
 	public static void initJPY(){
@@ -48,13 +47,13 @@ public class RunningDojoWithPython{
 			if (!PyLib.isPythonRunning()) {
 				PyLib.startPython(jarPath);
 			}
-			pythonDojoModule = PyModule.importModule("src_python.running_dojos");
+			pythonDojoModule = PyModule.importModule("src_python.run.running_tests");
 			initialisedJpy = true;
 		}
-		pythonDojo = pythonDojoModule.call("RunningDojos");
+		pythonDojo = pythonDojoModule.call("RunningTests");
 	}
 	
-	public static void run(final Game game, final Trial trial, final Context context, final List<AI> ais){
-		pythonDojo.call("run_dojo", game, trial, context, ais);
+	public static void run(final Game game, final Trial trial, final Context context, final AI ludiiAI){
+		pythonDojo.call("run_test", game, trial, context, ludiiAI);
 	}
 }

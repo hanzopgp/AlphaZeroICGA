@@ -1,11 +1,11 @@
 import os
 import sys
-print(os.getcwd())
+import numpy as np
 sys.path.append(os.getcwd()+"/src_python")
 
 
-from utils import *
-from settings.game_settings import *
+from utils import index_action, reverse_index_action, get_coord, get_3D_coord, format_positions
+from settings.game_settings import N_ROW, N_COL, N_ACTION_STACK
 
 
 def precompute_action_index():
@@ -53,7 +53,6 @@ def precompute_get_3D_coord():
 	
 def precompute_all():
 	return precompute_action_index(), precompute_reverse_action_index(), precompute_get_coord(), precompute_get_3D_coord()
-
 
 
 #precompute_format_positions()

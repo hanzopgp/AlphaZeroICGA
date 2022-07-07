@@ -1,11 +1,12 @@
 import sys
 import os
-sys.path.append(os.getcwd()+"/src_python")
 import re
+from subprocess import Popen
+sys.path.append(os.getcwd()+"/src_python")
 
 
-from settings.config import *
-from utils import *
+from settings.config import MODEL_PATH
+from utils import write_winner
 
 
 def read_txts():
@@ -22,11 +23,9 @@ def read_txts():
 				print("--> Reading file :", MODEL_PATH+path)
 				first_line = file.readline()
 				outsider_winrate += float(re.findall("\d+\.\d+", first_line)[0])
-				#print(MODEL_PATH+path," ",outsider_winrate)
 				total += 1
 				Popen("rm "+MODEL_PATH+path, shell=True).wait()
 	final_winrate = outsider_winrate/total
-	#print(final_winrate)
 	write_winner(final_winrate)
 
 

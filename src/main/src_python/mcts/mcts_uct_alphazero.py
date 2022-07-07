@@ -1,13 +1,16 @@
 import os
 import sys
+import random
+import math
+import time
+import numpy as np
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 sys.path.append(os.getcwd()+"/src_python")
 
 
-from settings.config import *
-from settings.game_settings import *
-from utils import *
-from model import CustomModel
+from settings.config import ONNX_INFERENCE, TEMPERATURE, CSTE_PUCT, PLAYER1, PLAYER2
+from settings.game_settings import N_ROW, N_COL, N_ACTION_STACK
+from utils import load_nn, format_state, apply_dirichlet, softmax, invert_state
 
 	
 ######### Here is the main class to run the MCTS simulation with the model #########
@@ -275,7 +278,7 @@ class MCTS_UCT_alphazero:
 			
 			# Getting the action type as an int :
 			# 0 1 2 3... depending the from and to
-			action_index = index_action(from_, to)
+			action_index = self.pre_action_index[from_][to]
 			# <int(from_/N_ROW), from_%N_ROW> represent the position of the
 			# pawn that chosed action <action_index> to go in position <to>
 			move_distribution[int(from_/N_ROW), from_%N_ROW, action_index] = normalized_visit_count

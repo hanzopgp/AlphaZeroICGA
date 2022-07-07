@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project basedir="." default="mcts_trials" name="AlphaZero">
+<project basedir="." default="init" name="AlphaZero">
 	<property environment="env"/>
 	
 	<property name="debuglevel" value="source,lines,vars"/>
@@ -42,21 +42,27 @@
 		</javac>
 	</target>
 	
-	<target name="mcts_trials" depends="build">
+	<target name="run_trials" depends="build">
 	    	<java classname="alphazero.RunningTrialsWithPython" fork="true">
 	      		<classpath refid="AlphaZero.classpath"/>
 	    	</java>
 	</target>
 	
-	<target name="mcts_dojo" depends="build">
-	    	<java classname="alphazero.RunningDojoWithPython" fork="true">
+	<target name="run_dojos" depends="build">
+	    	<java classname="alphazero.RunningDojosWithPython" fork="true">
+	      		<classpath refid="AlphaZero.classpath"/>
+	    	</java>
+	</target>
+	
+	<target name="run_tests" depends="build">
+	    	<java classname="alphazero.RunningTestsWithPython" fork="true">
 	      		<classpath refid="AlphaZero.classpath"/>
 	    	</java>
 	</target>
 	
 	<target name="train_model" depends="build">
 	    	<exec executable="python3">
-	      		<arg line="src_python/train_model.py"></arg>
+	      		<arg line="src_python/brain/train_model.py"></arg>
 	    	</exec>
 	</target>
 	

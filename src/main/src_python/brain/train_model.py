@@ -1,13 +1,14 @@
 import os
 import sys
+import numpy as np
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
 sys.path.append(os.getcwd()+"/src_python")
 
 
-from settings.config import *
-from utils import *
-from settings.game_settings import *
-from model import CustomModel
+from settings.config import MODEL_PATH, N_RES_LAYER, LEARNING_RATE, MOMENTUM, REG_CONST, BATCH_SIZE, N_EPOCHS, VERBOSE, VALIDATION_SPLIT
+from settings.game_settings import GAME_NAME, N_ROW, N_COL, N_ACTION_STACK
+from brain.model import CustomModel
+from utils import load_data, get_random_sample, load_nn
 
 	
 ######### Training model from loaded data and saving weights #########
@@ -23,7 +24,7 @@ if __name__ == '__main__':
 
 	# If there is an outsider, always train it because we are in the case
 	# of re-training since there is both a champion and an outsider
-	if exists(outsider_path): 
+	if os.path.exists(outsider_path): 
 		model_type = "outsider"
 		print("--> Found an outsider, re-training it")
 		model = CustomModel(
@@ -36,7 +37,7 @@ if __name__ == '__main__':
 		model.set_model(load_nn(model_type="outsider", inference=False))
 	# Else if there is no outsider but there is a champion, we are at 2nd step 
 	# and we create the outsider model with the champion as a baseline
-	elif exists(champion_path):
+	elif os.path.exists(champion_path):
 		model_type = "outsider"
 		print("--> Found a champion model, creating an outsider")
 		model = CustomModel(
@@ -61,8 +62,6 @@ if __name__ == '__main__':
 			reg_const=REG_CONST)
 		model.build_model()
 		
-	#model.summary()
-
 	print("\n")
 	history = model.fit(
 		X=X, 
@@ -72,11 +71,6 @@ if __name__ == '__main__':
 		verbose=VERBOSE, 
 		validation_split=VALIDATION_SPLIT)
 	
-	#for i in range(N_REPRESENTATION_STACK):
-	#	print(X[0,:,:,i])
-	#print(y_values[0])
-	#print(y_distrib[0])
-		
 	print(model.predict(np.expand_dims(X[0], axis=0)))		
 	#model.plot_metrics(history)
 

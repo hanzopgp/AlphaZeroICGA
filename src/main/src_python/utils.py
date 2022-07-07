@@ -1,30 +1,20 @@
-import math
+import os
+import sys
 import random
 import time
 import pickle
-import numpy as np
-import os
-import sys
 import onnxruntime
-#import pprint
-import cProfile
-#import concurrent.futures
+import numpy as np
 import tensorflow as tf
-from subprocess import Popen
-from matplotlib import pyplot as plt
-from os.path import exists
 sys.path.append(os.getcwd()+"/src_python")
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+
+
 from tensorflow.keras.models import load_model
-from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Input, Dense, Conv2D, Flatten, BatchNormalization, LeakyReLU, add
-from tensorflow.keras.callbacks import EarlyStopping
-from tensorflow.keras.optimizers import SGD
-from keras import regularizers
 
 
-from settings.config import *
-from settings.game_settings import *
+from settings.config import MODEL_PATH, DATASET_PATH, TRAIN_SAMPLE_SIZE, ONNX_INFERENCE, INDEX_ACTION_TAB_SIGN, PLAYER1, PLAYER2, DIRICHLET_ALPHA, WEIGHTED_SUM_DIR
+from settings.game_settings import GAME_NAME, N_ROW, N_COL, N_REPRESENTATION_STACK, N_ACTION_STACK, N_DISTANCE, N_ORIENTATION, N_LEVELS, N_TIME_STEP
 
 
 ######### Here are the utility function for loading/writing files #########
@@ -33,7 +23,7 @@ def load_data():
 	pkl_path = DATASET_PATH+GAME_NAME+".pkl"
 	
 	# Exit program if there is a dataset
-	if not exists(pkl_path):
+	if not os.path.exists(pkl_path):
 		print("--> Couldn't find dataset at:", pkl_path)
 		exit()
 		
@@ -90,7 +80,7 @@ def add_to_dataset(X, y_values, y_distrib, hash_code=""):
 	my_data = {'X': X,
 	   	   'y_values': y_values,
 	   	   'y_distrib': y_distrib}
-	if exists(pkl_path): 
+	if os.path.exists(pkl_path): 
 		with open(pkl_path, 'ab+') as fp:
 			pickle.dump(my_data, fp)
 	else:

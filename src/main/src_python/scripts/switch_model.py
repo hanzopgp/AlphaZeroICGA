@@ -1,10 +1,10 @@
 import sys
 import os
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 sys.path.append(os.getcwd()+"/src_python")
 
 
-from utils import *
+from settings.config import MODEL_PATH
+from settings.game_settings import GAME_NAME
 
 
 if __name__ == '__main__':

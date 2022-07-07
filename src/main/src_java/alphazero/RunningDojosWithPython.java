@@ -2,11 +2,7 @@ package alphazero;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
-import java.io.FileReader;  
-import java.io.BufferedReader; 
-import java.io.FileNotFoundException; 
 import java.io.File;
 import java.net.URL;
 import java.util.regex.Pattern;
@@ -19,22 +15,20 @@ import game.Game;
 import other.trial.Trial;
 import other.context.Context;
 import other.GameLoader;
-import utils.RandomAI;
-import other.AI;
 
 
-public class RunningTrialsWithPython{
+public class RunningDojosWithPython{
 
-	private static PyModule pythonTrialModule = null;
-	private static PyObject pythonTrial = null;
+	private static PyModule pythonDojoModule = null;
+	private static PyObject pythonDojo = null;
 	private static boolean initialisedJpy = false;
 
-	public static void main(String[] args) throws FileNotFoundException{
+	public static void main(String[] args){
 		initJPY();
 		final Game game = GameLoader.loadGameFromName("Bashni.lud");
 		final Trial trial = new Trial(game);
 		final Context context = new Context(game, trial);
-		run(game, trial, context);
+		run(game, trial, context);	
 	}
 	
 	public static void initJPY(){
@@ -48,33 +42,13 @@ public class RunningTrialsWithPython{
 			if (!PyLib.isPythonRunning()) {
 				PyLib.startPython(jarPath);
 			}
-			pythonTrialModule = PyModule.importModule("src_python.run.running_trials");
+			pythonDojoModule = PyModule.importModule("src_python.run.running_dojos");
 			initialisedJpy = true;
 		}
-		pythonTrial = pythonTrialModule.call("RunningTrials");
-	}
-	
-	public static int getNObjects() throws FileNotFoundException{
-		int nObjects = -1;
-		File file = new File("src_python/config.py");
-		try {
-			Scanner scanner = new Scanner(file);
-			int lineNum = 0;
-			while (scanner.hasNextLine()) {
-				String line = scanner.nextLine();
-				lineNum++;
-				if(line.contains("MAX_WORKERS")) { 
-					nObjects = Integer.parseInt(line.substring(14));
-					return nObjects;
-				}
-			}
-		} catch(FileNotFoundException e) { 
-			System.out.println(e);
-		}
-		return nObjects;
+		pythonDojo = pythonDojoModule.call("RunningDojos");
 	}
 	
 	public static void run(final Game game, final Trial trial, final Context context){
-		pythonTrial.call("run_trial", game, trial, context);
+		pythonDojo.call("run_dojo", game, trial, context);
 	}
 }

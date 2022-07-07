@@ -30,13 +30,19 @@ Implementing deep reinforcement learning algorithms for the ICGA competition. Th
       |       |      ├── models/               (Contains the current models)
       |       |      ├── src_java/             (Contains all the source code in java)
       |       |      ├── src_python/           (Contains all the source code in python)
+      |       |      |      ├── brain/         (Contains the deep learning part)
+      |       |      |      ├── mcts/          (Contains the vanilla MCTS and AlphaZero MCTS)
       |       |      |      ├── optimization/  (Contains the optimization part such as precomputations)
+      |       |      |      ├── other/         (Contains utility files)
+      |       |      |      ├── run/           (Contains files runned by java files such as dojo, trials...)
       |       |      |      ├── scripts/       (Contains all the scripts such as merge_datasets.py)
-      |       |      |      └── settings/      (Contains the hyperparameters and games settings)
+      |       |      |      ├── settings/      (Contains the hyperparameters and games settings)
+      |       |      |      └── utils.py       (File containing the utility functions)
       |       |      ├── alphazero.py          (Script running the whole AlphaZero algorithm)
       |       |      ├── build.xml             (Build file helping us run java commands, clean...)
       |       |      └── notes.txt             (Some notes I left while doing that project)
-      |       └── test/
+      |       └── test/                        (Some Ludii tutorials and tests)
+      ├── alphazero_env.yml                    (Conda environment save)
       ├── README.md
       └── LICENSE
 </pre></code>
@@ -127,11 +133,13 @@ The python alphazero script does everything, the following commands are for debu
 
 `ant build` : compile the java file in **bin/**.
 
-`ant mcts_trials` : runs the MCTS simulations only (randomly or using the model depending if there is a model in **models/**) and creates a dataset.
+`ant run_trials` : runs the MCTS simulations only (randomly or using the model depending if there is a model in **models/**) and creates a dataset.
+
+`ant run_dojos` : runs a 1 versus 1 between the last model (the outsider) and the best current model (the champion model) and outputs some stats.
+
+`ant run_tests` : runs tests against Ludii built-in AIs.
 
 `ant train_model` : only trains the model using the dataset and save the best model.
-
-`ant mcts_dojo` : runs a 1 versus 1 between the last model (the outsider) and the best current model (the champion model) and outputs some stats.
 
 `ant create_agent` : takes the best model and build an agent as a jar file for the Ludii software.
 

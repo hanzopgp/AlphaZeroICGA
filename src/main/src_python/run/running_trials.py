@@ -1,15 +1,19 @@
-import sys
 import os
+import sys
+import time
+import math
+import cProfile
+import numpy as np
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 sys.path.append(os.getcwd()+"/src_python")
 
 
-from settings.config import *
-from settings.game_settings import *
-from utils import *
-from mcts_uct_vanilla import MCTS_UCT_vanilla
-from mcts_uct_alphazero import MCTS_UCT_alphazero
-from optimization.precompute import * 
+from settings.config import MODEL_PATH, MAX_SAMPLE, MAX_GAME_DURATION, DEBUG_PRINT, PROFILING_ACTIVATED, NUM_EPISODE, PLAYER1, PLAYER2, THINKING_TIME_AGENT1, THINKING_TIME_AGENT2, MAX_ITERATION_AGENT1, MAX_ITERATION_AGENT2
+from settings.game_settings import GAME_NAME, N_ROW, N_COL, N_REPRESENTATION_STACK, N_ACTION_STACK
+from optimization.precompute import precompute_all
+from mcts.mcts_uct_vanilla import MCTS_UCT_vanilla
+from mcts.mcts_uct_alphazero import MCTS_UCT_alphazero
+from utils import add_to_dataset, get_random_hash, softmax
 
 
 ######### Here is the class called in the java file to run trials #########	
@@ -19,13 +23,13 @@ class RunningTrials:
 	# because we don't have a model yet or if we are going to use
 	# the alphazero MCTS
 	def check_if_first_step(self):
-		if exists(MODEL_PATH+GAME_NAME+"_"+"champion"+".h5"):
+		if os.path.exists(MODEL_PATH+GAME_NAME+"_"+"champion"+".h5"):
 			return False
 		print("--> No model found, starting from random policy")
 		return True
 
 	# This function is called from java in RunningTrialsWithPython.java
-	def run_trial(self, game, trial, context, ais):
+	def run_trial(self, game, trial, context):
 		if PROFILING_ACTIVATED:
 			prof = cProfile.Profile()
 			prof.enable()
@@ -91,9 +95,6 @@ class RunningTrials:
 				
 				# Move with custom python AI and save the move distribution
 				if mover == 1:
-					# Uncomment next line if using Ludii AI object
-					#move = ais.get(mover).selectAction(game, context)
-					# Get the optimal move and number of visits per move
 					move, state, tmp_arr_move = mcts1.select_action(game, context, THINKING_TIME_AGENT1, MAX_ITERATION_AGENT1, max_depth=-1)
 				else:
 					move, state, tmp_arr_move = mcts2.select_action(game, context, THINKING_TIME_AGENT2, MAX_ITERATION_AGENT2, max_depth=-1)
@@ -170,60 +171,4 @@ class RunningTrials:
 			prof.dump_stats("profiler_stats.pstats")
 
 
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-		
-	# This function doesn't work but I might try to make it work later for multithreading
-	def run_parallel_trials(self, games, trials, contexts, ais, n_objects):
-		X = [] 
-		y_values = [] 
-		y_distrib = []
-		
-		#run_trial(games[0], trials[0], contexts[0], ais[0])
-		
-		print("--> Starting multi threading with max_workers :", MAX_WORKERS)		
-		with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-		
-			#if jpype.isJVMStarted() and not jpype.isThreadAttachedToJVM():
-			#	jpype.attachThreadToJVM()
-			#else:
-			#	print("--> Didn't manage to attach the thread to the JVM")
-			#	return
-		
-			fs = []
-			for i in range(MAX_WORKERS):
-				fs.append(executor.submit(self.run_trial, games[i], trials[i], contexts[i], ais[i]))
-			#fs = {executor.submit(self.test, n, n): n for n in range(10)}
-			
-			for i, f in enumerate(concurrent.futures.as_completed(fs)):
-				try:
-					print(f.result())
-					#print("iiiii",i)
-					X_, y_values_, y_distrib_ = f.result()
-					X.append(X_)
-					y_values.append(y_values_)
-					y_distrib.append(y_distrib_)
-				except Exception as e:
-					print("--> Exception:", e)
-				else:
-					print("--> Trial number", i, "is over")	
-							
-		print("--> Trials were run on parallel thanks to", MAX_WORKERS, "workers !")
-		
-		X, y_values, y_distrib = np.array(X, dtype=object), np.array(y_values, dtype=object), np.array(y_distrib, dtype=object)
-		print(X.shape)
-		print(y_values.shape)
-		print(y_distrib.shape)
-		
-		#add_to_dataset(X.reshape(-1, N_ROW, N_COL, N_REPRESENTATION_STACK), 
-		#	       y_values.reshape(-1), 
-		#	       y_distrib.reshape(-1, N_ROW, N_COL, N_ACTION_STACK))
 	

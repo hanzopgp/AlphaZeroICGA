@@ -1,19 +1,18 @@
 import sys
 import os
-from subprocess import Popen
 import pickle
 import numpy as np
+from subprocess import Popen
 sys.path.append(os.getcwd()+"/src_python")
-from os import walk
 
 
-from settings.config import *
+from settings.config import DATASET_PATH, DEBUG_PRINT
 from utils import add_to_dataset
 
 
 # Find all datasets path with their hash
 f = []
-for (dirpath, dirnames, filenames) in walk(DATASET_PATH):
+for (dirpath, dirnames, filenames) in os.walk(DATASET_PATH):
     f.extend(filenames)
 
 full_X = []

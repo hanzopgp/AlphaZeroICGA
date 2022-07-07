@@ -1,5 +1,3 @@
-import tensorflow as tf
-
 ######### ALPHAZERO PAPER VARIABLES #########
 
 # thinking_time 40ms
@@ -19,22 +17,20 @@ import tensorflow as tf
 
 ######### TIME CONSUMING VARIABLES #########
 
-ONNX_INFERENCE = True
+ONNX_INFERENCE = False
 
+N_EPOCHS = 10
 EARLY_STOPPING_PATIENCE = 10
 
 NUM_DOJO = 2
 MAX_ITERATION_AGENTS_DOJO = 30 # 300
 THINKING_TIME_AGENTS_DOJO = -1
 
-NUM_EPISODE = 3
+NUM_EPISODE = 2
 MAX_ITERATION_AGENT1 = 30
 MAX_ITERATION_AGENT2 = 30
 THINKING_TIME_AGENT1 = -1
 THINKING_TIME_AGENT2 = -1
-
-N_EPOCHS = 50
-
 MAX_GAME_DURATION = 60
 
 ######### CONSTANT VARIABLES #########
@@ -69,7 +65,6 @@ LOSS_WEIGHTS = [0.5, 0.5] # first one is value, second one policy
 MAIN_ACTIVATION = "relu"
 FILTERS = 64
 KERNEL_SIZE = (3,3)
-KERNEL_INITIALIZER = tf.keras.initializers.GlorotNormal() # Xavier uniform
 FIRST_KERNEL_SIZE = (3,3)
 USE_BIAS = False
 N_RES_LAYER = 10

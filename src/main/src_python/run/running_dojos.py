@@ -1,22 +1,22 @@
 import os
 import sys
+import math
+import time
+import numpy as np
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 sys.path.append(os.getcwd()+"/src_python")
 
 
-from settings.config import *
-from settings.game_settings import *
-from utils import *
-from mcts_uct_alphazero import MCTS_UCT_alphazero
-from optimization.precompute import *
+from settings.config import PLAYER1, PLAYER2, NUM_DOJO, MAX_ITERATION_AGENTS_DOJO, MAX_GAME_DURATION, DEBUG_PRINT
+from optimization.precompute import precompute_all 
+from mcts.mcts_uct_alphazero import MCTS_UCT_alphazero
+from utils import write_winner
 
 
 ######### Here is the class called in the java file to run dojo #########	
 
 class RunningDojos:
-	# Need to give a Java List object here, if we give 2 ais and make it a python array
-	# it won't work and we get no java overload error
-	def run_dojo(self, game, trial, context, ais):
+	def run_dojo(self, game, trial, context):
 		# The champion MCTS player gets the best model untill now
 		champion_mcts = MCTS_UCT_alphazero(dojo=True, model_type="champion")
 		champion_mcts.init_ai(game, PLAYER1)

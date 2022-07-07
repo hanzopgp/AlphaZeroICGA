@@ -1,13 +1,15 @@
 import os
 import sys
+import random
+import math
+import time
+import numpy as np
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 sys.path.append(os.getcwd()+"/src_python")
 
 
-from settings.config import *
-from settings.game_settings import *
-from utils import *
-from model import CustomModel
+from settings.game_settings import N_ROW, N_COL, N_ACTION_STACK
+from utils import utilities, softmax, format_state
 
 	
 ######### Here is the main class to run the vanilla MCTS simulation #########
@@ -193,11 +195,6 @@ class MCTS_UCT_vanilla:
 		
 		# Compute softmax on visit counts, giving us a distribution on moves
 		soft = softmax(np.array(counter))
-		
-		# Start as 1 so it doesn't matter at the beginning,
-		# goes to 0 while the game goes on in order to reduce
-		# exploration in the end game
-		soft = np.power(soft, 1/TEMPERATURE)
 		
 		# Get the decision
 		decision = children[soft.argmax()].move_from_parent

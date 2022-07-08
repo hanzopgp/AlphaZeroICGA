@@ -169,6 +169,6 @@ class RunningTrials:
 			prof.disable()
 			prof.print_stats()
 			prof.dump_stats("profiler_stats.pstats")
-
+		
 
 	

@@ -6,6 +6,8 @@ import pickle
 import onnxruntime
 import numpy as np
 import tensorflow as tf
+import warnings
+warnings.filterwarnings("ignore")
 sys.path.append(os.getcwd()+"/src_python")
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
@@ -13,7 +15,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 from tensorflow.keras.models import load_model
 
 
-from settings.config import MODEL_PATH, DATASET_PATH, TRAIN_SAMPLE_SIZE, ONNX_INFERENCE, INDEX_ACTION_TAB_SIGN, PLAYER1, PLAYER2, DIRICHLET_ALPHA, WEIGHTED_SUM_DIR
+from settings.config import MODEL_PATH, DATASET_PATH, TRAIN_SAMPLE_SIZE, ONNX_INFERENCE, INDEX_ACTION_TAB_SIGN, PLAYER1, PLAYER2, DIRICHLET_ALPHA, WEIGHTED_SUM_DIR, GRAPH_INFERENCE
 from settings.game_settings import GAME_NAME, N_ROW, N_COL, N_REPRESENTATION_STACK, N_ACTION_STACK, N_DISTANCE, N_ORIENTATION, N_LEVELS, N_TIME_STEP
 
 
@@ -97,17 +99,55 @@ def load_nn(model_type, inference):
 			model = onnxruntime.InferenceSession(MODEL_PATH+GAME_NAME+"_"+model_type+".onnx", sess_options=opts, providers=onnxruntime.get_available_providers())
 			model.get_modelmeta()
 		else:
-			# Disable eager mode for faster inference with tensorflow
-			#print("⁼"*50)
-			#print(tf.executing_eagerly())
-			#tf.compat.v1.disable_eager_execution()
-			#print(tf.executing_eagerly())
-			#print("="*50)
-			model = load_model(MODEL_PATH+GAME_NAME+"_"+model_type+".h5", custom_objects={'softmax_cross_entropy_with_logits': softmax_cross_entropy_with_logits})
+			if GRAPH_INFERENCE:
+				# Load frozen graph function for inference
+				model = load_graph(model_type)
+			else:
+				# Disable eager mode for faster inference with tensorflow
+				tf.compat.v1.disable_eager_execution()
+				model = load_model(MODEL_PATH+GAME_NAME+"_"+model_type+".h5", custom_objects={'softmax_cross_entropy_with_logits': softmax_cross_entropy_with_logits})
 	else:
 		model = load_model(MODEL_PATH+GAME_NAME+"_"+model_type+".h5", custom_objects={'softmax_cross_entropy_with_logits': softmax_cross_entropy_with_logits})
 	print("--> Done !")
 	return model
+	
+def convert_model_to_graph(model, model_type):
+	# Convert Keras model to ConcreteFunction
+	full_model = tf.function(lambda x: model(x))
+	full_model = full_model.get_concrete_function(tf.TensorSpec(model.inputs[0].shape, model.inputs[0].dtype))
+
+	# Get frozen ConcreteFunction
+	frozen_func = convert_variables_to_constants_v2(full_model)
+	frozen_func.graph.as_graph_def()
+
+	# Save frozen graph from frozen ConcreteFunction to hard drive
+	tf.io.write_graph(graph_or_graph_def=frozen_func.graph,
+		          logdir="./"+MODEL_PATH,
+		          name=GAME_NAME+"_"+model_type+".pb",
+		          as_text=False)
+		          
+#def load_graph(model_type):
+#	# Load frozen graph using TensorFlow 1.x functions
+#	with tf.io.gfile.GFile(MODEL_PATH+GAME_NAME+"_"+model_type+".pb", "rb") as f:
+#		graph_def = tf.compat.v1.GraphDef()
+#		loaded = graph_def.ParseFromString(f.read())
+#
+#	# Wrap frozen graph to ConcreteFunctions
+#	frozen_func = wrap_frozen_graph(graph_def=graph_def,
+#		                        inputs=["x:0"],
+#		                        outputs=["Identity:0"],
+#		                        print_graph=True)
+#	return frozen_func
+
+#def load_graph(model_type):
+#	from tensorflow.python.platform import gfile
+#	with tf.compat.v1.Session() as sess:
+#		with gfile.FastGFile(MODEL_PATH+GAME_NAME+"_"+model_type+"/saved_model"+".pb", 'rb') as f:
+#			graph_def = tf.compat.v1.GraphDef()
+#			graph_def.ParseFromString(f.read())
+#			sess.graph.as_default()
+#			g_in = tf.import_graph_def(graph_def)
+#	return sess
 	
 def write_winner(outsider_winrate, hash_code=""):
 	if len(hash_code) >= 1:

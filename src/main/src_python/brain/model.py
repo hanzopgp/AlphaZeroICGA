@@ -2,6 +2,8 @@ import sys
 import os
 import absl.logging
 import tensorflow as tf
+import warnings
+warnings.filterwarnings("ignore")
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 sys.path.append(os.getcwd()+"/src_python")
 absl.logging.set_verbosity(absl.logging.ERROR)
@@ -13,9 +15,9 @@ from tensorflow.keras.callbacks import EarlyStopping
 from keras import regularizers
 
 
-from settings.config import OPTIMIZER, MODEL_PATH, EARLY_STOPPING_PATIENCE, LOSS_WEIGHTS, MAIN_ACTIVATION, FILTERS, KERNEL_SIZE, USE_BIAS, FIRST_KERNEL_SIZE, NEURONS_VALUE_HEAD, ONNX_INFERENCE
+from settings.config import OPTIMIZER, MODEL_PATH, EARLY_STOPPING_PATIENCE, LOSS_WEIGHTS, MAIN_ACTIVATION, FILTERS, KERNEL_SIZE, USE_BIAS, FIRST_KERNEL_SIZE, NEURONS_VALUE_HEAD, ONNX_INFERENCE, GRAPH_INFERENCE
 from settings.game_settings import GAME_NAME
-from utils import softmax_cross_entropy_with_logits
+from utils import softmax_cross_entropy_with_logits, convert_model_to_graph
 
 
 ######### Here is the class that contain our AlphaZero model #########
@@ -57,8 +59,10 @@ class CustomModel():
 		print("\n--> Saving model for the game :", GAME_NAME, ", model type :", model_type)
 		self.model.save(MODEL_PATH+GAME_NAME+"_"+model_type+".h5")
 		# Save in save_model mode to convert in onnx format for inference
-		if ONNX_INFERENCE:
+		if ONNX_INFERENCE or GRAPH_INFERENCE:
 			tf.saved_model.save(self.model, MODEL_PATH+GAME_NAME+"_"+model_type)
+		#if GRAPH_INFERENCE:
+		#	convert_model_to_graph(self.model, model_type)
 		print("--> Done !")
 		
 	def summary(self):

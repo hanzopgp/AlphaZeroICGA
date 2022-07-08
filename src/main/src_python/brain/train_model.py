@@ -1,6 +1,8 @@
 import os
 import sys
 import numpy as np
+import warnings
+warnings.filterwarnings("ignore")
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
 sys.path.append(os.getcwd()+"/src_python")
 

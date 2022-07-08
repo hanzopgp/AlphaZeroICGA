@@ -4,12 +4,14 @@ import random
 import math
 import time
 import numpy as np
+import warnings
+warnings.filterwarnings("ignore")
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 sys.path.append(os.getcwd()+"/src_python")
 
 
-from settings.config import ONNX_INFERENCE, TEMPERATURE, CSTE_PUCT, PLAYER1, PLAYER2
-from settings.game_settings import N_ROW, N_COL, N_ACTION_STACK
+from settings.config import ONNX_INFERENCE, GRAPH_INFERENCE, TEMPERATURE, CSTE_PUCT, PLAYER1, PLAYER2
+from settings.game_settings import N_ROW, N_COL, N_ACTION_STACK, N_REPRESENTATION_STACK
 from utils import load_nn, format_state, apply_dirichlet, softmax, invert_state
 
 	
@@ -34,9 +36,13 @@ class MCTS_UCT_alphazero:
 		self.pre_3D_coords = pre_3D_coords
 		
 	# Use the model to predict a policy and a value
-	def predict_with_onnx_model(self, state, output=["value_head", "policy_head"]):
+	def predict_with_model(self, state, output=["value_head", "policy_head"]):
 		if ONNX_INFERENCE:
 			return np.array(self.model.run(output, {"input_1": state.astype(np.float32)}))[0]
+		if GRAPH_INFERENCE:
+			tensor_output = self.model.graph.get_tensor_by_name('import/dense_2/Sigmoid:0')
+			tensor_input = self.model.graph.get_tensor_by_name('import/dense_1_input:0')
+			return self.model.run(tensor_output, {tensor_input:sample})
 		else:
 			return self.model.predict(state, verbose=0)
 		
@@ -141,12 +147,12 @@ class MCTS_UCT_alphazero:
 				utils = np.zeros(num_players+1)
 				state = np.expand_dims(format_state(current_context).squeeze(), axis=0)
 				if ONNX_INFERENCE:
-					value = self.predict_with_onnx_model(state, output=["value_head"])
-					value_opp = self.predict_with_onnx_model(invert_state(state), output=["value_head"])
+					value_pred = self.predict_with_model(state, output=["value_head"])
+					value_opp_pred = self.predict_with_model(invert_state(state), output=["value_head"])				
 				else:
-					value, _ = self.predict_with_onnx_model(state, output=["value_head"])
-					value_opp, _ = self.predict_with_onnx_model(invert_state(state), output=["value_head"])
-				utils[PLAYER1], utils[PLAYER2] = value, value_opp
+					value_pred, _ = self.predict_with_model(state, output=[""])
+					value_opp_pred, _ = self.predict_with_model(invert_state(state), output=[""])
+				utils[PLAYER1], utils[PLAYER2] = value_pred, value_opp_pred
 			# If we are in a terminal node we can compute ground truth utilities
 			else:
 				# Compute utilities thanks to our functions for both players
@@ -174,22 +180,22 @@ class MCTS_UCT_alphazero:
 		# If we have some moves to expand
 		if len(current.unexpanded_moves) > 0:
 			# We copy the context to play in a simulation
-			context = current.context.deepCopy()
-		
+			current_context = current.context.deepCopy()
+			
 			# Get the representation and get the prediction
-			state = format_state(context).squeeze()
+			state = format_state(current_context).squeeze()
 			
 			# Estimate policy with the model
 			if ONNX_INFERENCE:
-				policy_pred = self.predict_with_onnx_model(np.expand_dims(state, axis=0), output=["policy_head"])
+				policy_pred = self.predict_with_model(np.expand_dims(state, axis=0), output=["policy_head"])
 			else:
-				_, policy_pred = self.predict_with_onnx_model(np.expand_dims(state, axis=0), output=["policy_head"])
+				_, policy_pred = self.predict_with_model(np.expand_dims(state, axis=0), output=[""])
 			
 			# Get ride of useless batch dimension
 			policy_pred = policy_pred[0] 
 			
 			# Apply Dirichlet to ensure exploration
-			policy_pred = apply_dirichlet(policy_pred)
+			policy_pred = apply_dirichlet(policy_pred.flatten())
 			
 			# The output of the network is a flattened array
 			policy_pred = policy_pred.reshape(N_ROW, N_COL, N_ACTION_STACK)
@@ -198,11 +204,11 @@ class MCTS_UCT_alphazero:
 			move, prior = self.chose_move(current.unexpanded_moves, policy_pred, competitive_mode=self.dojo)
 				
 			# Apply the move in the simulation
-			context.game().apply(context, move)
+			current_context.game().apply(current_context, move)
 			
 			# Return a new node, with the new child (which is the move played), and the prior 
-			return Node(current, move, prior, context)
-
+			return Node(current, move, prior, current_context)
+			
 		# We are now looking for the best value in the children of the current node
 		# so we need to init some variables according to PUCT
 		best_child = None
@@ -219,15 +225,16 @@ class MCTS_UCT_alphazero:
 		# For each childrens of the mover
 		for i in range(num_children):
 			child = current.children[i]
+			child_score_sums = child.score_sums
 
 			# Compute the UCB score
-			#exploit = child.score_sums[mover] / child.visit_count
+			#exploit = child_score_sums[mover] / child.visit_count
 			#explore = math.sqrt(two_parent_log / child.visit_count)
 			
 			# Compute the PUCT score
 			# The score depends on low visit count, high move probability and high value
-			exploit = child.score_sums[mover] / child.visit_count
-			explore = CSTE_PUCT * current.prior * (np.sqrt(child.score_sums[mover]) / (1 + current.score_sums[mover]))
+			exploit = child_score_sums[mover] / child.visit_count
+			explore = CSTE_PUCT * current.prior * (np.sqrt(child_score_sums[mover]) / (1 + current.score_sums[mover]))
 			
 			value = exploit + explore
 
@@ -251,9 +258,6 @@ class MCTS_UCT_alphazero:
 	def final_move_selection(self, root_node):
 		# Now that we have gone through the tree using PUCT scores, the MCTS will chose
 		# the best move to play by checking which node was the most visited
-		best_child = None
-		best_visit_count = -math.inf
-		num_best_found = 0
 		num_children = len(root_node.children)
 		total_visit_count = root_node.total_visit_count
 		
@@ -281,12 +285,12 @@ class MCTS_UCT_alphazero:
 			action_index = self.pre_action_index[from_][to]
 			# <int(from_/N_ROW), from_%N_ROW> represent the position of the
 			# pawn that chosed action <action_index> to go in position <to>
-			move_distribution[int(from_/N_ROW), from_%N_ROW, action_index] = normalized_visit_count
+			move_distribution[from_//N_ROW, from_%N_ROW, action_index] = normalized_visit_count
 	
 			# Keeps track of our children and their visit_count
 			children.append(child)
 			counter.append(normalized_visit_count)
-		
+			
 		# Compute softmax on visit counts, giving us a distribution on moves
 		soft = softmax(np.array(counter))
 		
@@ -332,3 +336,4 @@ class Node:
 		# Recursively declare the children for each parent
 		if parent is not None:
 			parent.children.append(self)
+			

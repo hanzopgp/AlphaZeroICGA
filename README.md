@@ -82,6 +82,7 @@ Links :
 - https://discovery.ucl.ac.uk/id/eprint/10045895/1/agz_unformatted_nature.pdf (AlphaGo Zero)
 - https://arxiv.org/abs/1712.01815 (AlphaZero)
 - https://arxiv.org/pdf/1903.08129.pdf (Hyper-parameters sweep on AlphaZero)
+- https://www.scitepress.org/Papers/2021/102459/102459.pdf (Improvements to increase the efficiency of AlphaZero)
 
 ## Environment & Setup
 

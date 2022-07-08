@@ -3,6 +3,8 @@ import sys
 import math
 import time
 import numpy as np
+import warnings
+warnings.filterwarnings("ignore")
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 sys.path.append(os.getcwd()+"/src_python")
 
@@ -10,7 +12,7 @@ sys.path.append(os.getcwd()+"/src_python")
 from settings.config import PLAYER1, PLAYER2, NUM_DOJO, MAX_ITERATION_AGENTS_DOJO, MAX_GAME_DURATION, DEBUG_PRINT
 from optimization.precompute import precompute_all 
 from mcts.mcts_uct_alphazero import MCTS_UCT_alphazero
-from utils import write_winner
+from utils import write_winner, get_random_hash
 
 
 ######### Here is the class called in the java file to run dojo #########	

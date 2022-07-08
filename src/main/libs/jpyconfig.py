@@ -1,7 +1,7 @@
-# Created by 'jpyutil.py' tool on 2022-07-08 21:36:19.198104
+# Created by 'jpyutil.py' tool on 2022-07-08 22:58:49.837557
 # This file is read by the 'jpyutil' module in order to load and configure the JVM from Python
-java_home = 'C:\\Program Files\\Java\\jdk-18.0.1.1'
-jvm_dll = 'C:\\Program Files\\Java\\jdk-18.0.1.1\\bin\\server\\jvm.dll'
+java_home = '/usr/lib/jvm/java-11-openjdk-amd64'
+jvm_dll = '/usr/lib/jvm/java-11-openjdk-amd64/lib/server/libjvm.so'
 jvm_maxmem = None
 jvm_classpath = []
 jvm_properties = {}

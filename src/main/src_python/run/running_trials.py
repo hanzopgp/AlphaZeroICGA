@@ -166,8 +166,8 @@ class RunningTrials:
 		add_to_dataset(X, y_values, y_distrib, get_random_hash())
 
 		if PROFILING_ACTIVATED:
-			#prof.disable()
-			#prof.print_stats()
+			prof.disable()
+			prof.print_stats()
 			prof.dump_stats("profiler_stats.pstats")
 
 

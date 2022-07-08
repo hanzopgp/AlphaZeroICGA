@@ -92,11 +92,17 @@ def load_nn(model_type, inference):
 	print("--> Loading model for the game :", GAME_NAME, ", model type :", model_type)
 	if inference:
 		if ONNX_INFERENCE:
-			#opts = onnxruntime.SessionOptions()
-			#opts.intra_op_num_threads = 8
-			model = onnxruntime.InferenceSession(MODEL_PATH+GAME_NAME+"_"+model_type+".onnx", providers=onnxruntime.get_available_providers())
+			opts = onnxruntime.SessionOptions()
+			opts.intra_op_num_threads = 8
+			model = onnxruntime.InferenceSession(MODEL_PATH+GAME_NAME+"_"+model_type+".onnx", sess_options=opts, providers=onnxruntime.get_available_providers())
 			model.get_modelmeta()
 		else:
+			# Disable eager mode for faster inference with tensorflow
+			#print("⁼"*50)
+			#print(tf.executing_eagerly())
+			#tf.compat.v1.disable_eager_execution()
+			#print(tf.executing_eagerly())
+			#print("="*50)
 			model = load_model(MODEL_PATH+GAME_NAME+"_"+model_type+".h5", custom_objects={'softmax_cross_entropy_with_logits': softmax_cross_entropy_with_logits})
 	else:
 		model = load_model(MODEL_PATH+GAME_NAME+"_"+model_type+".h5", custom_objects={'softmax_cross_entropy_with_logits': softmax_cross_entropy_with_logits})

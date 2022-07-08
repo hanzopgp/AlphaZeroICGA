@@ -111,7 +111,7 @@ First you need to clone Luddi and JPY repositories, then download C++ build and 
 
 If everything worked, you should have a build directory. Copy the content of the lib directory into the Ludii directory in a folder called **/LudiiPythonAI/libs/**. The Ludii jar file should also be moved to the libs directory. Finaly, you can build the jar file thanks to ant and the xml file, then export it in Ludii.
 
-You also have to specify some paths in the configuration files such as **jpyconfig.py** and **jpyconfig.properties**.
+You might also have to specify some paths in the configuration files such as **jpyconfig.py** and **jpyconfig.properties**. You might aswell modify **build.xml** file in order to set the correct classpath for the JPY snapshot.
 
 There is an **alphazero_env.yml** file which can be used to create a conda environnement from scratch with all the required librairies with the command `conda env create -f alphazero_env.yml`.
 

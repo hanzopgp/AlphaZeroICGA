@@ -96,7 +96,8 @@ def load_nn(model_type, inference):
 		if ONNX_INFERENCE:
 			opts = onnxruntime.SessionOptions()
 			opts.intra_op_num_threads = 8
-			model = onnxruntime.InferenceSession(MODEL_PATH+GAME_NAME+"_"+model_type+".onnx", sess_options=opts, providers=onnxruntime.get_available_providers())
+			#model = onnxruntime.InferenceSession(MODEL_PATH+GAME_NAME+"_"+model_type+".onnx", sess_options=opts, providers=onnxruntime.get_available_providers())
+			model = onnxruntime.InferenceSession(MODEL_PATH+GAME_NAME+"_"+model_type+".onnx", sess_options=opts, providers=["CPUExecutionProvider"])
 			model.get_modelmeta()
 		else:
 			if GRAPH_INFERENCE:
@@ -148,6 +149,17 @@ def convert_model_to_graph(model, model_type):
 #			sess.graph.as_default()
 #			g_in = tf.import_graph_def(graph_def)
 #	return sess
+	
+# Use the model to predict a policy and a value
+def predict_with_model(model, state, output=["value_head", "policy_head"]):
+	if ONNX_INFERENCE:
+		return np.array(model.run(output, {"input_1": state.astype(np.float32)}))[0]
+	if GRAPH_INFERENCE:
+		tensor_output = model.graph.get_tensor_by_name('import/dense_2/Sigmoid:0')
+		tensor_input = model.graph.get_tensor_by_name('import/dense_1_input:0')
+		return model.run(tensor_output, {tensor_input:sample})
+	return model.predict(state, verbose=0)
+	#return 0, np.random.rand(1, N_ROW*N_COL*N_ACTION_STACK)	
 	
 def write_winner(outsider_winrate, hash_code=""):
 	if len(hash_code) >= 1:

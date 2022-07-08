@@ -10,9 +10,9 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 sys.path.append(os.getcwd()+"/src_python")
 
 
-from settings.config import ONNX_INFERENCE, GRAPH_INFERENCE, TEMPERATURE, CSTE_PUCT, PLAYER1, PLAYER2
+from settings.config import ONNX_INFERENCE, TEMPERATURE, CSTE_PUCT, PLAYER1, PLAYER2
 from settings.game_settings import N_ROW, N_COL, N_ACTION_STACK, N_REPRESENTATION_STACK
-from utils import load_nn, format_state, apply_dirichlet, softmax, invert_state
+from utils import load_nn, format_state, apply_dirichlet, softmax, invert_state, predict_with_model
 
 	
 ######### Here is the main class to run the MCTS simulation with the model #########
@@ -34,17 +34,6 @@ class MCTS_UCT_alphazero:
 		self.pre_reverse_action_index = pre_reverse_action_index
 		self.pre_coords = pre_coords
 		self.pre_3D_coords = pre_3D_coords
-		
-	# Use the model to predict a policy and a value
-	def predict_with_model(self, state, output=["value_head", "policy_head"]):
-		if ONNX_INFERENCE:
-			return np.array(self.model.run(output, {"input_1": state.astype(np.float32)}))[0]
-		if GRAPH_INFERENCE:
-			tensor_output = self.model.graph.get_tensor_by_name('import/dense_2/Sigmoid:0')
-			tensor_input = self.model.graph.get_tensor_by_name('import/dense_1_input:0')
-			return self.model.run(tensor_output, {tensor_input:sample})
-		#return self.model.predict(state, verbose=0)
-		return 0, np.random.rand(1, N_ROW*N_COL*N_ACTION_STACK)	
 		
 	# Get the policy on every moves, mask out the illegal moves,
 	# re-compute softmax and pick a move randomly according to
@@ -95,18 +84,22 @@ class MCTS_UCT_alphazero:
 			
 			# The prior is the value at those index which represent the
 			# probability it was picked
-			prior = legal_policy[chosen_x][chosen_y][chosen_action]			
+			prior = legal_policy[chosen_x][chosen_y][chosen_action]	
 
 		# Precomputed function	
 		chosen_prev_x, chosen_prev_y = self.pre_reverse_action_index[chosen_x][chosen_y][chosen_action]
 		
+		# Pop the move to play
+		move = legal_moves_python[chosen_x][chosen_y][chosen_prev_x][chosen_prev_y]
+		legal_moves.remove(move)
+		
 		# Now we need to find the move in the java object legal moves list
-		return legal_moves_python[chosen_x][chosen_y][chosen_prev_x][chosen_prev_y], prior
+		return move, prior
 		
 	# Main method called to chose an action at depth 0
 	def select_action(self, game, context, max_seconds, max_iterations, max_depth):
 		# Init an empty node which will be our root
-		root = Node(None, None, 0, context)
+		root = Node(None, None, 0, context, self.model)
 		num_players = game.players().count()
 		
 		# Init our visit counter for that move in order to normalize
@@ -147,11 +140,11 @@ class MCTS_UCT_alphazero:
 				utils = np.zeros(num_players+1)
 				state = np.expand_dims(format_state(current_context).squeeze(), axis=0)
 				if ONNX_INFERENCE:
-					value_pred = self.predict_with_model(state, output=["value_head"])
-					value_opp_pred = self.predict_with_model(invert_state(state), output=["value_head"])				
+					value_pred = predict_with_model(state, output=["value_head"])
+					value_opp_pred = predict_with_model(invert_state(state), output=["value_head"])				
 				else:
-					value_pred, _ = self.predict_with_model(state, output=[""])
-					value_opp_pred, _ = self.predict_with_model(invert_state(state), output=[""])
+					value_pred, _ = predict_with_model(self.model, state, output=[""])
+					value_opp_pred, _ = predict_with_model(self.model, invert_state(state), output=[""])
 				utils[PLAYER1], utils[PLAYER2] = value_pred, value_opp_pred
 			# If we are in a terminal node we can compute ground truth utilities
 			else:
@@ -179,35 +172,21 @@ class MCTS_UCT_alphazero:
 	def select_node(self, current):
 		# If we have some moves to expand
 		if len(current.unexpanded_moves) > 0:
+			# Chose a move according to the list of possible moves and node policy
+			move, prior = self.chose_move(current.unexpanded_moves, current.policy_pred, competitive_mode=self.dojo)
+			
 			# We copy the context to play in a simulation
 			current_context = current.context.deepCopy()
-			
-			# Get the representation and get the prediction
-			state = format_state(current_context).squeeze()
-			
-			# Estimate policy with the model
-			if ONNX_INFERENCE:
-				policy_pred = self.predict_with_model(np.expand_dims(state, axis=0), output=["policy_head"])
-			else:
-				_, policy_pred = self.predict_with_model(np.expand_dims(state, axis=0), output=[""])
-			
-			# Get ride of useless batch dimension
-			policy_pred = policy_pred[0] 
-			
-			# Apply Dirichlet to ensure exploration
-			policy_pred = apply_dirichlet(policy_pred)
-			
-			# The output of the network is a flattened array
-			policy_pred = policy_pred.reshape(N_ROW, N_COL, N_ACTION_STACK)
-			
-			# Chose a move in legal moves by randomly firing in the policy
-			move, prior = self.chose_move(current.unexpanded_moves, policy_pred, competitive_mode=self.dojo)
 				
 			# Apply the move in the simulation
 			current_context.game().apply(current_context, move)
 			
+			print("return", current, len(current.children), current.visit_count, current.prior)
+			
 			# Return a new node, with the new child (which is the move played), and the prior 
-			return Node(current, move, prior, current_context)
+			return Node(current, move, prior, current_context, self.model)
+			
+		print("after", current, len(current.children), current.visit_count, current.prior)	
 			
 		# We are now looking for the best value in the children of the current node
 		# so we need to init some variables according to PUCT
@@ -216,29 +195,22 @@ class MCTS_UCT_alphazero:
 		num_best_found = 0
 		num_children = len(current.children)
 		
-		# For UCB score
-		#two_parent_log = 2.0 * math.log(max(1, current.visit_count))
-
 		# The mover can be both of the players since the games are alternating move games
 		mover = current.context.state().mover()
+
+		sum_child_visit_count = 0
+		for i in range(num_children):
+			sum_child_visit_count += current.children[i].visit_count
 
 		# For each childrens of the mover
 		for i in range(num_children):
 			child = current.children[i]
-			child_score_sums = child.score_sums
-
-			# Compute the UCB score
-			#exploit = child_score_sums[mover] / child.visit_count
-			#explore = math.sqrt(two_parent_log / child.visit_count)
-			
 			# Compute the PUCT score
 			# The score depends on low visit count, high move probability and high value
-			
-			exploit = child_score_sums[mover] / child.visit_count
-			explore = CSTE_PUCT * current.prior * (np.sqrt(child_score_sums[mover]) / (1 + current.score_sums[mover]))
-			
+			exploit = child.score_sums[mover] / child.visit_count
+			explore = CSTE_PUCT * current.prior * (np.sqrt(sum_child_visit_count) / (1 + current.visit_count))
 			value = exploit + explore
-
+			
 			# Keep track of the best_child which has the best PUCT score
 			if value > best_value:
 				best_value = value;
@@ -313,7 +285,21 @@ class MCTS_UCT_alphazero:
 
 
 class Node:
-	def __init__(self, parent, move_from_parent, prior, context):
+	def __init__(self, parent, move_from_parent, prior, context, model):
+		# Variable to save the policy so we don't compute it more than once per node
+		# Format the input
+		state = format_state(context.deepCopy()).squeeze()
+		# Estimate policy
+		if ONNX_INFERENCE:
+			policy_pred = predict_with_model(model, np.expand_dims(state, axis=0), output=["policy_head"])
+		else:
+			_, policy_pred = predict_with_model(model, np.expand_dims(state, axis=0), output=[""])
+		# Apply Dirichlet to ensure exploration
+		policy_pred = apply_dirichlet(policy_pred[0])
+		# The output of the network is a flattened array
+		policy_pred = policy_pred.reshape(N_ROW, N_COL, N_ACTION_STACK)
+		self.policy_pred = policy_pred
+		
 		# Variables to build the tree
 		self.children = []
 		self.parent = parent

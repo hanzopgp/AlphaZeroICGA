@@ -12,7 +12,7 @@ sys.path.append(os.getcwd()+"/src_python")
 
 from settings.config import ONNX_INFERENCE, TEMPERATURE, CSTE_PUCT, PLAYER1, PLAYER2
 from settings.game_settings import N_ROW, N_COL, N_ACTION_STACK, N_REPRESENTATION_STACK
-from utils import load_nn, format_state, apply_dirichlet, softmax, invert_state, predict_with_model
+from utils import load_nn, format_state, apply_dirichlet, softmax, invert_state, predict_with_model, utilities
 
 	
 ######### Here is the main class to run the MCTS simulation with the model #########
@@ -118,12 +118,11 @@ class MCTS_UCT_alphazero:
 		while num_iterations < max_its and time.time() < stop_time:
 			# Our current node will be the root to start
 			current = root
-			current_context = current.context
 
 			# We are looping until we reach a terminal state on the current node
 			while True:
 				# Here the game is over so we break out, then we compute the utilities and backpropagate the values
-				if current_context.trial().over():
+				if current.context.trial().over():
 					break
 			
 				# Here we chose a current node and it is a new one, selected thanks the model policy 
@@ -136,9 +135,9 @@ class MCTS_UCT_alphazero:
 
 			# If we broke out because we expanded a new node and not because the trial is over then it is time
 			# estimate the value thanks to the model
-			if not current_context.trial().over():
+			if not current.context.trial().over():
 				utils = np.zeros(num_players+1)
-				state = np.expand_dims(format_state(current_context).squeeze(), axis=0)
+				state = np.expand_dims(format_state(current.context).squeeze(), axis=0)
 				if ONNX_INFERENCE:
 					value_pred = predict_with_model(state, output=["value_head"])
 					value_opp_pred = predict_with_model(invert_state(state), output=["value_head"])				
@@ -149,7 +148,7 @@ class MCTS_UCT_alphazero:
 			# If we are in a terminal node we can compute ground truth utilities
 			else:
 				# Compute utilities thanks to our functions for both players
-				utils = utilities(current_context)
+				utils = utilities(current.context)
 
 			# We propagate the values from the current node to the root
 			while current is not None:
@@ -181,12 +180,10 @@ class MCTS_UCT_alphazero:
 			# Apply the move in the simulation
 			current_context.game().apply(current_context, move)
 			
-			print("return", current, len(current.children), current.visit_count, current.prior)
-			
 			# Return a new node, with the new child (which is the move played), and the prior 
 			return Node(current, move, prior, current_context, self.model)
 			
-		print("after", current, len(current.children), current.visit_count, current.prior)	
+		#print("after", current, len(current.children), current.visit_count, current.prior)	
 			
 		# We are now looking for the best value in the children of the current node
 		# so we need to init some variables according to PUCT

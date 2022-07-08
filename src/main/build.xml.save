@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project basedir="." default="init" name="AlphaZero">
+	<property environment="env"/>
+	
+	<property name="debuglevel" value="source,lines,vars"/>
+	<property name="target" value="1.8"/>
+	<property name="source" value="1.8"/>
+	
+	<path id="AlphaZero.classpath">
+	  	<pathelement location="bin"/>
+	    	<pathelement location="libs/Ludii-1.3.4.jar"/>
+	    	<pathelement location="LudiiPythonAI.jar"/>
+	    	<pathelement location="libs/jpy-0.10.0-SNAPSHOT.jar"/>
+	    path>
+	
+	<target name="init">
+		<mkdir dir="bin"/>
+		<mkdir dir="models/"/>
+		<mkdir dir="agents"/>
+		<mkdir dir="datasets/"/>
+		<touch file="models/save_winners.txt"/>
+		<copy includeemptydirs="false" todir="bin">
+			<fileset dir="src_java">
+	 		<exclude name="**/*.launch"/>
+	       	<exclude name="**/*.java"/>
+	  		</fileset>
+		</copy>
+	</target>
+	
+	<target name="clean">
+		<delete dir="bin"/>
+	 	<delete dir="agents"/>
+		<delete dir="datasets"/>
+		<delete dir="models"/>
+	</target>
+	
+	<target name="build" depends="init">
+		<!--<echo message="${ant.project.name}: ${ant.file}"/>-->
+		<javac debug="true" debuglevel="${debuglevel}" destdir="bin" includeantruntime="false" source="${source}" target="${target}" compiler="javac1.8" encoding="UTF-8" nowarn="on">
+			<src path="src_java"/>
+			<classpath refid="AlphaZero.classpath"/>
+		</javac>
+	</target>
+	
+	<target name="run_trials" depends="build">
+	    	<java classname="alphazero.RunningTrialsWithPython" fork="true">
+	      		<classpath refid="AlphaZero.classpath"/>
+	    	</java>
+	</target>
+	
+	<target name="run_dojos" depends="build">
+	    	<java classname="alphazero.RunningDojosWithPython" fork="true">
+	      		<classpath refid="AlphaZero.classpath"/>
+	    	</java>
+	</target>
+	
+	<target name="run_tests" depends="build">
+	    	<java classname="alphazero.RunningTestsWithPython" fork="true">
+	      		<classpath refid="AlphaZero.classpath"/>
+	    	</java>
+	</target>
+	
+	<target name="train_model" depends="build">
+	    	<exec executable="python3">
+	      		<arg line="src_python/brain/train_model.py"></arg>
+	    	</exec>
+	</target>
+	
+	<target name="switch_model" depends="build">
+	    	<exec executable="python3">
+	      		<arg line="src_python/switch_model.py"></arg>
+	    	</exec>
+	</target>
+	
+	<target name="create_agent" depends="build">
+		<jar destfile="agents/LudiiAgent.jar" duplicate="preserve">
+			<zipgroupfileset dir="libs" includes="**/*.jar" >
+				<exclude name="Ludii.jar" />
+				<exclude name="Ludii-javadoc.jar" />
+			</zipgroupfileset>
+		</jar>
+	</target>
+	
+</project>

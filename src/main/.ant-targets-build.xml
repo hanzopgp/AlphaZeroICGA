@@ -2,7 +2,8 @@ build
 clean
 create_agent
 init
-mcts_dojo
-mcts_trials
+run_dojos
+run_tests
+run_trials
 switch_model
 train_model

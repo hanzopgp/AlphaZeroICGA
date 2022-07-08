@@ -1,0 +1,7 @@
+Buildfile: /home/hanzopgp/project/AlphaZeroICGA/src/main/build.xml
+
+init:
+
+build:
+
+run_trials:

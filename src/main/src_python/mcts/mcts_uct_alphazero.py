@@ -43,8 +43,8 @@ class MCTS_UCT_alphazero:
 			tensor_output = self.model.graph.get_tensor_by_name('import/dense_2/Sigmoid:0')
 			tensor_input = self.model.graph.get_tensor_by_name('import/dense_1_input:0')
 			return self.model.run(tensor_output, {tensor_input:sample})
-		else:
-			return self.model.predict(state, verbose=0)
+		#return self.model.predict(state, verbose=0)
+		return 0, np.random.rand(1, N_ROW*N_COL*N_ACTION_STACK)	
 		
 	# Get the policy on every moves, mask out the illegal moves,
 	# re-compute softmax and pick a move randomly according to
@@ -195,7 +195,7 @@ class MCTS_UCT_alphazero:
 			policy_pred = policy_pred[0] 
 			
 			# Apply Dirichlet to ensure exploration
-			policy_pred = apply_dirichlet(policy_pred.flatten())
+			policy_pred = apply_dirichlet(policy_pred)
 			
 			# The output of the network is a flattened array
 			policy_pred = policy_pred.reshape(N_ROW, N_COL, N_ACTION_STACK)
@@ -233,6 +233,7 @@ class MCTS_UCT_alphazero:
 			
 			# Compute the PUCT score
 			# The score depends on low visit count, high move probability and high value
+			
 			exploit = child_score_sums[mover] / child.visit_count
 			explore = CSTE_PUCT * current.prior * (np.sqrt(child_score_sums[mover]) / (1 + current.score_sums[mover]))
 			

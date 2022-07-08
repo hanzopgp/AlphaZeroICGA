@@ -9,7 +9,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 sys.path.append(os.getcwd()+"/src_python")
 
 
-from settings.config import PLAYER1, PLAYER2, NUM_DOJO, MAX_ITERATION_AGENTS_DOJO, MAX_GAME_DURATION, DEBUG_PRINT
+from settings.config import PLAYER1, PLAYER2, NUM_DOJO, MAX_ITERATION_AGENTS_DOJO, THINKING_TIME_AGENTS_DOJO, MAX_GAME_DURATION, DEBUG_PRINT
 from optimization.precompute import precompute_all 
 from mcts.mcts_uct_alphazero import MCTS_UCT_alphazero
 from utils import write_winner, get_random_hash
@@ -53,9 +53,9 @@ class RunningDojos:
 					break
 					
 				if context.state().mover() == 1:
-					move, state, tmp_arr_move = champion_mcts.select_action(game, context, -1, max_iterations=MAX_ITERATION_AGENTS_DOJO, max_depth=-1)
+					move, state, tmp_arr_move = champion_mcts.select_action(game, context, THINKING_TIME_AGENTS_DOJO, MAX_ITERATION_AGENTS_DOJO, max_depth=-1)
 				else:
-					move, state, tmp_arr_move = outsider_mcts.select_action(game, context, -1, max_iterations=MAX_ITERATION_AGENTS_DOJO, max_depth=-1)
+					move, state, tmp_arr_move = outsider_mcts.select_action(game, context, THINKING_TIME_AGENTS_DOJO, MAX_ITERATION_AGENTS_DOJO, max_depth=-1)
 				
 				context.game().apply(context, move)
 	

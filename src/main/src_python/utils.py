@@ -66,10 +66,10 @@ def load_data():
 	print("--> Done !")
 	return final_X, final_y_values, final_y_distrib
 	
-def get_random_sample(X, y_distrib, y_values):
+def get_random_sample(X, y_values, y_distrib):
 	train_sample = TRAIN_SAMPLE_SIZE if TRAIN_SAMPLE_SIZE < X.shape[0] else X.shape[0]
 	idx = np.random.choice(np.arange(X.shape[0]), train_sample, replace=False)
-	return X[idx], y_distrib[idx], y_values[idx]
+	return X[idx], y_values[idx], y_distrib[idx]
 
 def get_random_hash():
 	return str(np.random.rand() * time.time()).replace(".", "")
@@ -112,20 +112,20 @@ def load_nn(model_type, inference):
 	print("--> Done !")
 	return model
 	
-# def convert_model_to_graph(model, model_type):
-# 	# Convert Keras model to ConcreteFunction
-# 	full_model = tf.function(lambda x: model(x))
-# 	full_model = full_model.get_concrete_function(tf.TensorSpec(model.inputs[0].shape, model.inputs[0].dtype))
+def convert_model_to_graph(model, model_type):
+	# Convert Keras model to ConcreteFunction
+	full_model = tf.function(lambda x: model(x))
+	full_model = full_model.get_concrete_function(tf.TensorSpec(model.inputs[0].shape, model.inputs[0].dtype))
 
-# 	# Get frozen ConcreteFunction
-# 	frozen_func = convert_variables_to_constants_v2(full_model)
-# 	frozen_func.graph.as_graph_def()
+	# Get frozen ConcreteFunction
+	frozen_func = convert_variables_to_constants_v2(full_model)
+	frozen_func.graph.as_graph_def()
 
-# 	# Save frozen graph from frozen ConcreteFunction to hard drive
-# 	tf.io.write_graph(graph_or_graph_def=frozen_func.graph,
-# 		          logdir="./"+MODEL_PATH,
-# 		          name=GAME_NAME+"_"+model_type+".pb",
-# 		          as_text=False)
+	# Save frozen graph from frozen ConcreteFunction to hard drive
+	tf.io.write_graph(graph_or_graph_def=frozen_func.graph,
+		          logdir="./"+MODEL_PATH,
+		          name=GAME_NAME+"_"+model_type+".pb",
+		          as_text=False)
 		          
 #def load_graph(model_type):
 #	# Load frozen graph using TensorFlow 1.x functions

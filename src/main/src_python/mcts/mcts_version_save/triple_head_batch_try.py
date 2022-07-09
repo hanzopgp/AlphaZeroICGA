@@ -133,9 +133,6 @@ class MCTS_UCT_alphazero:
 				if current.visit_count == 0:
 					break
 			
-			## HERE WE NEED TO PUT THE NODE IN THE LIST WAITING FOR BATCH PREDICTION
-			## WE DONT PROPAGATE YET, WE WILL DO IT BEFORE COMPUTING PUCT
-
 			# If we broke out because we expanded a new node and not because the trial is over then it is time
 			# estimate the value thanks to the model
 			if not current.context.trial().over():
@@ -167,28 +164,55 @@ class MCTS_UCT_alphazero:
 	def select_node(self, current):
 		# If we have some moves to expand
 		if len(current.unexpanded_moves) > 0:
-			# If we never predicted it, its' time to estimate a policy for this node
-			if current.state is None:
-				# Get state
-				current.state = np.expand_dims(format_state(current.context).squeeze(), axis=0)
-				# Make prediction
-				if ONNX_INFERENCE:
-					current.value_pred, current.value_opp_pred, policy_pred = predict_with_model(self.model, current.states, output=["value_head", "value_opp_head", "policy_head"])
-				else:
-					current.value_pred, current.value_opp_pred, policy_pred = predict_with_model(self.model, current.states, output=[""])
-				# Apply dirichlet
-				current.policy_pred = apply_dirichlet(policy_pred[0]).reshape(N_ROW, N_COL, N_ACTION_STACK)
+
+
+
+
+
+			
+			# save_current_unexpanded_moves = current.unexpanded_moves.copy()
+			# contexts = []
+			# states = np.zeros((len(current.unexpanded_moves)+1, N_ROW, N_COL, N_REPRESENTATION_STACK))
+			# states[0] = np.expand_dims(format_state(current.context).squeeze(), axis=0)
+			# for i, unexpanded_move in enumerate(current.unexpanded_moves):
+			# 	move_context = current.context.deepCopy()
+			# 	move_context.game().apply(move_context, unexpanded_move)
+			# 	contexts.append(move_context)
+			# 	states[i+1] = np.expand_dims(format_state(move_context).squeeze(), axis=0)
+
+			# if ONNX_INFERENCE:
+			# 	value_preds, value_opp_preds, policy_preds = predict_with_model(self.model, states, output=["value_head", "value_opp_head", "policy_head"])
+			# else:
+			# 	value_preds, value_opp_preds, policy_preds = predict_with_model(self.model, states, output=[""])
+
+			# for i, unexpanded_move in enumerate(current.unexpanded_moves):
+			# 	policy_pred = apply_dirichlet(policy_preds[i+1]).reshape(N_ROW, N_COL, N_ACTION_STACK)
+			# 	#print("ok")
+			# 	move, prior = self.chose_move(current.unexpanded_moves, policy_pred, competitive_mode=self.dojo)
+			# 	Node(current, move, prior, contexts[i], states[i+1], policy_pred, value_preds[i+1], value_opp_preds[i+1])
+
+
+
+
+
+
+
+			# Apply dirichlet
+			current_policy_pred = apply_dirichlet(policy_preds[0]).reshape(N_ROW, N_COL, N_ACTION_STACK)
 			# Chose a move according to the list of possible moves and node policy
-			move, prior = self.chose_move(current.context, current.policy_pred, competitive_mode=self.dojo)
+			#print("ok2", len(save_current_unexpanded_moves), current_policy_pred.shape)
+			move, prior = self.chose_move(save_current_unexpanded_moves, current_policy_pred, competitive_mode=self.dojo)
 			# We copy the context to play in a simulation
 			current_context = current.context.deepCopy()
 			# Apply the move in the simulation
 			current_context.game().apply(current_context, move)
+			
 			# Return a new node, with the new child (which is the move played), and the prior 
-			return Node(current, move, prior, current_context, None, None, None, None)
-		
-		## HERE WE NEED TO PREDICT ALL THE PREVIOUS VALUES IN BATCH 
-		## + BACKPROPAGATE THE VALUES BEFORE COMPUTING THE PUCT !!!
+			return Node(current, move, prior, current_context, states[0], policy_preds[0], value_preds[0], value_opp_preds[0])
+			
+
+
+
 
 		# We are now looking for the best value in the children of the current node
 		# so we need to init some variables according to PUCT

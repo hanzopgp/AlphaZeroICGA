@@ -10,6 +10,24 @@ keep model with 2 outputs
 in mcts, predict the 2 outputs for all unexpanded moves in batch, and compute the value_opp by switching the sign ?
 optimize format_state
 
+--> start from root node
+
+--> if there is still moves to expand with that node:
+	--> estimate policy
+	--> chose one move
+	--> if first time seen or final node
+		--> estimate value
+	--> else 
+		--> keep chosing 
+		
+--> if all nodes expanded
+	--> time to compute PUCT
+
+--> keep doing this until all moves are expanded (can go in deeper nodes when the node is already visited)
+
+--> start simulation again
+--> back to root node
+
 ============================================================================
 
 download tensorrt : https://developer.nvidia.com/nvidia-tensorrt-8x-download

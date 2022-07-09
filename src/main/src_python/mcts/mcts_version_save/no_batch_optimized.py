@@ -119,8 +119,6 @@ class MCTS_UCT_alphazero:
 			# Our current node will be the root to start
 			current = root
 
-			node_to_estimate = []
-
 			# We are looping until we reach a terminal state on the current node
 			while True:
 				# Here the game is over so we break out, then we compute the utilities and backpropagate the values
@@ -130,48 +128,19 @@ class MCTS_UCT_alphazero:
 				# Here we chose a current node and it is a new one, selected thanks the model policy 
 				# (if the current node has still unexpanded moves)
 				current = self.select_node(current)
-				node_to_estimate.append(current)
 
 				# If the node expanded is a new one, we have to estimate a value for that node
 				if current.visit_count == 0:
 					break
 			
-
-				
-			
-
-			# if current.value_pred is None:
-			# 	states = np.zeros((len(node_to_estimate), N_ROW, N_COL, N_REPRESENTATION_STACK))
-			# 	inverted_states = np.zeros((len(node_to_estimate), N_ROW, N_COL, N_REPRESENTATION_STACK))
-			# 	for i in range(len(node_to_estimate)):
-			# 		states[i] = format_state(node_to_estimate[i].context).squeeze()
-			# 		inverted_states[i] = invert_state(states[i])
-
-			# 	value_preds, _ = predict_with_model(self.model, states, output=[""])
-			# 	value_opp_preds, _ = predict_with_model(self.model, invert_state(states), output=[""])
-				
-			# 	for i in range(len(node_to_estimate)):
-			# 		node_to_estimate[i].value_pred = value_preds[i]
-			# 		node_to_estimate[i].value_opp_pred = value_opp_preds[i]
-			# else:
-			# 	print("Skipped computation")
-
-			# utils = np.zeros((num_players+1))
-			# utils[PLAYER1], utils[PLAYER2] = current.value_pred, current.value_opp_pred
-
-
-
 			# If we broke out because we expanded a new node and not because the trial is over then it is time
 			# estimate the value thanks to the model
 			if not current.context.trial().over():
-				utils = np.zeros(num_players+1)
-				if current.value_opp_pred is None:
-					if ONNX_INFERENCE:
-						current.value_opp_pred = predict_with_model(invert_state(current.state), output=["value_head"])				
-					else:
-						current.value_opp_pred, _ = predict_with_model(self.model, invert_state(current.state), output=[""])
+				utils = np.zeros(num_players+1)	
+				if ONNX_INFERENCE:
+					current.value_opp_pred = predict_with_model(self.model, invert_state(current.state), output=["value_head"])
 				else:
-					print("Skipped computation")
+					current.value_opp_pred, _ = predict_with_model(self.model, invert_state(current.state), output=[""])
 				utils[PLAYER1], utils[PLAYER2] = current.value_pred, current.value_opp_pred
 			# If we are in a terminal node we can compute ground truth utilities
 			else:
@@ -209,7 +178,7 @@ class MCTS_UCT_alphazero:
 			current_context.game().apply(current_context, move)
 			
 			# Return a new node, with the new child (which is the move played), and the prior 
-			return Node(current, move, prior, current_context, self.model)
+			return Node(current, move, prior, current_context, self.model)	
 			
 		# We are now looking for the best value in the children of the current node
 		# so we need to init some variables according to PUCT
@@ -262,7 +231,8 @@ class MCTS_UCT_alphazero:
 		move_distribution = np.zeros((N_ROW, N_COL, N_ACTION_STACK))
 
 		# Arrays for the decision making
-		counter = np.zeros((num_children))
+		children = []
+		counter = []
 
 		# For each children of the root, so for each legal moves
 		for i in range(num_children):
@@ -283,10 +253,11 @@ class MCTS_UCT_alphazero:
 			move_distribution[from_//N_ROW, from_%N_ROW, action_index] = normalized_visit_count
 	
 			# Keeps track of our children and their visit_count
-			counter[i] = normalized_visit_count
+			children.append(child)
+			counter.append(normalized_visit_count)
 			
 		# Compute softmax on visit counts, giving us a distribution on moves
-		soft = softmax(counter)
+		soft = softmax(np.array(counter))
 		
 		# Start as 1 so it doesn't matter at the beginning,
 		# goes to 0 while the game goes on in order to reduce
@@ -294,7 +265,10 @@ class MCTS_UCT_alphazero:
 		soft = np.power(soft, 1/TEMPERATURE)
 		
 		# Get the decision
-		decision = root_node.children[soft.argmax()].move_from_parent
+		decision = children[soft.argmax()].move_from_parent
+				
+		# Get the representation of the current state for the future NN training
+		#state = format_state(root_node.context)
 				
 		# Returns the move to play in the real game and the moves
 		# associated to their probability distribution
@@ -307,18 +281,19 @@ class Node:
 		# Variable to save the policy and value so we don't compute it more than once per node
 		# Format the input
 		self.state = np.expand_dims(format_state(context.deepCopy()).squeeze(), axis=0)
-		# Estimate policy
+		# Estimate policy and value
 		if ONNX_INFERENCE:
-			value_pred, policy_pred = predict_with_model(model, self.state, output=["value_head", "policy_head"])
+			value_pred, policy_pred = predict_with_model(model, self.state, output=["value_head, policy_head"])
 		else:
 			value_pred, policy_pred = predict_with_model(model, self.state, output=[""])
 		# Apply Dirichlet to ensure exploration
 		policy_pred = apply_dirichlet(policy_pred[0])
 		# The output of the network is a flattened array
-		self.policy_pred = policy_pred.reshape(N_ROW, N_COL, N_ACTION_STACK)
+		policy_pred = policy_pred.reshape(N_ROW, N_COL, N_ACTION_STACK)
+		self.policy_pred = policy_pred
 		self.value_pred = value_pred
 		self.value_opp_pred = None
-		
+			
 		# Variables to build the tree
 		self.children = []
 		self.parent = parent

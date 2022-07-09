@@ -58,6 +58,7 @@ class RunningTrials:
 		X = np.zeros((MAX_SAMPLE, N_ROW, N_COL, N_REPRESENTATION_STACK))
 		y_distrib = np.zeros((MAX_SAMPLE, N_ROW, N_COL, N_ACTION_STACK))
 		y_values = []
+		y_opp_values = []
 		
 		print("--> Running", NUM_EPISODE, "episodes")
 		
@@ -136,8 +137,10 @@ class RunningTrials:
 			for j in range(len(X_mover)):
 				if X_mover[j] == PLAYER1:
 					y_values.append(reward1)
+					y_opp_values.append(reward2)
 				elif X_mover[j] == PLAYER2:
 					y_values.append(reward2)
+					y_opp_values.append(reward1)
 					
 			duration[i] = time.time() - start_time
 			
@@ -145,12 +148,15 @@ class RunningTrials:
 		X = X[:idx_sample]
 		y_values = np.array(y_values)
 		y_values = y_values[:idx_sample]
+		y_opp_values = np.array(y_opp_values)
+		y_opp_values = y_opp_values[:idx_sample]
 		y_distrib = y_distrib[:idx_sample]
 
 		if DEBUG_PRINT:
 			# Print our generated dataset shapes
 			print("* X shape", X.shape)	
 			print("* y_values shape", y_values.shape)
+			print("* y_opp_values shape", y_opp_values.shape)
 			print("* y_distrib shape", y_distrib.shape)
 			
 			# Print some trial stats
@@ -163,7 +169,7 @@ class RunningTrials:
 		print("--> Episodes are over")
 			
 		# Save values to dataset
-		add_to_dataset(X, y_values, y_distrib, get_random_hash())
+		add_to_dataset(X, y_values, y_opp_values, y_distrib, get_random_hash())
 
 		if PROFILING_ACTIVATED:
 			prof.disable()

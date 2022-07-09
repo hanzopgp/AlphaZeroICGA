@@ -136,42 +136,10 @@ class MCTS_UCT_alphazero:
 				if current.visit_count == 0:
 					break
 			
-
-				
-			
-
-			# if current.value_pred is None:
-			# 	states = np.zeros((len(node_to_estimate), N_ROW, N_COL, N_REPRESENTATION_STACK))
-			# 	inverted_states = np.zeros((len(node_to_estimate), N_ROW, N_COL, N_REPRESENTATION_STACK))
-			# 	for i in range(len(node_to_estimate)):
-			# 		states[i] = format_state(node_to_estimate[i].context).squeeze()
-			# 		inverted_states[i] = invert_state(states[i])
-
-			# 	value_preds, _ = predict_with_model(self.model, states, output=[""])
-			# 	value_opp_preds, _ = predict_with_model(self.model, invert_state(states), output=[""])
-				
-			# 	for i in range(len(node_to_estimate)):
-			# 		node_to_estimate[i].value_pred = value_preds[i]
-			# 		node_to_estimate[i].value_opp_pred = value_opp_preds[i]
-			# else:
-			# 	print("Skipped computation")
-
-			# utils = np.zeros((num_players+1))
-			# utils[PLAYER1], utils[PLAYER2] = current.value_pred, current.value_opp_pred
-
-
-
 			# If we broke out because we expanded a new node and not because the trial is over then it is time
 			# estimate the value thanks to the model
 			if not current.context.trial().over():
 				utils = np.zeros(num_players+1)
-				if current.value_opp_pred is None:
-					if ONNX_INFERENCE:
-						current.value_opp_pred = predict_with_model(invert_state(current.state), output=["value_head"])				
-					else:
-						current.value_opp_pred, _ = predict_with_model(self.model, invert_state(current.state), output=[""])
-				else:
-					print("Skipped computation")
 				utils[PLAYER1], utils[PLAYER2] = current.value_pred, current.value_opp_pred
 			# If we are in a terminal node we can compute ground truth utilities
 			else:
@@ -309,15 +277,15 @@ class Node:
 		self.state = np.expand_dims(format_state(context.deepCopy()).squeeze(), axis=0)
 		# Estimate policy
 		if ONNX_INFERENCE:
-			value_pred, policy_pred = predict_with_model(model, self.state, output=["value_head", "policy_head"])
+			value_pred, value_opp_pred, policy_pred = predict_with_model(model, self.state, output=["value_head", "value_opp_head", "policy_head"])
 		else:
-			value_pred, policy_pred = predict_with_model(model, self.state, output=[""])
+			value_pred, value_opp_pred, policy_pred = predict_with_model(model, self.state, output=[""])
 		# Apply Dirichlet to ensure exploration
 		policy_pred = apply_dirichlet(policy_pred[0])
 		# The output of the network is a flattened array
 		self.policy_pred = policy_pred.reshape(N_ROW, N_COL, N_ACTION_STACK)
 		self.value_pred = value_pred
-		self.value_opp_pred = None
+		self.value_opp_pred = value_opp_pred
 		
 		# Variables to build the tree
 		self.children = []

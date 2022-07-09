@@ -127,7 +127,7 @@ class CustomModel():
 		val_opp_head = self.value_opp_head(x)
 		pol_head = self.policy_head(x)
 		# Finaly we declare our model
-		model = Model(inputs=[input_layer], outputs=[val_head, pol_head])
+		model = Model(inputs=[input_layer], outputs=[val_head, val_opp_head, pol_head])
 		model.compile(
 			loss={"value_head": "mean_squared_error", "value_opp_head": "mean_squared_error", "policy_head": softmax_cross_entropy_with_logits},
 			#loss={"value_head": "mean_squared_error", "policy_head": tf.keras.losses.CategoricalCrossentropy(from_logits=True)},

@@ -99,7 +99,7 @@ class MCTS_UCT_alphazero:
 	# Main method called to chose an action at depth 0
 	def select_action(self, game, context, max_seconds, max_iterations, max_depth):
 		# Init an empty node which will be our root
-		root = Node(None, None, 0, context, self.model)
+		root = Node(None, None, 0, context, None, None, None, None)
 		num_players = game.players().count()
 		
 		# Init our visit counter for that move in order to normalize
@@ -119,8 +119,6 @@ class MCTS_UCT_alphazero:
 			# Our current node will be the root to start
 			current = root
 
-			node_to_estimate = []
-
 			# We are looping until we reach a terminal state on the current node
 			while True:
 				# Here the game is over so we break out, then we compute the utilities and backpropagate the values
@@ -130,7 +128,6 @@ class MCTS_UCT_alphazero:
 				# Here we chose a current node and it is a new one, selected thanks the model policy 
 				# (if the current node has still unexpanded moves)
 				current = self.select_node(current)
-				node_to_estimate.append(current)
 
 				# If the node expanded is a new one, we have to estimate a value for that node
 				if current.visit_count == 0:
@@ -167,18 +164,56 @@ class MCTS_UCT_alphazero:
 	def select_node(self, current):
 		# If we have some moves to expand
 		if len(current.unexpanded_moves) > 0:
-			# Chose a move according to the list of possible moves and node policy
-			move, prior = self.chose_move(current.unexpanded_moves, current.policy_pred, competitive_mode=self.dojo)
+
+
+
+
+
 			
+			# save_current_unexpanded_moves = current.unexpanded_moves.copy()
+			# contexts = []
+			# states = np.zeros((len(current.unexpanded_moves)+1, N_ROW, N_COL, N_REPRESENTATION_STACK))
+			# states[0] = np.expand_dims(format_state(current.context).squeeze(), axis=0)
+			# for i, unexpanded_move in enumerate(current.unexpanded_moves):
+			# 	move_context = current.context.deepCopy()
+			# 	move_context.game().apply(move_context, unexpanded_move)
+			# 	contexts.append(move_context)
+			# 	states[i+1] = np.expand_dims(format_state(move_context).squeeze(), axis=0)
+
+			# if ONNX_INFERENCE:
+			# 	value_preds, value_opp_preds, policy_preds = predict_with_model(self.model, states, output=["value_head", "value_opp_head", "policy_head"])
+			# else:
+			# 	value_preds, value_opp_preds, policy_preds = predict_with_model(self.model, states, output=[""])
+
+			# for i, unexpanded_move in enumerate(current.unexpanded_moves):
+			# 	policy_pred = apply_dirichlet(policy_preds[i+1]).reshape(N_ROW, N_COL, N_ACTION_STACK)
+			# 	#print("ok")
+			# 	move, prior = self.chose_move(current.unexpanded_moves, policy_pred, competitive_mode=self.dojo)
+			# 	Node(current, move, prior, contexts[i], states[i+1], policy_pred, value_preds[i+1], value_opp_preds[i+1])
+
+
+
+
+
+
+
+			# Apply dirichlet
+			current_policy_pred = apply_dirichlet(policy_preds[0]).reshape(N_ROW, N_COL, N_ACTION_STACK)
+			# Chose a move according to the list of possible moves and node policy
+			#print("ok2", len(save_current_unexpanded_moves), current_policy_pred.shape)
+			move, prior = self.chose_move(save_current_unexpanded_moves, current_policy_pred, competitive_mode=self.dojo)
 			# We copy the context to play in a simulation
 			current_context = current.context.deepCopy()
-				
 			# Apply the move in the simulation
 			current_context.game().apply(current_context, move)
 			
 			# Return a new node, with the new child (which is the move played), and the prior 
-			return Node(current, move, prior, current_context, self.model)
+			return Node(current, move, prior, current_context, states[0], policy_preds[0], value_preds[0], value_opp_preds[0])
 			
+
+
+
+
 		# We are now looking for the best value in the children of the current node
 		# so we need to init some variables according to PUCT
 		best_child = None
@@ -271,19 +306,10 @@ class MCTS_UCT_alphazero:
 
 
 class Node:
-	def __init__(self, parent, move_from_parent, prior, context, model):
-		# Variable to save the policy and value so we don't compute it more than once per node
-		# Format the input
-		self.state = np.expand_dims(format_state(context.deepCopy()).squeeze(), axis=0)
-		# Estimate policy
-		if ONNX_INFERENCE:
-			value_pred, value_opp_pred, policy_pred = predict_with_model(model, self.state, output=["value_head", "value_opp_head", "policy_head"])
-		else:
-			value_pred, value_opp_pred, policy_pred = predict_with_model(model, self.state, output=[""])
-		# Apply Dirichlet to ensure exploration
-		policy_pred = apply_dirichlet(policy_pred[0])
+	def __init__(self, parent, move_from_parent, prior, context, state, policy_pred, value_pred, value_opp_pred):
 		# The output of the network is a flattened array
-		self.policy_pred = policy_pred.reshape(N_ROW, N_COL, N_ACTION_STACK)
+		self.state = state
+		self.policy_pred = policy_pred
 		self.value_pred = value_pred
 		self.value_opp_pred = value_opp_pred
 		

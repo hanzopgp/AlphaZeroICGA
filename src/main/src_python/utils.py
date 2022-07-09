@@ -42,45 +42,52 @@ def load_data():
 	# Extrat what's inside the dataset
 	X = []
 	y_values = []
+	y_opp_values = []
 	y_distrib = []
 	for batch in data:
 		X.append(batch["X"])
 		y_values.append(batch["y_values"])
+		y_opp_values.append(batch["y_opp_values"])
 		y_distrib.append(batch["y_distrib"])
 	X = np.array(X, dtype=object)
 	y_values = np.array(y_values, dtype=object)
+	y_opp_values = np.array(y_opp_values, dtype=object)
 	y_distrib = np.array(y_distrib, dtype=object)
 	final_X = X[0]
 	final_y_values = y_values[0]
+	final_y_opp_values = y_opp_values[0]
 	final_y_distrib = y_distrib[0]
 	for i in range(1, X.shape[0]):
 		final_X = np.concatenate((final_X, X[i]), axis=0)
 		final_y_values = np.concatenate((final_y_values, y_values[i]), axis=0)
+		final_y_opp_values = np.concatenate((final_y_opp_values, y_opp_values[i]), axis=0)
 		final_y_distrib = np.concatenate((final_y_distrib, y_distrib[i]), axis=0)
 		
 	# Print some stats
 	print("* Number of examples in the dataset :", final_X.shape[0])
 	print("* X shape", final_X.shape)
 	print("* y_values shape", final_y_values.shape)
+	print("* y_opp_values shape", final_y_opp_values.shape)
 	print("* y_distrib shape", final_y_distrib.shape)
 	print("--> Done !")
-	return final_X, final_y_values, final_y_distrib
+	return final_X, final_y_values, final_y_opp_values, final_y_distrib
 	
-def get_random_sample(X, y_distrib, y_values):
+def get_random_sample(X, y_values, y_opp_values, y_distrib):
 	train_sample = TRAIN_SAMPLE_SIZE if TRAIN_SAMPLE_SIZE < X.shape[0] else X.shape[0]
 	idx = np.random.choice(np.arange(X.shape[0]), train_sample, replace=False)
-	return X[idx], y_distrib[idx], y_values[idx]
+	return X[idx], y_values[idx], y_opp_values[idx], y_distrib[idx]
 
 def get_random_hash():
 	return str(np.random.rand() * time.time()).replace(".", "")
 
-def add_to_dataset(X, y_values, y_distrib, hash_code=""):
+def add_to_dataset(X, y_values, y_opp_values, y_distrib, hash_code=""):
 	print("--> Saving data to pickle for the game :", GAME_NAME)
 	if len(hash_code) >= 1:
 		print("--> Hash code :", hash_code)
 	pkl_path = DATASET_PATH+GAME_NAME+hash_code+".pkl"
 	my_data = {'X': X,
 	   	   'y_values': y_values,
+		   'y_opp_values': y_opp_values,
 	   	   'y_distrib': y_distrib}
 	if os.path.exists(pkl_path): 
 		with open(pkl_path, 'ab+') as fp:

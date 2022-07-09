@@ -3,10 +3,12 @@ can try :
 1)
 one model with 3 outputs : policy, value, value opp
 in mcts, predict the 3 outputs for all unexpanded moves in batch
+optimize format_state
 
 2)
 keep model with 2 outputs
 in mcts, predict the 2 outputs for all unexpanded moves in batch, and compute the value_opp by switching the sign ?
+optimize format_state
 
 ============================================================================
 

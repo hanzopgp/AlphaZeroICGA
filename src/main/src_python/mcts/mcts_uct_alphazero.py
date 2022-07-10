@@ -101,10 +101,6 @@ class MCTS_UCT_alphazero:
 		# Init an empty node which will be our root
 		root = Node(None, None, 0, context, None, None, None, None)
 		num_players = game.players().count()
-		
-		# Init our visit counter for that move in order to normalize
-		# the visit counts per child
-		self.total_visit_count = 0
 
 		# Use max_seconds and max_iterations if a value is set
 		# else if we get -1 the max is infinity
@@ -153,7 +149,6 @@ class MCTS_UCT_alphazero:
 			while current is not None:
 				# visit_count variable for each nodes in order to compute PUCT scores
 				current.visit_count += 1
-				current.total_visit_count += 1
 				# score_sums variable for each players in order to compute PUCT scores
 				for p in range(1, num_players+1):
 					current.score_sums[p] += utils[p]
@@ -240,7 +235,6 @@ class MCTS_UCT_alphazero:
 		# Now that we have gone through the tree using PUCT scores, the MCTS will chose
 		# the best move to play by checking which node was the most visited
 		num_children = len(root_node.children)
-		total_visit_count = root_node.total_visit_count
 		
 		# Array to store the number of visits per move, a move is represented
 		# by its coordinate and several stacks representing where it can go
@@ -254,7 +248,6 @@ class MCTS_UCT_alphazero:
 			child = root_node.children[i]
 			visit_count = child.visit_count
 			move_from_parent = child.move_from_parent
-			normalized_visit_count = visit_count/total_visit_count
 
 			# Getting coordinates of the move
 			to = move_from_parent.to()
@@ -265,10 +258,10 @@ class MCTS_UCT_alphazero:
 			action_index = self.pre_action_index[from_][to]
 			# <int(from_/N_ROW), from_%N_ROW> represent the position of the
 			# pawn that chosed action <action_index> to go in position <to>
-			move_distribution[from_//N_ROW, from_%N_ROW, action_index] = normalized_visit_count
+			move_distribution[from_//N_ROW, from_%N_ROW, action_index] = visit_count
 	
 			# Keeps track of our children and their visit_count
-			counter[i] = normalized_visit_count
+			counter[i] = visit_count
 			
 		# Compute softmax on visit counts, giving us a distribution on moves
 		soft = softmax(counter)
@@ -301,7 +294,6 @@ class Node:
 
 		# Variables for PUCT score computation
 		self.visit_count = 0
-		self.total_visit_count = 0
 		self.prior = prior
 		self.move_from_parent = move_from_parent
 		self.context = context

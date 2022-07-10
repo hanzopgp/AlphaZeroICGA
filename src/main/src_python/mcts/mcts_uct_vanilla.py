@@ -32,10 +32,6 @@ class MCTS_UCT_vanilla:
 		# Init an empty node which will be our root
 		root = Node(None, None, context)
 		num_players = game.players().count()
-		
-		# Init our visit counter for that move in order to normalize
-		# the visit counts per child
-		self.total_visit_count = 0
 
 		# Use max_seconds and max_iterations if a value is set
 		# else if we get -1 the max is infinity
@@ -89,7 +85,6 @@ class MCTS_UCT_vanilla:
 			while current is not None:
 				# visit_count variable for each nodes in order to compute UCB scores
 				current.visit_count += 1
-				current.total_visit_count += 1
 				# score_sums variable for each players in order to compute UCB scores
 				for p in range(1, num_players+1):
 					current.score_sums[p] += utils[p]
@@ -161,7 +156,6 @@ class MCTS_UCT_vanilla:
 		best_visit_count = -math.inf
 		num_best_found = 0
 		num_children = len(root_node.children)
-		total_visit_count = root_node.total_visit_count
 		
 		# Array to store the number of visits per move, a move is represented
 		# by its coordinate and several stacks representing where it can go
@@ -176,7 +170,6 @@ class MCTS_UCT_vanilla:
 			child = root_node.children[i]
 			visit_count = child.visit_count
 			move_from_parent = child.move_from_parent
-			normalized_visit_count = visit_count/total_visit_count
 
 			# Getting coordinates of the move
 			to = move_from_parent.to()
@@ -187,11 +180,11 @@ class MCTS_UCT_vanilla:
 			action_index = self.pre_action_index[from_][to]
 			# <int(from_/N_ROW), from_%N_ROW> represent the position of the
 			# pawn that chosed action <action_index> to go in position <to>
-			move_distribution[int(from_/N_ROW), from_%N_ROW, action_index] = normalized_visit_count
+			move_distribution[int(from_/N_ROW), from_%N_ROW, action_index] = visit_count
 	
 			# Keeps track of our children and their visit_count
 			children.append(child)
-			counter.append(normalized_visit_count)
+			counter.append(visit_count)
 		
 		# Compute softmax on visit counts, giving us a distribution on moves
 		soft = softmax(np.array(counter))
@@ -216,7 +209,6 @@ class Node:
 
 		# Variables for UCB score computation
 		self.visit_count = 0
-		self.total_visit_count = 0
 		self.move_from_parent = move_from_parent
 		self.context = context
 		game = self.context.game()

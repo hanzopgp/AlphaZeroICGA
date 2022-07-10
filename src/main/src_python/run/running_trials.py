@@ -118,8 +118,7 @@ class RunningTrials:
 				if not move.isForced(): 
 					# Save X state
 					X[idx_sample] = state
-					# Apply softmax on the visit count to get a distribution from the MCTS
-					y_distrib[idx_sample] = softmax(tmp_arr_move)
+					y_distrib[idx_sample] = tmp_arr_move
 					idx_sample += 1	
 				
 				move_check.append(move)

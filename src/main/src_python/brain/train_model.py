@@ -19,7 +19,7 @@ if __name__ == '__main__':
 	X, y_values, y_distrib = load_data()
 	X, y_values, y_distrib = get_random_sample(X, y_values, y_distrib)
 	X = X.astype("float32")
-	y = {"value_head": y_values.astype("float32"), "policy_head": y_distrib.flatten().astype("float32")} 
+	y = {"value_head": y_values.astype("float32"), "policy_head": y_distrib.reshape(y_distrib.shape[0], -1).astype("float32")} 
 
 	champion_path = MODEL_PATH+GAME_NAME+"_"+"champion"+".h5"
 	outsider_path = MODEL_PATH+GAME_NAME+"_"+"outsider"+".h5"

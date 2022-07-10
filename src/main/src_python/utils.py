@@ -153,7 +153,8 @@ def convert_model_to_graph(model, model_type):
 # Use the model to predict a policy and a value
 def predict_with_model(model, state, output=["value_head", "policy_head"]):
 	if ONNX_INFERENCE:
-		return np.array(model.run(output, {"input_1": state.astype(np.float32)}))[0]
+		#return np.array(model.run(output, {"input_1": state.astype(np.float32)}))[0]
+		return model.run(output, {"input_1": state.astype(np.float32)})
 	if GRAPH_INFERENCE:
 		tensor_output = model.graph.get_tensor_by_name('import/dense_2/Sigmoid:0')
 		tensor_input = model.graph.get_tensor_by_name('import/dense_1_input:0')
@@ -161,6 +162,15 @@ def predict_with_model(model, state, output=["value_head", "policy_head"]):
 	return model.predict(state, verbose=0)
 	#return 0, np.random.rand(1, N_ROW*N_COL*N_ACTION_STACK)	
 	
+# This function checks if we are going to use the vanilla MCTS
+# because we don't have a model yet or if we are going to use
+# the alphazero MCTS
+def check_if_first_step():
+	if os.path.exists(MODEL_PATH+GAME_NAME+"_"+"champion"+".h5"):
+		return False
+	print("--> No model found, starting from random policy")
+	return True
+
 def write_winner(outsider_winrate, hash_code=""):
 	if len(hash_code) >= 1:
 		file_name = "winners" + hash_code + ".txt"

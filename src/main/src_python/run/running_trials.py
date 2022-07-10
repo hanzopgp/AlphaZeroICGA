@@ -13,21 +13,12 @@ from settings.game_settings import GAME_NAME, N_ROW, N_COL, N_REPRESENTATION_STA
 from optimization.precompute import precompute_all
 from mcts.mcts_uct_vanilla import MCTS_UCT_vanilla
 from mcts.mcts_uct_alphazero import MCTS_UCT_alphazero
-from utils import add_to_dataset, get_random_hash, softmax
+from utils import add_to_dataset, get_random_hash, softmax, check_if_first_step
 
 
 ######### Here is the class called in the java file to run trials #########	
 
 class RunningTrials:
-	# This function checks if we are going to use the vanilla MCTS
-	# because we don't have a model yet or if we are going to use
-	# the alphazero MCTS
-	def check_if_first_step(self):
-		if os.path.exists(MODEL_PATH+GAME_NAME+"_"+"champion"+".h5"):
-			return False
-		print("--> No model found, starting from random policy")
-		return True
-
 	# This function is called from java in RunningTrialsWithPython.java
 	def run_trial(self, game, trial, context):
 		if PROFILING_ACTIVATED:
@@ -35,12 +26,14 @@ class RunningTrials:
 			prof.enable()
 
 		# Init both agents
-		if self.check_if_first_step():
+		if check_if_first_step():
 			mcts1 = MCTS_UCT_vanilla()
 			mcts2 = MCTS_UCT_vanilla()
+			n_episode = NUM_EPISODE * 5
 		else:
 			mcts1 = MCTS_UCT_alphazero()
 			mcts2 = MCTS_UCT_alphazero()
+			n_episode = NUM_EPISODE
 		mcts1.init_ai(game, PLAYER1)
 		mcts2.init_ai(game, PLAYER2)
 		
@@ -51,7 +44,7 @@ class RunningTrials:
 		
 		# Declare some variables for statistics
 		ai1_win, ai2_win, draw, total = 0, 0, 0, 0
-		duration = np.zeros(NUM_EPISODE)
+		duration = np.zeros(n_episode)
 		
 		# Declare some variables to save the dataset
 		idx_sample = 0
@@ -59,12 +52,12 @@ class RunningTrials:
 		y_distrib = np.zeros((MAX_SAMPLE, N_ROW, N_COL, N_ACTION_STACK))
 		y_values = []
 		
-		print("--> Running", NUM_EPISODE, "episodes")
+		print("--> Running", n_episode, "episodes")
 		
 		breaker = False
 		
 		# Main trial loop, we play one game per trial
-		for i in range(NUM_EPISODE):
+		for i in range(n_episode):
 		
 			if breaker: break
 			

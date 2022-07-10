@@ -21,7 +21,7 @@ def decide_if_switch_model():
 			return True
 		# If the champion won we need to train the model again without executing run_trials
 		return False
-			
+
 def parallelize_command(command, n):
 	if not DEBUG_PRINT:
 		string = "ant -q " + command + " &"
@@ -63,50 +63,61 @@ def conclude():
 	print("**************************************** AGENT READY ***************************************")
 	print("********************************************************************************************")
 	
+def run_trials(n_workers):
+	print("********************************************************************************************")
+	print("************************************** RUNNING TRIALS ***************************************")
+	print("********************************************************************************************")
+	Popen(parallelize_command("run_trials", n_workers), shell=True).wait()
+	
+	print("********************************************************************************************")
+	print("************************************** MERGING DATASETS ************************************")
+	print("********************************************************************************************")
+	Popen("python3 src_python/scripts/merge_datasets.py", shell=True).wait()
+
+def run_dojos(n_workers):
+	print("********************************************************************************************")
+	print("*************************************** RUNNING DOJO ****************************************")
+	print("********************************************************************************************")
+	Popen(parallelize_command("run_dojos", n_workers), shell=True).wait()
+	
+	print("********************************************************************************************")
+	print("*************************************** MERGING TXTS ***************************************")
+	print("********************************************************************************************")
+	Popen("python3 src_python/scripts/merge_txts.py", shell=True).wait()
+
+def train_model():
+	print("********************************************************************************************")
+	print("************************************** TRAINING MODEL **************************************")
+	print("********************************************************************************************")
+	Popen("python3 src_python/brain/train_model.py", shell=True).wait()
+
+def switch_model():
+	print("********************************************************************************************")
+	print("************************************* SWITCHING MODELS **************************************")
+	print("********************************************************************************************")
+	Popen("python3 src_python/scripts/switch_model.py", shell=True).wait()
+
 def main_loop(n_iteration, n_workers):
 	alphazero_iteration=0
 	trial_activated=True
-
 	while(alphazero_iteration < n_iteration):
 		print("============================================================================================")
 		print("================================== ITERATION ALPHAZERO", alphazero_iteration, "===================================")
 		print("============================================================================================")
-		if trial_activated: # We train the outsider until it wins against the champion
-			print("********************************************************************************************")
-			print("************************************** RUNNING TRIALS ***************************************")
-			print("********************************************************************************************")
-			Popen(parallelize_command("run_trials", n_workers), shell=True).wait()
-			
-			print("********************************************************************************************")
-			print("************************************** MERGING DATASETS ************************************")
-			print("********************************************************************************************")
-			Popen("python3 src_python/scripts/merge_datasets.py", shell=True).wait()
-			
-		print("********************************************************************************************")
-		print("************************************** TRAINING MODEL **************************************")
-		print("********************************************************************************************")
-		Popen("python3 src_python/brain/train_model.py", shell=True).wait()
-		if ONNX_INFERENCE: 
-			convert_models_onnx()
 		
-		if alphazero_iteration >= 1: # If it's the first step we won't go for a dojo since there is only one model ready	 
-			print("********************************************************************************************")
-			print("*************************************** RUNNING DOJO ****************************************")
-			print("********************************************************************************************")
-			Popen(parallelize_command("run_dojos", n_workers), shell=True).wait()
-			
-			print("********************************************************************************************")
-			print("*************************************** MERGING TXTS ***************************************")
-			print("********************************************************************************************")
-			Popen("python3 src_python/scripts/merge_txts.py", shell=True).wait()
-			
-			trial_activated = decide_if_switch_model()
-			if trial_activated:
-				print("********************************************************************************************")
-				print("************************************* SWITCHING MODELS **************************************")
-				print("********************************************************************************************")
-				Popen("python3 src_python/scripts/switch_model.py", shell=True).wait()
-				
+		if trial_activated:
+			run_trials(n_workers)
+
+		train_model()
+		if ONNX_INFERENCE: 
+			convert_models_onnx()	
+
+		run_dojos(n_workers)
+
+		trial_activated = decide_if_switch_model()
+		if trial_activated:
+			switch_model()
+
 		alphazero_iteration += 1
 			
 if __name__ == '__main__':

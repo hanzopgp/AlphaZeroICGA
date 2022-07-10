@@ -167,12 +167,12 @@ class MCTS_UCT_alphazero:
 				utils = np.zeros(num_players+1)
 				if current.value_opp_pred is None:
 					if ONNX_INFERENCE:
-						current.value_opp_pred = predict_with_model(invert_state(current.state), output=["value_head"])				
+						current.value_opp_pred = predict_with_model(self.model, invert_state(current.state), output=["value_head"])				
 					else:
 						current.value_opp_pred, _ = predict_with_model(self.model, invert_state(current.state), output=[""])
 				else:
 					print("Skipped computation")
-				utils[PLAYER1], utils[PLAYER2] = current.value_pred, current.value_opp_pred
+				utils[PLAYER1], utils[PLAYER2] = current.value_pred[0], current.value_opp_pred[0]
 			# If we are in a terminal node we can compute ground truth utilities
 			else:
 				# Compute utilities thanks to our functions for both players

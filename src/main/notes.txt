@@ -1,3 +1,9 @@
+- leela zero 32 filters for heads --> not converging anymore ?
+- give up policy prediction and only learn values ?
+- max number of moves per games to ensure quality data
+
+============================================================================
+
 can try : 
 
 1)

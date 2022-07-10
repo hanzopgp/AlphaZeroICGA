@@ -17,20 +17,20 @@
 
 ######### TIME CONSUMING VARIABLES #########
 
-ONNX_INFERENCE = False
+ONNX_INFERENCE = True
 GRAPH_INFERENCE = False
 
 N_EPOCHS = 100
 EARLY_STOPPING_PATIENCE = 10
 
-NUM_DOJO = 1
-MAX_ITERATION_AGENTS_DOJO = 15 # 300
+NUM_DOJO = 5
+MAX_ITERATION_AGENTS_DOJO = 30 
 THINKING_TIME_AGENTS_DOJO = -1
 
 NUM_EPISODE = 1
 
-MAX_ITERATION_AGENT1 = 15
-MAX_ITERATION_AGENT2 = 15
+MAX_ITERATION_AGENT1 = 30
+MAX_ITERATION_AGENT2 = 30
 THINKING_TIME_AGENT1 = -1
 THINKING_TIME_AGENT2 = -1
 
@@ -50,7 +50,7 @@ OUTSIDER_MIN_WINRATE = 0.55
 
 ######### MCTS PARAMETERS #########
 
-CSTE_PUCT = 1 # no idea about the value of this variable in the paper 
+CSTE_PUCT = 2 # no idea about the value of this variable in the paper 
 DIRICHLET_ALPHA = 10/N_MOVES_TYPICAL_POSITION_BASHNI # noise in the estimated policy -> more exploration
 WEIGHTED_SUM_DIR = 0.75 # this value comes from the paper
 TEMPERATURE = 1 # 1 -> no change, 0 -> argmax

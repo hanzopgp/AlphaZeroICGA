@@ -16,10 +16,10 @@ import other.trial.Trial;
 import other.context.Context;
 import other.GameLoader;
 
-import other.AI;
-import utils.RandomAI;
+// import other.AI;
+// import utils.RandomAI;
 
-import search.mcts.MCTS;
+// import search.mcts.MCTS;
 
 
 public class RunningTestsWithPython{
@@ -33,7 +33,8 @@ public class RunningTestsWithPython{
 		final Game game = GameLoader.loadGameFromName("Bashni.lud");
 		final Trial trial = new Trial(game);
 		final Context context = new Context(game, trial);
-		run(game, trial, context, new RandomAI());	
+		// run(game, trial, context, new RandomAI());	
+		run(game, trial, context);	
 	}
 	
 	public static void initJPY(){
@@ -53,7 +54,10 @@ public class RunningTestsWithPython{
 		pythonDojo = pythonDojoModule.call("RunningTests");
 	}
 	
-	public static void run(final Game game, final Trial trial, final Context context, final AI ludiiAI){
-		pythonDojo.call("run_test", game, trial, context, ludiiAI);
+	// public static void run(final Game game, final Trial trial, final Context context, final AI ludiiAI){
+	// 	pythonDojo.call("run_test", game, trial, context, ludiiAI);
+	// }
+	public static void run(final Game game, final Trial trial, final Context context){
+		pythonDojo.call("run_test", game, trial, context);
 	}
 }

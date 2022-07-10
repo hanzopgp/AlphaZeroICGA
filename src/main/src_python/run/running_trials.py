@@ -8,7 +8,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 sys.path.append(os.getcwd()+"/src_python")
 
 
-from settings.config import MODEL_PATH, MAX_SAMPLE, MAX_GAME_DURATION, DEBUG_PRINT, PROFILING_ACTIVATED, NUM_EPISODE, PLAYER1, PLAYER2, THINKING_TIME_AGENT1, THINKING_TIME_AGENT2, MAX_ITERATION_AGENT1, MAX_ITERATION_AGENT2
+from settings.config import MODEL_PATH, MAX_GAME_MOVES, MAX_SAMPLE, MAX_GAME_DURATION, DEBUG_PRINT, PROFILING_ACTIVATED, NUM_EPISODE, PLAYER1, PLAYER2, THINKING_TIME_AGENT1, THINKING_TIME_AGENT2, MAX_ITERATION_AGENT1, MAX_ITERATION_AGENT2
 from settings.game_settings import GAME_NAME, N_ROW, N_COL, N_REPRESENTATION_STACK, N_ACTION_STACK
 from optimization.precompute import precompute_all
 from mcts.mcts_uct_vanilla import MCTS_UCT_vanilla
@@ -38,9 +38,15 @@ class RunningTrials:
 		if self.check_if_first_step():
 			mcts1 = MCTS_UCT_vanilla()
 			mcts2 = MCTS_UCT_vanilla()
+			max_it1 = MAX_ITERATION_AGENT1 * 5
+			max_it2 = MAX_ITERATION_AGENT2 * 5
+			n_episode = NUM_EPISODE * 5
 		else:
 			mcts1 = MCTS_UCT_alphazero()
 			mcts2 = MCTS_UCT_alphazero()
+			max_it1 = MAX_ITERATION_AGENT1
+			max_it2 = MAX_ITERATION_AGENT2
+			n_episode = NUM_EPISODE
 		mcts1.init_ai(game, PLAYER1)
 		mcts2.init_ai(game, PLAYER2)
 		
@@ -51,7 +57,7 @@ class RunningTrials:
 		
 		# Declare some variables for statistics
 		ai1_win, ai2_win, draw, total = 0, 0, 0, 0
-		duration = np.zeros(NUM_EPISODE)
+		duration = np.zeros(n_episode)
 		
 		# Declare some variables to save the dataset
 		idx_sample = 0
@@ -60,12 +66,12 @@ class RunningTrials:
 		y_values = []
 		y_opp_values = []
 		
-		print("--> Running", NUM_EPISODE, "episodes")
+		print("--> Running", n_episode, "episodes")
 		
 		breaker = False
 		
 		# Main trial loop, we play one game per trial
-		for i in range(NUM_EPISODE):
+		for i in range(n_episode):
 		
 			if breaker: break
 			
@@ -77,6 +83,7 @@ class RunningTrials:
 			move_check = []
 			
 			stop_time = math.inf if MAX_GAME_DURATION < 0 else MAX_GAME_DURATION
+			cpt_move = 0
 			
 			# Main game loop			
 			while not trial.over():
@@ -87,7 +94,12 @@ class RunningTrials:
 					break
 					
 				if idx_sample >= MAX_SAMPLE:
+					if DEBUG_PRINT: print("--> Ended one game because the dataset is full")
 					breaker=True
+					break
+
+				if cpt_move >= MAX_GAME_MOVES:
+					if DEBUG_PRINT: print("--> Ended one game because there was too much moves")
 					break
 				
 				# Keep track of the mover
@@ -96,10 +108,12 @@ class RunningTrials:
 				
 				# Move with custom python AI and save the move distribution
 				if mover == 1:
-					move, state, tmp_arr_move = mcts1.select_action(game, context, THINKING_TIME_AGENT1, MAX_ITERATION_AGENT1, max_depth=-1)
+					move, state, tmp_arr_move = mcts1.select_action(game, context, THINKING_TIME_AGENT1, max_it1, max_depth=-1)
 				else:
-					move, state, tmp_arr_move = mcts2.select_action(game, context, THINKING_TIME_AGENT2, MAX_ITERATION_AGENT2, max_depth=-1)
-					
+					move, state, tmp_arr_move = mcts2.select_action(game, context, THINKING_TIME_AGENT2, max_it2, max_depth=-1)
+				
+				cpt_move += 1
+
 				# Avoid to add useless moves when games is over
 				if not move.isForced(): 
 					# Save X state

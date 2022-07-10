@@ -158,9 +158,10 @@ def convert_model_to_graph(model, model_type):
 #	return sess
 	
 # Use the model to predict a policy and a value
-def predict_with_model(model, state, output=["value_head", "policy_head"]):
+def predict_with_model(model, state, output=["value_head", "value_opp_head", "policy_head"]):
 	if ONNX_INFERENCE:
-		return np.array(model.run(output, {"input_1": state.astype(np.float32)}))[0]
+		#print((model.run(output, {"input_1": state.astype(np.float32)})))
+		return model.run(output, {"input_1": state.astype(np.float32)})
 	if GRAPH_INFERENCE:
 		tensor_output = model.graph.get_tensor_by_name('import/dense_2/Sigmoid:0')
 		tensor_input = model.graph.get_tensor_by_name('import/dense_1_input:0')

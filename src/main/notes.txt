@@ -1,3 +1,12 @@
+- reduce learning rate per alphazero iteration
+- try higher CPUCT (2, 3, 4)
+- 32 filters in head network
+- window for the dataset which takes more recent example
+
+- switch softmax values into visi count values for data gen
+
+============================================================================
+
 can try : 
 
 1)

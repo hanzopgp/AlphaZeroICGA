@@ -177,7 +177,7 @@ class CustomModel():
 	# scalar value thanks to the input state
 	def value_head(self, x):
 		x = Conv2D(
-			filters=1, # AlphaZero paper
+			filters=32, # LeelaZero paper
 			kernel_size=(1,1), # AlphaZero paper
 			kernel_initializer=tf.keras.initializers.GlorotNormal(),
 			#data_format="channels_first",
@@ -208,7 +208,7 @@ class CustomModel():
 
 	def value_opp_head(self, x):
 		x = Conv2D(
-			filters=1, # AlphaZero paper
+			filters=32, # LeelaZero paper
 			kernel_size=(1,1), # AlphaZero paper
 			kernel_initializer=tf.keras.initializers.GlorotNormal(),
 			#data_format="channels_first",
@@ -241,7 +241,7 @@ class CustomModel():
 	# which will be our new policy
 	def policy_head(self, x):
 		x = Conv2D(
-			filters=2, # AlphaZero paper
+			filters=32, # LeelaZero paper
 			kernel_size=(1,1), # AlphaZero paper 
 			kernel_initializer=tf.keras.initializers.GlorotNormal(),
 			#data_format="channels_first",

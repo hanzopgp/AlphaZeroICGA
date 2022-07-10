@@ -1,5 +1,6 @@
 - leela zero 32 filters for heads --> not converging anymore ?
 - give up policy prediction and only learn values ? (why not 2 head for value and opp value, why would we predict it twice with inverted state?)
+- maybe we can predict values until it converge, then start training policy and check if converge
 - max number of moves per games to ensure quality data
 
 ============================================================================

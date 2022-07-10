@@ -166,13 +166,18 @@ class MCTS_UCT_alphazero:
 			if not current.context.trial().over():
 				utils = np.zeros(num_players+1)
 				if current.value_opp_pred is None:
+					current.state = np.expand_dims(format_state(context.deepCopy()).squeeze(), axis=0)
 					if ONNX_INFERENCE:
 						current.value_opp_pred = predict_with_model(self.model, invert_state(current.state), output=["value_head"])				
 					else:
 						current.value_opp_pred, _ = predict_with_model(self.model, invert_state(current.state), output=[""])
 				else:
 					print("Skipped computation")
-				utils[PLAYER1], utils[PLAYER2] = current.value_pred[0], current.value_opp_pred[0]
+				if POLICY_PREDICTION:
+					utils[PLAYER1], utils[PLAYER2] = current.value_pred[0], current.value_opp_pred[0]
+				else:
+					current.value_pred = predict_with_model(self.model, current.state, output=["value_head"])	
+					utils[PLAYER1], utils[PLAYER2] = current.value_pred[0], current.value_opp_pred[0]
 			# If we are in a terminal node we can compute ground truth utilities
 			else:
 				# Compute utilities thanks to our functions for both players
@@ -204,8 +209,9 @@ class MCTS_UCT_alphazero:
 				move, prior = self.chose_move(current.unexpanded_moves, current.policy_pred, competitive_mode=self.dojo)
 			else:
 				# Chose a move randomly
-				move = current.unexpanded_moves
-				prior = 1/len(current.unexpanded_moves)
+				move = current.unexpanded_moves.pop()
+				# print(len(current.unexpanded_moves))
+				prior = 1/(len(current.unexpanded_moves)+1) # +1 because we pop()
 			
 			# We copy the context to play in a simulation
 			current_context = current.context.deepCopy()

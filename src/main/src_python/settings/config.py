@@ -17,8 +17,6 @@
 
 ######### TIME CONSUMING VARIABLES #########
 
-POLICY_PREDICTION = False
-
 ONNX_INFERENCE = True
 GRAPH_INFERENCE = False
 
@@ -53,9 +51,6 @@ OUTSIDER_MIN_WINRATE = 0.55
 ######### MCTS PARAMETERS #########
 
 CSTE_PUCT = 2 # no idea about the value of this variable in the paper 
-DIRICHLET_ALPHA = 10/N_MOVES_TYPICAL_POSITION_BASHNI # noise in the estimated policy -> more exploration
-WEIGHTED_SUM_DIR = 0.75 # this value comes from the paper
-TEMPERATURE = 1 # 1 -> no change, 0 -> argmax
 MAX_SAMPLE = 10000 # can decide the max size of the dataset 
 
 ######### NN parameters #########
@@ -65,7 +60,6 @@ RANDOM_SEED = 42
 BATCH_SIZE = 512
 VERBOSE = 1
 VALIDATION_SPLIT = 0.25
-LOSS_WEIGHTS = [0.35, 0.65] # first one is value, second one policy
 
 MAIN_ACTIVATION = "relu"
 FILTERS = 64

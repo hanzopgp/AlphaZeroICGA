@@ -83,14 +83,6 @@ class CustomModel():
 				callbacks=self.get_callbacks())
 			
 	def plot_metrics(self, history):
-		plt.plot(history.history['policy_head_accuracy'])
-		plt.plot(history.history['val_policy_head_accuracy'])
-		plt.title('policy head accuracy')
-		plt.ylabel('accuracy')
-		plt.xlabel('epoch')
-		plt.legend(['train', 'val'], loc='upper left')
-		plt.show()
-		
 		plt.plot(history.history['value_head_mean_squared_error'])
 		plt.plot(history.history['val_value_head_mean_squared_error'])
 		plt.title('value head loss')
@@ -120,16 +112,12 @@ class CustomModel():
 		# Then we have several residual layers		
 		for _ in range(self.n_res_layer):
 			x = self.res_layer(x, FILTERS, KERNEL_SIZE)
-		# Then we have two heads, one of policy, one for value
+		# Then a value head
 		val_head = self.value_head(x)
-		pol_head = self.policy_head(x)
 		# Finaly we declare our model
-		model = Model(inputs=[input_layer], outputs=[val_head, pol_head])
+		model = Model(inputs=[input_layer], outputs=[val_head])
 		model.compile(
-			loss={"value_head": "mean_squared_error", "policy_head": softmax_cross_entropy_with_logits},
-			#loss={"value_head": "mean_squared_error", "policy_head": tf.keras.losses.CategoricalCrossentropy(from_logits=True)},
-			loss_weights={"value_head": LOSS_WEIGHTS[0], "policy_head": LOSS_WEIGHTS[1]},
-			#metrics={"value_head": "mean_squared_error", "policy_head": "accuracy"},
+			loss="mean_squared_error",
 			optimizer=self.opt)
 		self.model = model
 		
@@ -200,32 +188,6 @@ class CustomModel():
 			kernel_initializer=tf.keras.initializers.GlorotNormal(),
 			kernel_regularizer=regularizers.l2(self.reg_const),
 			name="value_head"
-		)(x)
-		return (x)
-		
-	# This one is our policy head and will predict a distribution over moves
-	# which will be our new policy
-	def policy_head(self, x):
-		x = Conv2D(
-			filters=2, # AlphaZero paper
-			kernel_size=(1,1), # AlphaZero paper 
-			kernel_initializer=tf.keras.initializers.GlorotNormal(),
-			#data_format="channels_first",
-			padding="same", 
-			use_bias=USE_BIAS, 
-			activation="linear", 
-			kernel_regularizer=regularizers.l2(self.reg_const)
-		)(x)
-		x = BatchNormalization(axis=3)(x)
-		x = LeakyReLU()(x)
-		x = Flatten()(x)
-		x = Dense(
-			self.output_dim, 
-			use_bias=USE_BIAS, 
-			activation="linear",
-			kernel_initializer=tf.keras.initializers.GlorotNormal(),
-			kernel_regularizer=regularizers.l2(self.reg_const),
-			name="policy_head"
 		)(x)
 		return (x)
 		

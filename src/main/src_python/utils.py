@@ -15,7 +15,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 from tensorflow.keras.models import load_model
 
 
-from settings.config import MODEL_PATH, DATASET_PATH, TRAIN_SAMPLE_SIZE, ONNX_INFERENCE, INDEX_ACTION_TAB_SIGN, PLAYER1, PLAYER2, DIRICHLET_ALPHA, WEIGHTED_SUM_DIR, GRAPH_INFERENCE
+from settings.config import MODEL_PATH, DATASET_PATH, TRAIN_SAMPLE_SIZE, ONNX_INFERENCE, INDEX_ACTION_TAB_SIGN, PLAYER1, PLAYER2, GRAPH_INFERENCE
 from settings.game_settings import GAME_NAME, N_ROW, N_COL, N_REPRESENTATION_STACK, N_ACTION_STACK, N_DISTANCE, N_ORIENTATION, N_LEVELS, N_TIME_STEP
 
 
@@ -42,46 +42,39 @@ def load_data():
 	# Extrat what's inside the dataset
 	X = []
 	y_values = []
-	y_distrib = []
 	for batch in data:
 		X.append(batch["X"])
 		y_values.append(batch["y_values"])
-		y_distrib.append(batch["y_distrib"])
 	X = np.array(X, dtype=object)
 	y_values = np.array(y_values, dtype=object)
-	y_distrib = np.array(y_distrib, dtype=object)
 	final_X = X[0]
 	final_y_values = y_values[0]
-	final_y_distrib = y_distrib[0]
 	for i in range(1, X.shape[0]):
 		final_X = np.concatenate((final_X, X[i]), axis=0)
 		final_y_values = np.concatenate((final_y_values, y_values[i]), axis=0)
-		final_y_distrib = np.concatenate((final_y_distrib, y_distrib[i]), axis=0)
 		
 	# Print some stats
 	print("* Number of examples in the dataset :", final_X.shape[0])
 	print("* X shape", final_X.shape)
 	print("* y_values shape", final_y_values.shape)
-	print("* y_distrib shape", final_y_distrib.shape)
 	print("--> Done !")
-	return final_X, final_y_values, final_y_distrib
+	return final_X, final_y_values
 	
-def get_random_sample(X, y_values, y_distrib):
+def get_random_sample(X, y_values):
 	train_sample = TRAIN_SAMPLE_SIZE if TRAIN_SAMPLE_SIZE < X.shape[0] else X.shape[0]
 	idx = np.random.choice(np.arange(X.shape[0]), train_sample, replace=False)
-	return X[idx], y_values[idx], y_distrib[idx]
+	return X[idx], y_values[idx]
 
 def get_random_hash():
 	return str(np.random.rand() * time.time()).replace(".", "")
 
-def add_to_dataset(X, y_values, y_distrib, hash_code=""):
+def add_to_dataset(X, y_values, hash_code=""):
 	print("--> Saving data to pickle for the game :", GAME_NAME)
 	if len(hash_code) >= 1:
 		print("--> Hash code :", hash_code)
 	pkl_path = DATASET_PATH+GAME_NAME+hash_code+".pkl"
 	my_data = {'X': X,
-	   	   'y_values': y_values,
-	   	   'y_distrib': y_distrib}
+	   	   'y_values': y_values}
 	if os.path.exists(pkl_path): 
 		with open(pkl_path, 'ab+') as fp:
 			pickle.dump(my_data, fp)
@@ -150,17 +143,15 @@ def convert_model_to_graph(model, model_type):
 #			g_in = tf.import_graph_def(graph_def)
 #	return sess
 	
-# Use the model to predict a policy and a value
-def predict_with_model(model, state, output=["value_head", "policy_head"]):
+# Use the model to predict a value
+def predict_with_model(model, state, output=["value_head"]):
 	if ONNX_INFERENCE:
-		#return np.array(model.run(output, {"input_1": state.astype(np.float32)}))[0]
 		return model.run(output, {"input_1": state.astype(np.float32)})
 	if GRAPH_INFERENCE:
 		tensor_output = model.graph.get_tensor_by_name('import/dense_2/Sigmoid:0')
 		tensor_input = model.graph.get_tensor_by_name('import/dense_1_input:0')
 		return model.run(tensor_output, {tensor_input:sample})
 	return model.predict(state, verbose=0)
-	#return 0, np.random.rand(1, N_ROW*N_COL*N_ACTION_STACK)	
 	
 # This function checks if we are going to use the vanilla MCTS
 # because we don't have a model yet or if we are going to use
@@ -168,7 +159,7 @@ def predict_with_model(model, state, output=["value_head", "policy_head"]):
 def check_if_first_step():
 	if os.path.exists(MODEL_PATH+GAME_NAME+"_"+"champion"+".h5"):
 		return False
-	print("--> No model found, starting from random policy")
+	print("--> No model found, starting from random values")
 	return True
 
 def write_winner(outsider_winrate, hash_code=""):
@@ -231,12 +222,6 @@ def opp(mover):
 	return 2 if mover==1 else 1
 	
 ######### Here are the utility functions to format policy #########
-
-# Apply Dirichlet with the alpha parameters to the policy in order
-# to add some noise in the policy and ensure exploration
-def apply_dirichlet(policy):
-	dira = np.random.dirichlet(np.full(policy.shape, DIRICHLET_ALPHA), size=1)
-	return (WEIGHTED_SUM_DIR * policy) + (1 - WEIGHTED_SUM_DIR) * dira
 
 # Transforms board int values into 2D coordinate values
 def get_coord(from_, to):

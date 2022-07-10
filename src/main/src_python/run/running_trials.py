@@ -49,7 +49,6 @@ class RunningTrials:
 		# Declare some variables to save the dataset
 		idx_sample = 0
 		X = np.zeros((MAX_SAMPLE, N_ROW, N_COL, N_REPRESENTATION_STACK))
-		y_distrib = np.zeros((MAX_SAMPLE, N_ROW, N_COL, N_ACTION_STACK))
 		y_values = []
 		
 		print("--> Running", n_episode, "episodes")
@@ -94,9 +93,9 @@ class RunningTrials:
 				
 				# Move with custom python AI and save the move distribution
 				if mover == 1:
-					move, state, tmp_arr_move = mcts1.select_action(game, context, THINKING_TIME_AGENT1, MAX_ITERATION_AGENT1, max_depth=-1)
+					move, state = mcts1.select_action(game, context, THINKING_TIME_AGENT1, MAX_ITERATION_AGENT1, max_depth=-1)
 				else:
-					move, state, tmp_arr_move = mcts2.select_action(game, context, THINKING_TIME_AGENT2, MAX_ITERATION_AGENT2, max_depth=-1)
+					move, state = mcts2.select_action(game, context, THINKING_TIME_AGENT2, MAX_ITERATION_AGENT2, max_depth=-1)
 					
 				n_moves += 1
 
@@ -104,8 +103,6 @@ class RunningTrials:
 				if not move.isForced(): 
 					# Save X state
 					X[idx_sample] = state
-					# Apply softmax on the visit count to get a distribution from the MCTS
-					y_distrib[idx_sample] = softmax(tmp_arr_move)
 					idx_sample += 1	
 				
 				move_check.append(move)
@@ -146,13 +143,11 @@ class RunningTrials:
 		X = X[:idx_sample]
 		y_values = np.array(y_values)
 		y_values = y_values[:idx_sample]
-		y_distrib = y_distrib[:idx_sample]
 
 		if DEBUG_PRINT:
 			# Print our generated dataset shapes
 			print("* X shape", X.shape)	
 			print("* y_values shape", y_values.shape)
-			print("* y_distrib shape", y_distrib.shape)
 			
 			# Print some trial stats
 			print("* AI1 winrate:", ai1_win/total)
@@ -164,7 +159,7 @@ class RunningTrials:
 		print("--> Episodes are over")
 			
 		# Save values to dataset
-		add_to_dataset(X, y_values, y_distrib, get_random_hash())
+		add_to_dataset(X, y_values, get_random_hash())
 
 		if PROFILING_ACTIVATED:
 			prof.disable()

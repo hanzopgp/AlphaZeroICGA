@@ -70,9 +70,9 @@ class RunningDojos:
 					break
 					
 				if context.state().mover() == 1:
-					move, state, tmp_arr_move = champion_mcts.select_action(game, context, THINKING_TIME_AGENTS_DOJO, MAX_ITERATION_AGENTS_DOJO, max_depth=-1)
+					move, state = champion_mcts.select_action(game, context, THINKING_TIME_AGENTS_DOJO, MAX_ITERATION_AGENTS_DOJO, max_depth=-1)
 				else:
-					move, state, tmp_arr_move = outsider_mcts.select_action(game, context, THINKING_TIME_AGENTS_DOJO, MAX_ITERATION_AGENTS_DOJO, max_depth=-1)
+					move, state = outsider_mcts.select_action(game, context, THINKING_TIME_AGENTS_DOJO, MAX_ITERATION_AGENTS_DOJO, max_depth=-1)
 
 				n_moves += 1
 				

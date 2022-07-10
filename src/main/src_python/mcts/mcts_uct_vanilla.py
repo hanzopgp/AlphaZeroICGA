@@ -157,56 +157,28 @@ class MCTS_UCT_vanilla:
 	def final_move_selection(self, root_node):
 		# Now that we have gone through the tree using UCB scores, the MCTS will chose
 		# the best move to play by checking which node was the most visited
-		best_child = None
-		best_visit_count = -math.inf
-		num_best_found = 0
 		num_children = len(root_node.children)
 		total_visit_count = root_node.total_visit_count
-		
-		# Array to store the number of visits per move, a move is represented
-		# by its coordinate and several stacks representing where it can go
-		move_distribution = np.zeros((N_ROW, N_COL, N_ACTION_STACK))
 
 		# Arrays for the decision making
-		children = []
-		counter = []
+		counter = np.zeros((num_children))
 
 		# For each children of the root, so for each legal moves
 		for i in range(num_children):
 			child = root_node.children[i]
 			visit_count = child.visit_count
-			move_from_parent = child.move_from_parent
 			normalized_visit_count = visit_count/total_visit_count
-
-			# Getting coordinates of the move
-			to = move_from_parent.to()
-			from_ = getattr(move_from_parent, "from")() # trick to use the from method (reserved in python)
-			
-			# Getting the action type as an int :
-			# 0 1 2 3... depending the from and to
-			action_index = self.pre_action_index[from_][to]
-			# <int(from_/N_ROW), from_%N_ROW> represent the position of the
-			# pawn that chosed action <action_index> to go in position <to>
-			move_distribution[int(from_/N_ROW), from_%N_ROW, action_index] = normalized_visit_count
 	
 			# Keeps track of our children and their visit_count
-			children.append(child)
-			counter.append(normalized_visit_count)
-		
-		# Compute softmax on visit counts, giving us a distribution on moves
-		soft = softmax(np.array(counter))
+			counter[i] = normalized_visit_count
 		
 		# Get the decision
-		decision = children[soft.argmax()].move_from_parent
-				
-		# Get the representation of the current state for the future NN training
-		state = format_state(root_node.context)
+		decision = root_node.children[counter.argmax()].move_from_parent
 				
 		# Returns the move to play in the real game and the moves
 		# associated to their probability distribution
-		#return best_child.move_from_parent, state, move_distribution
-		return decision, state, move_distribution
-
+		#return best_child.move_from_parent, state
+		return decision, np.expand_dims(format_state(root_node.context.deepCopy()).squeeze(), axis=0)
 
 class Node:
 	def __init__(self, parent, move_from_parent, context):

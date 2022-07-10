@@ -10,9 +10,9 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 sys.path.append(os.getcwd()+"/src_python")
 
 
-from settings.config import ONNX_INFERENCE, TEMPERATURE, CSTE_PUCT, PLAYER1, PLAYER2, POLICY_PREDICTION
+from settings.config import ONNX_INFERENCE, PLAYER1, PLAYER2, CSTE_PUCT
 from settings.game_settings import N_ROW, N_COL, N_ACTION_STACK, N_REPRESENTATION_STACK
-from utils import load_nn, format_state, apply_dirichlet, softmax, invert_state, predict_with_model, utilities
+from utils import load_nn, format_state, invert_state, predict_with_model, utilities
 
 	
 ######### Here is the main class to run the MCTS simulation with the model #########
@@ -34,67 +34,6 @@ class MCTS_UCT_alphazero:
 		self.pre_reverse_action_index = pre_reverse_action_index
 		self.pre_coords = pre_coords
 		self.pre_3D_coords = pre_3D_coords
-		
-	# Get the policy on every moves, mask out the illegal moves,
-	# re-compute softmax and pick a move randomly according to
-	# the new policy then return the move and its prio
-	def chose_move(self, legal_moves, policy_pred, competitive_mode):
-		# New legal policy array starting as everything illegal
-		legal_policy = np.zeros(policy_pred.shape)
-		
-		# Save legal moves in python
-		legal_moves_python = np.zeros((N_ROW, N_COL, N_ROW, N_COL), dtype=object)
-		
-		# Find the legal moves in the policy
-		for i in range(len(legal_moves)):
-			# Get the N_ROW, N_COL coordinates
-			legal_move = legal_moves[i]
-			to = legal_move.to()
-			from_ = getattr(legal_move, "from")()
-			
-			# Get coords
-			prev_x, prev_y, x, y = self.pre_coords[from_][to]
-
-			# Save the move
-			legal_moves_python[prev_x][prev_y][x][y] = legal_move
-			
-			# Precomputed function	
-			# Get the action index
-			action_index = self.pre_action_index[from_][to]
-			
-			# Write the value only for the legal moves
-			legal_policy[prev_x, prev_y, action_index] = policy_pred[prev_x, prev_y, action_index]
-			
-		# Re-compute softmax after masking out illegal moves
-		legal_policy = softmax(legal_policy, ignore_zero=True)
-		
-		# If we are playing for real, we chose the best action given by the policy
-		if competitive_mode:
-			chosen_x, chosen_y, chosen_action = np.unravel_index(legal_policy.argmax(), legal_policy.shape)
-			prior = np.max(legal_policy)
-		# Else we are training and we use the policy for the MCTS
-		else:
-			# Get a random number between 0 and 1
-			r = np.random.rand()
-			chose_array = np.cumsum(legal_policy.flatten())
-			choice = np.where(chose_array >= r)
-			
-			# Precomputed function
-			chosen_x, chosen_y, chosen_action = self.pre_3D_coords[choice[0][0]]
-			
-			# The prior is the value at those index which represent the
-			# probability it was picked
-			prior = legal_policy[chosen_x][chosen_y][chosen_action]	
-
-		# Precomputed function	
-		chosen_prev_x, chosen_prev_y = self.pre_reverse_action_index[chosen_x][chosen_y][chosen_action]
-		
-		# Pop the move to play
-		move = legal_moves_python[chosen_x][chosen_y][chosen_prev_x][chosen_prev_y]
-		legal_moves.remove(move)
-		
-		# Now we need to find the move in the java object legal moves list
-		return move, prior
 		
 	# Main method called to chose an action at depth 0
 	def select_action(self, game, context, max_seconds, max_iterations, max_depth):
@@ -119,8 +58,6 @@ class MCTS_UCT_alphazero:
 			# Our current node will be the root to start
 			current = root
 
-			node_to_estimate = []
-
 			# We are looping until we reach a terminal state on the current node
 			while True:
 				# Here the game is over so we break out, then we compute the utilities and backpropagate the values
@@ -130,37 +67,11 @@ class MCTS_UCT_alphazero:
 				# Here we chose a current node and it is a new one, selected thanks the model policy 
 				# (if the current node has still unexpanded moves)
 				current = self.select_node(current)
-				node_to_estimate.append(current)
 
 				# If the node expanded is a new one, we have to estimate a value for that node
 				if current.visit_count == 0:
 					break
 			
-
-				
-			
-
-			# if current.value_pred is None:
-			# 	states = np.zeros((len(node_to_estimate), N_ROW, N_COL, N_REPRESENTATION_STACK))
-			# 	inverted_states = np.zeros((len(node_to_estimate), N_ROW, N_COL, N_REPRESENTATION_STACK))
-			# 	for i in range(len(node_to_estimate)):
-			# 		states[i] = format_state(node_to_estimate[i].context).squeeze()
-			# 		inverted_states[i] = invert_state(states[i])
-
-			# 	value_preds, _ = predict_with_model(self.model, states, output=[""])
-			# 	value_opp_preds, _ = predict_with_model(self.model, invert_state(states), output=[""])
-				
-			# 	for i in range(len(node_to_estimate)):
-			# 		node_to_estimate[i].value_pred = value_preds[i]
-			# 		node_to_estimate[i].value_opp_pred = value_opp_preds[i]
-			# else:
-			# 	print("Skipped computation")
-
-			# utils = np.zeros((num_players+1))
-			# utils[PLAYER1], utils[PLAYER2] = current.value_pred, current.value_opp_pred
-
-
-
 			# If we broke out because we expanded a new node and not because the trial is over then it is time
 			# estimate the value thanks to the model
 			if not current.context.trial().over():
@@ -173,11 +84,8 @@ class MCTS_UCT_alphazero:
 						current.value_opp_pred, _ = predict_with_model(self.model, invert_state(current.state), output=[""])
 				else:
 					print("Skipped computation")
-				if POLICY_PREDICTION:
-					utils[PLAYER1], utils[PLAYER2] = current.value_pred[0], current.value_opp_pred[0]
-				else:
-					current.value_pred = predict_with_model(self.model, current.state, output=["value_head"])	
-					utils[PLAYER1], utils[PLAYER2] = current.value_pred[0], current.value_opp_pred[0]
+				current.value_pred = predict_with_model(self.model, current.state, output=["value_head"])	
+				utils[PLAYER1], utils[PLAYER2] = current.value_pred[0], current.value_opp_pred[0]
 			# If we are in a terminal node we can compute ground truth utilities
 			else:
 				# Compute utilities thanks to our functions for both players
@@ -204,14 +112,9 @@ class MCTS_UCT_alphazero:
 	def select_node(self, current):
 		# If we have some moves to expand
 		if len(current.unexpanded_moves) > 0:
-			if POLICY_PREDICTION:
-				# Chose a move according to the list of possible moves and node policy
-				move, prior = self.chose_move(current.unexpanded_moves, current.policy_pred, competitive_mode=self.dojo)
-			else:
-				# Chose a move randomly
-				move = current.unexpanded_moves.pop()
-				# print(len(current.unexpanded_moves))
-				prior = 1/(len(current.unexpanded_moves)+1) # +1 because we pop()
+			# Chose a move randomly
+			move = current.unexpanded_moves.pop()
+			prior = 1/(len(current.unexpanded_moves)+1) # +1 because we pop()
 			
 			# We copy the context to play in a simulation
 			current_context = current.context.deepCopy()
@@ -267,10 +170,6 @@ class MCTS_UCT_alphazero:
 		# the best move to play by checking which node was the most visited
 		num_children = len(root_node.children)
 		total_visit_count = root_node.total_visit_count
-		
-		# Array to store the number of visits per move, a move is represented
-		# by its coordinate and several stacks representing where it can go
-		move_distribution = np.zeros((N_ROW, N_COL, N_ACTION_STACK))
 
 		# Arrays for the decision making
 		counter = np.zeros((num_children))
@@ -279,63 +178,22 @@ class MCTS_UCT_alphazero:
 		for i in range(num_children):
 			child = root_node.children[i]
 			visit_count = child.visit_count
-			move_from_parent = child.move_from_parent
 			normalized_visit_count = visit_count/total_visit_count
-
-			# Getting coordinates of the move
-			to = move_from_parent.to()
-			from_ = getattr(move_from_parent, "from")() # trick to use the from method (reserved in python)
-			
-			# Getting the action type as an int :
-			# 0 1 2 3... depending the from and to
-			action_index = self.pre_action_index[from_][to]
-			# <int(from_/N_ROW), from_%N_ROW> represent the position of the
-			# pawn that chosed action <action_index> to go in position <to>
-			move_distribution[from_//N_ROW, from_%N_ROW, action_index] = normalized_visit_count
 	
 			# Keeps track of our children and their visit_count
 			counter[i] = normalized_visit_count
-			
-		# Compute softmax on visit counts, giving us a distribution on moves
-		soft = softmax(counter)
-		
-		# Start as 1 so it doesn't matter at the beginning,
-		# goes to 0 while the game goes on in order to reduce
-		# exploration in the end game
-		soft = np.power(soft, 1/TEMPERATURE)
 		
 		# Get the decision
-		decision = root_node.children[soft.argmax()].move_from_parent
+		decision = root_node.children[counter.argmax()].move_from_parent
 				
 		# Returns the move to play in the real game and the moves
 		# associated to their probability distribution
-		#return best_child.move_from_parent, state, move_distribution
-		return decision, root_node.state, move_distribution
+		#return best_child.move_from_parent, state
+		return decision, root_node.state
 
 
 class Node:
-	def __init__(self, parent, move_from_parent, prior, context, model):
-		if POLICY_PREDICTION:
-			# Variable to save the policy and value so we don't compute it more than once per node
-			# Format the input
-			self.state = np.expand_dims(format_state(context.deepCopy()).squeeze(), axis=0)
-			# Estimate policy
-			if ONNX_INFERENCE:
-				value_pred, policy_pred = predict_with_model(model, self.state, output=["value_head", "policy_head"])
-			else:
-				value_pred, policy_pred = predict_with_model(model, self.state, output=[""])
-			# Apply Dirichlet to ensure exploration
-			policy_pred = apply_dirichlet(policy_pred[0])
-			# The output of the network is a flattened array
-			self.policy_pred = policy_pred.reshape(N_ROW, N_COL, N_ACTION_STACK)
-			self.value_pred = value_pred
-			self.value_opp_pred = None
-		else:
-			self.state = None
-			self.policy_pred = None
-			self.value_pred = None
-			self.value_opp_pred = None
-		
+	def __init__(self, parent, move_from_parent, prior, context, model):		
 		# Variables to build the tree
 		self.children = []
 		self.parent = parent

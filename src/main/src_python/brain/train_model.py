@@ -16,10 +16,10 @@ from utils import load_data, get_random_sample, load_nn
 ######### Training model from loaded data and saving weights #########
 
 if __name__ == '__main__':
-	X, y_values, y_distrib = load_data()
-	X, y_values, y_distrib = get_random_sample(X, y_values, y_distrib)
+	X, y_values = load_data()
+	X, y_values = get_random_sample(X, y_values)
 	X = X.astype("float32")
-	y = {"value_head": y_values.astype("float32"), "policy_head": y_distrib.flatten().astype("float32")} 
+	y = {"value_head": y_values.astype("float32")} 
 
 	champion_path = MODEL_PATH+GAME_NAME+"_"+"champion"+".h5"
 	outsider_path = MODEL_PATH+GAME_NAME+"_"+"outsider"+".h5"

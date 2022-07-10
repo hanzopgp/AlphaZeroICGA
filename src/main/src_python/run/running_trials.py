@@ -8,7 +8,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 sys.path.append(os.getcwd()+"/src_python")
 
 
-from settings.config import MODEL_PATH, MAX_SAMPLE, MAX_GAME_DURATION, DEBUG_PRINT, PROFILING_ACTIVATED, NUM_EPISODE, PLAYER1, PLAYER2, THINKING_TIME_AGENT1, THINKING_TIME_AGENT2, MAX_ITERATION_AGENT1, MAX_ITERATION_AGENT2
+from settings.config import MODEL_PATH, MAX_SAMPLE, MAX_GAME_MOVES, MAX_GAME_DURATION, DEBUG_PRINT, PROFILING_ACTIVATED, NUM_EPISODE, PLAYER1, PLAYER2, THINKING_TIME_AGENT1, THINKING_TIME_AGENT2, MAX_ITERATION_AGENT1, MAX_ITERATION_AGENT2
 from settings.game_settings import GAME_NAME, N_ROW, N_COL, N_REPRESENTATION_STACK, N_ACTION_STACK
 from optimization.precompute import precompute_all
 from mcts.mcts_uct_vanilla import MCTS_UCT_vanilla
@@ -69,6 +69,7 @@ class RunningTrials:
 			move_check = []
 			
 			stop_time = math.inf if MAX_GAME_DURATION < 0 else MAX_GAME_DURATION
+			n_moves = 0
 			
 			# Main game loop			
 			while not trial.over():
@@ -80,6 +81,11 @@ class RunningTrials:
 					
 				if idx_sample >= MAX_SAMPLE:
 					breaker=True
+					if DEBUG_PRINT: print("--> Ended one game because the dataset is full")
+					break
+
+				if n_moves >= MAX_GAME_MOVES:
+					if DEBUG_PRINT: print("--> Ended one game because there was too much moves")
 					break
 				
 				# Keep track of the mover
@@ -92,6 +98,8 @@ class RunningTrials:
 				else:
 					move, state, tmp_arr_move = mcts2.select_action(game, context, THINKING_TIME_AGENT2, MAX_ITERATION_AGENT2, max_depth=-1)
 					
+				n_moves += 1
+
 				# Avoid to add useless moves when games is over
 				if not move.isForced(): 
 					# Save X state

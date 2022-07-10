@@ -10,7 +10,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 sys.path.append(os.getcwd()+"/src_python")
 
 
-from settings.config import ONNX_INFERENCE, TEMPERATURE, CSTE_PUCT, PLAYER1, PLAYER2
+from settings.config import ONNX_INFERENCE, TEMPERATURE, CSTE_PUCT, PLAYER1, PLAYER2, POLICY_PREDICTION
 from settings.game_settings import N_ROW, N_COL, N_ACTION_STACK, N_REPRESENTATION_STACK
 from utils import load_nn, format_state, apply_dirichlet, softmax, invert_state, predict_with_model, utilities
 
@@ -199,8 +199,13 @@ class MCTS_UCT_alphazero:
 	def select_node(self, current):
 		# If we have some moves to expand
 		if len(current.unexpanded_moves) > 0:
-			# Chose a move according to the list of possible moves and node policy
-			move, prior = self.chose_move(current.unexpanded_moves, current.policy_pred, competitive_mode=self.dojo)
+			if POLICY_PREDICTION:
+				# Chose a move according to the list of possible moves and node policy
+				move, prior = self.chose_move(current.unexpanded_moves, current.policy_pred, competitive_mode=self.dojo)
+			else:
+				# Chose a move randomly
+				move = current.unexpanded_moves
+				prior = 1/len(current.unexpanded_moves)
 			
 			# We copy the context to play in a simulation
 			current_context = current.context.deepCopy()
@@ -304,20 +309,26 @@ class MCTS_UCT_alphazero:
 
 class Node:
 	def __init__(self, parent, move_from_parent, prior, context, model):
-		# Variable to save the policy and value so we don't compute it more than once per node
-		# Format the input
-		self.state = np.expand_dims(format_state(context.deepCopy()).squeeze(), axis=0)
-		# Estimate policy
-		if ONNX_INFERENCE:
-			value_pred, policy_pred = predict_with_model(model, self.state, output=["value_head", "policy_head"])
+		if POLICY_PREDICTION:
+			# Variable to save the policy and value so we don't compute it more than once per node
+			# Format the input
+			self.state = np.expand_dims(format_state(context.deepCopy()).squeeze(), axis=0)
+			# Estimate policy
+			if ONNX_INFERENCE:
+				value_pred, policy_pred = predict_with_model(model, self.state, output=["value_head", "policy_head"])
+			else:
+				value_pred, policy_pred = predict_with_model(model, self.state, output=[""])
+			# Apply Dirichlet to ensure exploration
+			policy_pred = apply_dirichlet(policy_pred[0])
+			# The output of the network is a flattened array
+			self.policy_pred = policy_pred.reshape(N_ROW, N_COL, N_ACTION_STACK)
+			self.value_pred = value_pred
+			self.value_opp_pred = None
 		else:
-			value_pred, policy_pred = predict_with_model(model, self.state, output=[""])
-		# Apply Dirichlet to ensure exploration
-		policy_pred = apply_dirichlet(policy_pred[0])
-		# The output of the network is a flattened array
-		self.policy_pred = policy_pred.reshape(N_ROW, N_COL, N_ACTION_STACK)
-		self.value_pred = value_pred
-		self.value_opp_pred = None
+			self.state = None
+			self.policy_pred = None
+			self.value_pred = None
+			self.value_opp_pred = None
 		
 		# Variables to build the tree
 		self.children = []

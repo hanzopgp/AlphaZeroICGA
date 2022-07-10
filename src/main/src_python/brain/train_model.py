@@ -21,6 +21,9 @@ if __name__ == '__main__':
 	X = X.astype("float32")
 	y = {"value_head": y_values.astype("float32"), "value_opp_head": y_opp_values.astype("float32"), "policy_head": y_distrib.reshape(y_distrib.shape[0], -1).astype("float32")} 
 
+	print(len(y["policy_head"][y["policy_head"]!=0]))
+	print(len(y["policy_head"][y["policy_head"]==0]))
+
 	champion_path = MODEL_PATH+GAME_NAME+"_"+"champion"+".h5"
 	outsider_path = MODEL_PATH+GAME_NAME+"_"+"outsider"+".h5"
 

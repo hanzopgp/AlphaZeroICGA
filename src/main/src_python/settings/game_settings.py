@@ -7,7 +7,7 @@ N_ROW = 8
 N_COL = 8
 N_LEVELS = 24
 N_ADDITIONAL_FEATURES = 1 # currently only the color of the current player
-N_TIME_STEP = 3 # number of past state we keep for our representation
+N_TIME_STEP = 1 # number of past state we keep for our representation
 N_REPRESENTATION_STACK = N_ADDITIONAL_FEATURES + (N_TIME_STEP * 2) * N_LEVELS 
 # Action representation
 N_DISTANCE = 8 # the king can move on the whole diagonal

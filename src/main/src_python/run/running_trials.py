@@ -8,12 +8,12 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 sys.path.append(os.getcwd()+"/src_python")
 
 
-from settings.config import MODEL_PATH, MAX_SAMPLE, MAX_GAME_MOVES, MAX_GAME_DURATION, DEBUG_PRINT, PROFILING_ACTIVATED, NUM_EPISODE, PLAYER1, PLAYER2, THINKING_TIME_AGENT1, THINKING_TIME_AGENT2, MAX_ITERATION_AGENT1, MAX_ITERATION_AGENT2
-from settings.game_settings import GAME_NAME, N_ROW, N_COL, N_REPRESENTATION_STACK, N_ACTION_STACK
+from settings.config import MAX_SAMPLE, MAX_GAME_MOVES, MAX_GAME_DURATION, DEBUG_PRINT, PROFILING_ACTIVATED, NUM_EPISODE, PLAYER1, PLAYER2, THINKING_TIME_AGENT1, THINKING_TIME_AGENT2, MAX_ITERATION_AGENT1, MAX_ITERATION_AGENT2
+from settings.game_settings import N_ROW, N_COL, N_REPRESENTATION_STACK
 from optimization.precompute import precompute_all
 from mcts.mcts_uct_vanilla import MCTS_UCT_vanilla
 from mcts.mcts_uct_alphazero import MCTS_UCT_alphazero
-from utils import add_to_dataset, get_random_hash, softmax, check_if_first_step
+from utils import add_to_dataset, get_random_hash, check_if_first_step
 
 
 ######### Here is the class called in the java file to run trials #########	
@@ -29,7 +29,7 @@ class RunningTrials:
 		if check_if_first_step() or force_vanilla:
 			mcts1 = MCTS_UCT_vanilla()
 			mcts2 = MCTS_UCT_vanilla()
-			n_episode = NUM_EPISODE * 5
+			n_episode = NUM_EPISODE * 10
 		else:
 			mcts1 = MCTS_UCT_alphazero()
 			mcts2 = MCTS_UCT_alphazero()
@@ -63,7 +63,6 @@ class RunningTrials:
 			start_time = time.time()
 			game.start(context)
 			
-			model = context.model()
 			X_mover = []
 			move_check = []
 			

@@ -60,8 +60,12 @@ def load_data():
 	print("--> Done !")
 	return final_X, final_y_values
 	
-def get_random_sample(X, y_values):
-	train_sample = TRAIN_SAMPLE_SIZE if TRAIN_SAMPLE_SIZE < X.shape[0] else X.shape[0]
+def get_random_sample(X, y_values, first_step=False):
+	if first_step:
+		train_sample = X.shape[0]
+	else:
+		train_sample = TRAIN_SAMPLE_SIZE if TRAIN_SAMPLE_SIZE < X.shape[0] else X.shape[0]
+	print("--> Training on", train_sample, "examples")
 	idx = np.random.choice(np.arange(X.shape[0]), train_sample, replace=False)
 	return X[idx], y_values[idx]
 

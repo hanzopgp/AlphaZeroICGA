@@ -37,7 +37,7 @@ class MCTS_UCT_alphazero:
 	# Main method called to chose an action at depth 0
 	def select_action(self, game, context, max_seconds, max_iterations, max_depth):
 		# Init an empty node which will be our root
-		root = Node(None, None, 0, context)
+		root = Node(None, None, context)
 		num_players = game.players().count()
 		
 		# Init our visit counter for that move in order to normalize
@@ -107,7 +107,6 @@ class MCTS_UCT_alphazero:
 		if len(current.unexpanded_moves) > 0:
 			# Chose a move randomly
 			move = current.unexpanded_moves.pop()
-			prior = 1/(len(current.unexpanded_moves)+1) # +1 because we pop()
 			
 			# We copy the context to play in a simulation
 			current_context = current.context.deepCopy()
@@ -115,8 +114,8 @@ class MCTS_UCT_alphazero:
 			# Apply the move in the simulation
 			current_context.game().apply(current_context, move)
 			
-			# Return a new node, with the new child (which is the move played), and the prior 
-			return Node(current, move, prior, current_context)
+			# Return a new node, with the new child (which is the move played)
+			return Node(current, move, current_context)
 			
 		# We are now looking for the best value in the children of the current node
 		# so we need to init some variables according to PUCT
@@ -128,9 +127,8 @@ class MCTS_UCT_alphazero:
 		# The mover can be both of the players since the games are alternating move games
 		mover = current.context.state().mover()
 
-		sum_child_visit_count = 0
-		for i in range(num_children):
-			sum_child_visit_count += current.children[i].visit_count
+		# Precompute before loop
+		log = CSTE_PUCT * math.log(max(1, current.visit_count))
 
 		# For each childrens of the mover
 		for i in range(num_children):
@@ -138,10 +136,10 @@ class MCTS_UCT_alphazero:
 
 			# Compute the UCB score
 			exploit = child.score_sums[mover] / child.visit_count
-			explore = CSTE_PUCT * math.sqrt(math.log(max(1, current.visit_count)) / child.visit_count)
+			explore = CSTE_PUCT * math.sqrt(log / child.visit_count)
 			value = exploit + explore
 
-			#print(child.score_sums[mover], child.visit_count, current.prior, sum_child_visit_count)
+			print(child.score_sums[mover], child.visit_count, CSTE_PUCT * math.sqrt(log / child.visit_count))
 			
 			# Keep track of the best_child which has the best PUCT score
 			if value > best_value:
@@ -174,7 +172,7 @@ class MCTS_UCT_alphazero:
 
 
 class Node:
-	def __init__(self, parent, move_from_parent, prior, context):
+	def __init__(self, parent, move_from_parent, context):
 		self.state = None
 		self.value_pred = None
 		self.value_opp_pred = None
@@ -186,7 +184,6 @@ class Node:
 		# Variables for PUCT score computation
 		self.visit_count = 0
 		self.total_visit_count = 0
-		self.prior = prior
 		self.move_from_parent = move_from_parent
 		self.context = context
 		game = self.context.game()

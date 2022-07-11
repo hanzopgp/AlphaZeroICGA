@@ -20,9 +20,6 @@ if __name__ == '__main__':
 	force_champion = bool(sys.argv[2])
 
 	X, y_values = load_data()
-	X, y_values = get_random_sample(X, y_values)
-	X = X.astype("float32")
-	y = {"value_head": y_values.astype("float32")} 
 
 	champion_path = MODEL_PATH+GAME_NAME+"_"+"champion"+".h5"
 	outsider_path = MODEL_PATH+GAME_NAME+"_"+"outsider"+".h5"
@@ -30,6 +27,7 @@ if __name__ == '__main__':
 	# If there is an outsider, always train it because we are in the case
 	# of re-training since there is both a champion and an outsider
 	if os.path.exists(outsider_path): 
+		X, y_values = get_random_sample(X, y_values, first_step=False)
 		model_type = "outsider"
 		print("--> Found an outsider, re-training it")
 		model = CustomModel(
@@ -44,6 +42,7 @@ if __name__ == '__main__':
 	elif os.path.exists(champion_path):
 		# We need to beat MCTS vanilla and we re-train champion until it does
 		if force_champion:
+			X, y_values = get_random_sample(X, y_values, first_step=False)
 			model_type = "champion"
 			print("--> Found a champion model, re-training it to beat MCTS vanilla")
 			model = CustomModel(
@@ -56,6 +55,7 @@ if __name__ == '__main__':
 			model.set_model(load_nn(model_type="champion", inference=False))
 		# We need to create an outsider to fight against the champion model
 		else:
+			X, y_values = get_random_sample(X, y_values, first_step=False)
 			model_type = "outsider"
 			print("--> Found a champion model, creating an outsider")
 			model = CustomModel(
@@ -69,6 +69,7 @@ if __name__ == '__main__':
 	# Else if there is no model at all, we are at first step and we create the 
 	# champion model from scratch
 	else:
+		X, y_values = get_random_sample(X, y_values, first_step=True)
 		model_type = "champion"
 		print("--> No model found, creating the champion model")
 		model = CustomModel(
@@ -80,6 +81,9 @@ if __name__ == '__main__':
 			reg_const=REG_CONST)
 		model.build_model()
 		
+	X = X.astype("float32")
+	y = {"value_head": y_values.astype("float32")} 
+
 	print("\n")
 	history = model.fit(
 		X=X, 

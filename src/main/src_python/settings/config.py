@@ -66,7 +66,7 @@ FILTERS = 64
 KERNEL_SIZE = (3,3)
 FIRST_KERNEL_SIZE = (3,3)
 USE_BIAS = False
-N_RES_LAYER = 10
+N_RES_LAYER = 5
 NEURONS_VALUE_HEAD = 32 # number of neurons in last dense layer
 
 OPTIMIZER = "adam"

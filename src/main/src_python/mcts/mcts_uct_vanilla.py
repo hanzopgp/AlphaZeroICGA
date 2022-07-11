@@ -106,6 +106,7 @@ class MCTS_UCT_vanilla:
 	def select_node(self, current):
 		# If we have some moves to expand
 		if len(current.unexpanded_moves) > 0:
+			# Chose a move randomly
 			move = current.unexpanded_moves.pop()
 				
 			# We copy the context to play in a simulation

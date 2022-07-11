@@ -50,7 +50,7 @@ OUTSIDER_MIN_WINRATE = 0.55
 
 ######### MCTS PARAMETERS #########
 
-CSTE_PUCT = 2 # no idea about the value of this variable in the paper 
+CSTE_PUCT = 2 # exploration constant 
 MAX_SAMPLE = 10000 # can decide the max size of the dataset 
 
 ######### NN parameters #########
@@ -67,14 +67,14 @@ KERNEL_SIZE = (3,3)
 FIRST_KERNEL_SIZE = (3,3)
 USE_BIAS = False
 N_RES_LAYER = 5
-NEURONS_VALUE_HEAD = 32 # number of neurons in last dense layer
+NEURONS_VALUE_HEAD = 128 # number of neurons in last dense layer
 
-OPTIMIZER = "adam"
+OPTIMIZER = "sgd"
 LEARNING_RATE = 0.1
-LEARNING_RATE_DECAY_IT = 10 # divide by a value every 10 iteration
+LEARNING_RATE_DECAY_IT = 5 # divide by a value every 5 iteration
 DECAY_FACTOR = 10 # value used to divide
 MOMENTUM = 0.9
-REG_CONST = 1e-4 # L2 reg
+REG_CONST = 1e-5 # L2 reg
 
 ######### OPTIMIZATION VARIABLES #########
 

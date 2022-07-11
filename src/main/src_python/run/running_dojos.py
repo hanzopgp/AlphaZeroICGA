@@ -51,9 +51,7 @@ class RunningDojos:
 		for i in range(NUM_DOJO):
 			start_time = time.time()
 			game.start(context)
-			
-			model = context.model()
-			
+						
 			stop_time = math.inf if MAX_GAME_DURATION < 0 else MAX_GAME_DURATION
 			n_moves = 0
 			
@@ -70,9 +68,9 @@ class RunningDojos:
 					break
 					
 				if context.state().mover() == 1:
-					move, state = champion_mcts.select_action(game, context, THINKING_TIME_AGENTS_DOJO, MAX_ITERATION_AGENTS_DOJO, max_depth=-1)
+					move, _ = champion_mcts.select_action(game, context, THINKING_TIME_AGENTS_DOJO, MAX_ITERATION_AGENTS_DOJO, max_depth=-1)
 				else:
-					move, state = outsider_mcts.select_action(game, context, THINKING_TIME_AGENTS_DOJO, MAX_ITERATION_AGENTS_DOJO, max_depth=-1)
+					move, _ = outsider_mcts.select_action(game, context, THINKING_TIME_AGENTS_DOJO, MAX_ITERATION_AGENTS_DOJO, max_depth=-1)
 
 				n_moves += 1
 				

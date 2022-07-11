@@ -165,7 +165,7 @@ class MCTS_UCT_vanilla:
 		decision = root_node.children[counter.argmax()].move_from_parent
 				
 		# Returns the move to play in the real game and the moves
-		# associated to their probability distribution
+		# associated to their prob	ability distribution
 		#return best_child.move_from_parent, state
 		return decision, np.expand_dims(format_state(root_node.context).squeeze(), axis=0)
 

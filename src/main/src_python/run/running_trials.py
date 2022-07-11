@@ -8,7 +8,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 sys.path.append(os.getcwd()+"/src_python")
 
 
-from settings.config import MODEL_PATH, MAX_SAMPLE, MAX_GAME_MOVES, MAX_GAME_DURATION, DEBUG_PRINT, PROFILING_ACTIVATED, NUM_EPISODE, PLAYER1, PLAYER2, THINKING_TIME_AGENT1, THINKING_TIME_AGENT2, MAX_ITERATION_AGENT1, MAX_ITERATION_AGENT2
+from settings.config import MODEL_PATH, MAX_SAMPLE, FORCE_VANILLA, MAX_GAME_MOVES, MAX_GAME_DURATION, DEBUG_PRINT, PROFILING_ACTIVATED, NUM_EPISODE, PLAYER1, PLAYER2, THINKING_TIME_AGENT1, THINKING_TIME_AGENT2, MAX_ITERATION_AGENT1, MAX_ITERATION_AGENT2
 from settings.game_settings import GAME_NAME, N_ROW, N_COL, N_REPRESENTATION_STACK, N_ACTION_STACK
 from optimization.precompute import precompute_all
 from mcts.mcts_uct_vanilla import MCTS_UCT_vanilla
@@ -20,13 +20,13 @@ from utils import add_to_dataset, get_random_hash, softmax, check_if_first_step
 
 class RunningTrials:
 	# This function is called from java in RunningTrialsWithPython.java
-	def run_trial(self, game, trial, context):
+	def run_trial(self, game, trial, context, force_vanilla):
 		if PROFILING_ACTIVATED:
 			prof = cProfile.Profile()
 			prof.enable()
 
 		# Init both agents
-		if check_if_first_step():
+		if check_if_first_step() or force_vanilla:
 			mcts1 = MCTS_UCT_vanilla()
 			mcts2 = MCTS_UCT_vanilla()
 			n_episode = NUM_EPISODE * 5

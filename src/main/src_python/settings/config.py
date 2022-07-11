@@ -17,6 +17,8 @@
 
 ######### TIME CONSUMING VARIABLES #########
 
+FORCE_VANILLA = False
+
 ONNX_INFERENCE = True
 GRAPH_INFERENCE = False
 
@@ -70,7 +72,7 @@ N_RES_LAYER = 10
 NEURONS_VALUE_HEAD = 32 # number of neurons in last dense layer
 
 OPTIMIZER = "adam"
-LEARNING_RATE = 0.05
+LEARNING_RATE = 0.1
 MOMENTUM = 0.9
 REG_CONST = 1e-4 # L2 reg
 

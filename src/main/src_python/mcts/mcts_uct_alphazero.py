@@ -38,7 +38,7 @@ class MCTS_UCT_alphazero:
 	# Main method called to chose an action at depth 0
 	def select_action(self, game, context, max_seconds, max_iterations, max_depth):
 		# Init an empty node which will be our root
-		root = Node(None, None, 0, context, self.model)
+		root = Node(None, None, 0, context, self.model, None, None, None)
 		num_players = game.players().count()
 		
 		# Init our visit counter for that move in order to normalize
@@ -81,7 +81,7 @@ class MCTS_UCT_alphazero:
 					if ONNX_INFERENCE:
 						current.value_opp_pred = predict_with_model(self.model, invert_state(current.state), output=["value_head"])				
 					else:
-						current.value_opp_pred, _ = predict_with_model(self.model, invert_state(current.state), output=[""])
+						current.value_opp_pred = predict_with_model(self.model, invert_state(current.state), output=[""])
 				else:
 					print("Skipped computation")
 				current.value_pred = predict_with_model(self.model, current.state, output=["value_head"])	
@@ -123,7 +123,7 @@ class MCTS_UCT_alphazero:
 			current_context.game().apply(current_context, move)
 			
 			# Return a new node, with the new child (which is the move played), and the prior 
-			return Node(current, move, prior, current_context, self.model)
+			return Node(current, move, prior, current_context, self.model, None, None, None)
 			
 		# We are now looking for the best value in the children of the current node
 		# so we need to init some variables according to PUCT
@@ -193,7 +193,11 @@ class MCTS_UCT_alphazero:
 
 
 class Node:
-	def __init__(self, parent, move_from_parent, prior, context, model):		
+	def __init__(self, parent, move_from_parent, prior, context, model, state, value_pred, value_opp_pred):
+		self.state = state
+		self.value_pred = value_pred
+		self.value_opp_pred = value_opp_pred
+
 		# Variables to build the tree
 		self.children = []
 		self.parent = parent

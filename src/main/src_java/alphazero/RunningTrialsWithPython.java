@@ -34,7 +34,7 @@ public class RunningTrialsWithPython{
 		final Game game = GameLoader.loadGameFromName("Bashni.lud");
 		final Trial trial = new Trial(game);
 		final Context context = new Context(game, trial);
-		run(game, trial, context);
+		run(game, trial, context, Boolean.parseBoolean(args[0]));
 	}
 	
 	public static void initJPY(){
@@ -74,7 +74,7 @@ public class RunningTrialsWithPython{
 		return nObjects;
 	}
 	
-	public static void run(final Game game, final Trial trial, final Context context){
-		pythonTrial.call("run_trial", game, trial, context);
+	public static void run(final Game game, final Trial trial, final Context context, final boolean force_vanilla){
+		pythonTrial.call("run_trial", game, trial, context, force_vanilla);
 	}
 }

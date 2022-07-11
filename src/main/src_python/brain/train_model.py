@@ -15,7 +15,9 @@ from utils import load_data, get_random_sample, load_nn
 	
 ######### Training model from loaded data and saving weights #########
 
-if __name__ == '__main__':
+if __name__ == '__main__': 
+	force_champion = sys.argv[1]
+
 	X, y_values = load_data()
 	X, y_values = get_random_sample(X, y_values)
 	X = X.astype("float32")
@@ -39,7 +41,7 @@ if __name__ == '__main__':
 		model.set_model(load_nn(model_type="outsider", inference=False))
 	# Else if there is no outsider but there is a champion, we are at 2nd step 
 	# and we create the outsider model with the champion as a baseline
-	elif os.path.exists(champion_path):
+	elif os.path.exists(champion_path) and not force_champion:
 		model_type = "outsider"
 		print("--> Found a champion model, creating an outsider")
 		model = CustomModel(

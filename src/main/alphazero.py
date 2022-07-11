@@ -5,6 +5,7 @@ from subprocess import Popen
 sys.path.append(os.getcwd()+"/src_python")
 
 
+import settings
 from settings.config import WINNERS_FILE, OUTSIDER_MIN_WINRATE, DEBUG_PRINT, MODEL_PATH, ONNX_INFERENCE
 from settings.game_settings import GAME_NAME
 
@@ -63,11 +64,11 @@ def conclude():
 	print("**************************************** AGENT READY ***************************************")
 	print("********************************************************************************************")
 	
-def run_trials(n_workers):
+def run_trials(n_workers, force_vanilla):
 	print("********************************************************************************************")
 	print("************************************** RUNNING TRIALS ***************************************")
 	print("********************************************************************************************")
-	Popen(parallelize_command("run_trials", n_workers), shell=True).wait()
+	Popen(parallelize_command("run_trials -Dforce_vanilla="+str(force_vanilla), n_workers), shell=True).wait()
 	
 	print("********************************************************************************************")
 	print("************************************** MERGING DATASETS ************************************")
@@ -85,11 +86,11 @@ def run_dojos(n_workers):
 	print("********************************************************************************************")
 	Popen("python3 src_python/scripts/merge_txts.py", shell=True).wait()
 
-def train_model():
+def train_model(force_champion):
 	print("********************************************************************************************")
 	print("************************************** TRAINING MODEL **************************************")
 	print("********************************************************************************************")
-	Popen("python3 src_python/brain/train_model.py", shell=True).wait()
+	Popen("python3 src_python/brain/train_model.py "+str(force_champion), shell=True).wait()
 
 def switch_model():
 	print("********************************************************************************************")
@@ -99,25 +100,35 @@ def switch_model():
 
 def main_loop(n_iteration, n_workers):
 	alphazero_iteration=0
-	trial_activated=True
+	outsider_won=True
 	while(alphazero_iteration < n_iteration):
 		print("============================================================================================")
 		print("================================== ITERATION ALPHAZERO", alphazero_iteration, "===================================")
 		print("============================================================================================")
 		
-		if trial_activated:
-			run_trials(n_workers)
+		if outsider_won: # Outsider model won
+			run_trials(n_workers, force_vanilla=False) # So we run self play trials between models
+			train_model(force_champion=False) # And we train the outsider
+			if ONNX_INFERENCE: 
+				convert_models_onnx()
+		else: # Outsider model lost
+			if not os.path.exists(MODEL_PATH+GAME_NAME+"_"+"outsider"+".h5"): # And it was against the vanilla MCTS
+				run_trials(n_workers, force_vanilla=True) # So we need to get more data with trials
+				train_model(force_champion=True) # so we can train the model to perform better
+				if ONNX_INFERENCE: 
+					convert_models_onnx()
+			else: # Outsider model lost to champion model
+				train_model(force_champion=False) # So we need to train it more until it becomes the champion
+				if ONNX_INFERENCE: 
+					convert_models_onnx()
 
-		train_model()
-		if ONNX_INFERENCE: 
-			convert_models_onnx()	
-
+		# Run dojos to evaluate the newest model
 		run_dojos(n_workers)
-
-		trial_activated = decide_if_switch_model()
-		if trial_activated:
+		# Switch models if the dojo was champion model vs outsider model
+		outsider_won = decide_if_switch_model()
+		if outsider_won:
 			switch_model()
-
+		
 		alphazero_iteration += 1
 			
 if __name__ == '__main__':

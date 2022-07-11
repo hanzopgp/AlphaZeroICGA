@@ -44,8 +44,10 @@
 	</target>
 	
 	<target name="run_trials" depends="build">
+			<property name="force_vanilla" value="False" />
 	    	<java classname="alphazero.RunningTrialsWithPython" fork="true">
 	      		<classpath refid="AlphaZero.classpath"/>
+				<arg value="${force_vanilla}"/>
 	    	</java>
 	</target>
 	

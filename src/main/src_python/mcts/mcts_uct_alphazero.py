@@ -38,7 +38,7 @@ class MCTS_UCT_alphazero:
 	# Main method called to chose an action at depth 0
 	def select_action(self, game, context, max_seconds, max_iterations, max_depth):
 		# Init an empty node which will be our root
-		root = Node(None, None, 0, context, self.model, None, None, None)
+		root = Node(None, None, 0, context, self.model)
 		num_players = game.players().count()
 		
 		# Init our visit counter for that move in order to normalize
@@ -76,16 +76,14 @@ class MCTS_UCT_alphazero:
 			# estimate the value thanks to the model
 			if not current.context.trial().over():
 				utils = np.zeros(num_players+1)
-				if current.value_opp_pred is None:
-					current.state = np.expand_dims(format_state(context.deepCopy()).squeeze(), axis=0)
-					if ONNX_INFERENCE:
-						current.value_opp_pred = predict_with_model(self.model, invert_state(current.state), output=["value_head"])				
-					else:
-						current.value_opp_pred = predict_with_model(self.model, invert_state(current.state), output=[""])
+				current.state = np.expand_dims(format_state(context.deepCopy()).squeeze(), axis=0)
+				if ONNX_INFERENCE:
+					value_opp_pred = predict_with_model(self.model, invert_state(current.state), output=["value_head"])		
+					value_pred = predict_with_model(self.model, current.state, output=["value_head"])			
 				else:
-					print("Skipped computation")
-				current.value_pred = predict_with_model(self.model, current.state, output=["value_head"])	
-				utils[PLAYER1], utils[PLAYER2] = current.value_pred[0], current.value_opp_pred[0]
+					value_opp_pred = predict_with_model(self.model, invert_state(current.state), output=[""])
+					value_pred = predict_with_model(self.model, current.state, output=[""])	
+				utils[PLAYER1], utils[PLAYER2] = value_pred[0], value_opp_pred[0]
 			# If we are in a terminal node we can compute ground truth utilities
 			else:
 				# Compute utilities thanks to our functions for both players
@@ -97,8 +95,8 @@ class MCTS_UCT_alphazero:
 				current.visit_count += 1
 				current.total_visit_count += 1
 				# score_sums variable for each players in order to compute PUCT scores
-				for p in range(1, num_players+1):
-					current.score_sums[p] += utils[p]
+				current.score_sums[PLAYER1] += utils[PLAYER1]
+				current.score_sums[PLAYER2] += utils[PLAYER2]
 				# We propagate the values from leaves to the root through the whole tree
 				current = current.parent
 
@@ -123,7 +121,7 @@ class MCTS_UCT_alphazero:
 			current_context.game().apply(current_context, move)
 			
 			# Return a new node, with the new child (which is the move played), and the prior 
-			return Node(current, move, prior, current_context, self.model, None, None, None)
+			return Node(current, move, prior, current_context)
 			
 		# We are now looking for the best value in the children of the current node
 		# so we need to init some variables according to PUCT
@@ -142,11 +140,14 @@ class MCTS_UCT_alphazero:
 		# For each childrens of the mover
 		for i in range(num_children):
 			child = current.children[i]
+
 			# Compute the PUCT score
 			# The score depends on low visit count, high move probability and high value
 			exploit = child.score_sums[mover] / child.visit_count
 			explore = CSTE_PUCT * current.prior * (np.sqrt(sum_child_visit_count) / (1 + current.visit_count))
 			value = exploit + explore
+
+			#print(child.score_sums[mover], child.visit_count, current.prior, sum_child_visit_count)
 			
 			# Keep track of the best_child which has the best PUCT score
 			if value > best_value:
@@ -169,7 +170,6 @@ class MCTS_UCT_alphazero:
 		# Now that we have gone through the tree using PUCT scores, the MCTS will chose
 		# the best move to play by checking which node was the most visited
 		num_children = len(root_node.children)
-		total_visit_count = root_node.total_visit_count
 
 		# Arrays for the decision making
 		counter = np.zeros((num_children))
@@ -177,11 +177,7 @@ class MCTS_UCT_alphazero:
 		# For each children of the root, so for each legal moves
 		for i in range(num_children):
 			child = root_node.children[i]
-			visit_count = child.visit_count
-			normalized_visit_count = visit_count/total_visit_count
-	
-			# Keeps track of our children and their visit_count
-			counter[i] = normalized_visit_count
+			counter[i] = child.visit_count/root_node.total_visit_count
 		
 		# Get the decision
 		decision = root_node.children[counter.argmax()].move_from_parent
@@ -193,10 +189,10 @@ class MCTS_UCT_alphazero:
 
 
 class Node:
-	def __init__(self, parent, move_from_parent, prior, context, model, state, value_pred, value_opp_pred):
-		self.state = state
-		self.value_pred = value_pred
-		self.value_opp_pred = value_opp_pred
+	def __init__(self, parent, move_from_parent, prior, context):
+		self.state = None
+		self.value_pred = None
+		self.value_opp_pred = None
 
 		# Variables to build the tree
 		self.children = []

@@ -7,7 +7,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 sys.path.append(os.getcwd()+"/src_python")
 
 
-from settings.config import MODEL_PATH, N_RES_LAYER, LEARNING_RATE, MOMENTUM, REG_CONST, BATCH_SIZE, N_EPOCHS, VERBOSE, VALIDATION_SPLIT
+from settings.config import MODEL_PATH, N_RES_LAYER, MOMENTUM, REG_CONST, BATCH_SIZE, N_EPOCHS, VERBOSE, VALIDATION_SPLIT
 from settings.game_settings import GAME_NAME, N_ROW, N_COL, N_ACTION_STACK
 from brain.model import CustomModel
 from utils import load_data, get_random_sample, load_nn
@@ -16,7 +16,8 @@ from utils import load_data, get_random_sample, load_nn
 ######### Training model from loaded data and saving weights #########
 
 if __name__ == '__main__': 
-	force_champion = sys.argv[1]
+	force_champion = sys.argv[2]
+	learning_rate = sys.argv[1]
 
 	X, y_values = load_data()
 	X, y_values = get_random_sample(X, y_values)
@@ -35,7 +36,7 @@ if __name__ == '__main__':
 			input_dim=X[0].shape, 
 			output_dim=N_ROW*N_COL*N_ACTION_STACK, # this is the policy head output dim	 
 			n_res_layer=N_RES_LAYER, 
-			learning_rate=LEARNING_RATE, 
+			learning_rate=learning_rate, 
 			momentum=MOMENTUM, 
 			reg_const=REG_CONST)
 		model.set_model(load_nn(model_type="outsider", inference=False))
@@ -48,7 +49,7 @@ if __name__ == '__main__':
 			input_dim=X[0].shape, 
 			output_dim=N_ROW*N_COL*N_ACTION_STACK,	 
 			n_res_layer=N_RES_LAYER, 
-			learning_rate=LEARNING_RATE, 
+			learning_rate=learning_rate, 
 			momentum=MOMENTUM, 
 			reg_const=REG_CONST)
 		model.set_model(load_nn(model_type="champion", inference=False))
@@ -61,7 +62,7 @@ if __name__ == '__main__':
 			input_dim=X[0].shape, 
 			output_dim=N_ROW*N_COL*N_ACTION_STACK,	 
 			n_res_layer=N_RES_LAYER, 
-			learning_rate=LEARNING_RATE, 
+			learning_rate=learning_rate, 
 			momentum=MOMENTUM, 
 			reg_const=REG_CONST)
 		model.build_model()
@@ -75,7 +76,7 @@ if __name__ == '__main__':
 		verbose=VERBOSE, 
 		validation_split=VALIDATION_SPLIT)
 	
-	print(model.predict(np.expand_dims(X[0], axis=0)))		
+	print("--> Quick prediction check :"model.predict(np.expand_dims(X[0], axis=0)))		
 	#model.plot_metrics(history)
 
 	# If it is the first step, then there is no model yet and our

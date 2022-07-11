@@ -5,8 +5,7 @@ from subprocess import Popen
 sys.path.append(os.getcwd()+"/src_python")
 
 
-import settings
-from settings.config import WINNERS_FILE, OUTSIDER_MIN_WINRATE, DEBUG_PRINT, MODEL_PATH, ONNX_INFERENCE
+from settings.config import WINNERS_FILE, OUTSIDER_MIN_WINRATE, DEBUG_PRINT, MODEL_PATH, ONNX_INFERENCE, LEARNING_RATE, LEARNING_RATE_DECAY_IT, DECAY_FACTOR
 from settings.game_settings import GAME_NAME
 
 
@@ -86,11 +85,13 @@ def run_dojos(n_workers):
 	print("********************************************************************************************")
 	Popen("python3 src_python/scripts/merge_txts.py", shell=True).wait()
 
-def train_model(force_champion):
+def train_model(lr, force_champion):
 	print("********************************************************************************************")
 	print("************************************** TRAINING MODEL **************************************")
 	print("********************************************************************************************")
-	Popen("python3 src_python/brain/train_model.py "+str(force_champion), shell=True).wait()
+	Popen("python3 src_python/brain/train_model.py "+str(force_champion)+" "+str(lr), shell=True).wait()
+	if ONNX_INFERENCE: 
+		convert_models_onnx()
 
 def switch_model():
 	print("********************************************************************************************")
@@ -101,26 +102,24 @@ def switch_model():
 def main_loop(n_iteration, n_workers):
 	alphazero_iteration=0
 	outsider_won=True
+	lr = LEARNING_RATE
 	while(alphazero_iteration < n_iteration):
 		print("============================================================================================")
 		print("================================== ITERATION ALPHAZERO", alphazero_iteration, "===================================")
 		print("============================================================================================")
 		
+		if alphazero_iteration % LEARNING_RATE_DECAY_IT == 0:
+			lr /= DECAY_FACTOR
+
 		if outsider_won: # Outsider model won
 			run_trials(n_workers, force_vanilla=False) # So we run self play trials between models
-			train_model(force_champion=False) # And we train the outsider
-			if ONNX_INFERENCE: 
-				convert_models_onnx()
+			train_model(lr, force_champion=False) # And we train the outsider
 		else: # Outsider model lost
 			if not os.path.exists(MODEL_PATH+GAME_NAME+"_"+"outsider"+".h5"): # And it was against the vanilla MCTS
 				run_trials(n_workers, force_vanilla=True) # So we need to get more data with trials
-				train_model(force_champion=True) # so we can train the model to perform better
-				if ONNX_INFERENCE: 
-					convert_models_onnx()
+				train_model(lr, force_champion=True) # so we can train the model to perform better
 			else: # Outsider model lost to champion model
-				train_model(force_champion=False) # So we need to train it more until it becomes the champion
-				if ONNX_INFERENCE: 
-					convert_models_onnx()
+				train_model(lr, force_champion=False) # So we need to train it more until it becomes the champion
 
 		# Run dojos to evaluate the newest model
 		run_dojos(n_workers)

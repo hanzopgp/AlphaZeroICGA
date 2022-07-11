@@ -17,7 +17,7 @@ from keras import regularizers
 
 from settings.config import OPTIMIZER, MODEL_PATH, EARLY_STOPPING_PATIENCE, MAIN_ACTIVATION, FILTERS, KERNEL_SIZE, USE_BIAS, FIRST_KERNEL_SIZE, NEURONS_VALUE_HEAD, ONNX_INFERENCE, GRAPH_INFERENCE
 from settings.game_settings import GAME_NAME
-from utils import softmax_cross_entropy_with_logits, convert_model_to_graph
+from utils import convert_model_to_graph
 
 
 ######### Here is the class that contain our AlphaZero model #########

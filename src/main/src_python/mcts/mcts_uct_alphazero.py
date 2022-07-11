@@ -10,7 +10,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 sys.path.append(os.getcwd()+"/src_python")
 
 
-from settings.config import PLAYER1, PLAYER2, CSTE_PUCT
+from settings.config import PLAYER1, PLAYER2, CSTE_PUCT, N_ROW, N_COL
 from utils import load_nn, format_state, invert_state, predict_with_model, utilities
 
 	
@@ -34,15 +34,6 @@ class MCTS_UCT_alphazero:
 		self.pre_coords = pre_coords
 		self.pre_3D_coords = pre_3D_coords
 
-	def chose_move_PPA(context, legal_moves, ppa_policy, ):
-		new_policy = np.zeros_like(ppa_policy)
-		for move in legal_moves:
-			current_context = context.deepCopy()
-			current_context.game().apply(current_context, move)
-			if current_context.trial().over():
-				new_policy[]
-			
-		
 	# Main method called to chose an action at depth 0
 	def select_action(self, game, context, max_seconds, max_iterations, max_depth):
 		# Init an empty node which will be our root
@@ -93,6 +84,9 @@ class MCTS_UCT_alphazero:
 				# Compute utilities thanks to our functions for both players
 				utils = utilities(current.context)
 
+			# Here we update the PPA policy thanks to our estimation
+			current.ppa_policy = self.update_policy_PPA(current.ppa_policy, utils)
+
 			# We propagate the values from the current node to the root
 			while current is not None:
 				# visit_count variable for each nodes in order to compute PUCT scores
@@ -115,8 +109,7 @@ class MCTS_UCT_alphazero:
 		# If we have some moves to expand
 		if len(current.unexpanded_moves) > 0:
 			# Chose a move randomly
-			#move = current.unexpanded_moves.pop()
-			move = self.chose_move_PPA(current.unexpanded_moves, current.ppa_policy)
+			move = current.unexpanded_moves.pop()
 			prior = 1/(len(current.unexpanded_moves)+1) # +1 because we pop()
 			
 			# We copy the context to play in a simulation
@@ -146,10 +139,9 @@ class MCTS_UCT_alphazero:
 		for i in range(num_children):
 			child = current.children[i]
 
-			# Compute the PUCT score
-			# The score depends on low visit count, high move probability and high value
+			# Compute the UCB score
 			exploit = child.score_sums[mover] / child.visit_count
-			explore = CSTE_PUCT * current.prior * (np.sqrt(sum_child_visit_count) / (1 + current.visit_count))
+			explore = CSTE_PUCT * math.sqrt(math.log(max(1, current.visit_count)) / child.visit_count)
 			value = exploit + explore
 
 			#print(child.score_sums[mover], child.visit_count, current.prior, sum_child_visit_count)

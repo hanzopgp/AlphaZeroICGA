@@ -4,7 +4,7 @@ import random
 import math
 import time
 import numpy as np
-from main.src_python.settings.config import CSTE_PUCT
+from src_python.settings.config import CSTE_PUCT
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 sys.path.append(os.getcwd()+"/src_python")
 

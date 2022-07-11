@@ -10,7 +10,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 sys.path.append(os.getcwd()+"/src_python")
 
 
-from settings.config import PLAYER1, PLAYER2, CSTE_PUCT, N_ROW, N_COL
+from settings.config import PLAYER1, PLAYER2, CSTE_PUCT
 from utils import load_nn, format_state, invert_state, predict_with_model, utilities
 
 	
@@ -83,9 +83,6 @@ class MCTS_UCT_alphazero:
 			else:
 				# Compute utilities thanks to our functions for both players
 				utils = utilities(current.context)
-
-			# Here we update the PPA policy thanks to our estimation
-			current.ppa_policy = self.update_policy_PPA(current.ppa_policy, utils)
 
 			# We propagate the values from the current node to the root
 			while current is not None:

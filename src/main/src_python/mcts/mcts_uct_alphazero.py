@@ -139,7 +139,7 @@ class MCTS_UCT_alphazero:
 			explore = CSTE_PUCT * math.sqrt(log / child.visit_count)
 			value = exploit + explore
 
-			print(child.score_sums[mover], child.visit_count, CSTE_PUCT * math.sqrt(log / child.visit_count))
+			#print(child.score_sums[mover], child.visit_count, CSTE_PUCT * math.sqrt(log / child.visit_count))
 			
 			# Keep track of the best_child which has the best PUCT score
 			if value > best_value:

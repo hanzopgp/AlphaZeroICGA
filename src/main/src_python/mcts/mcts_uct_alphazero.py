@@ -77,12 +77,8 @@ class MCTS_UCT_alphazero:
 			if not current.context.trial().over():
 				utils = np.zeros(num_players+1)
 				current.state = np.expand_dims(format_state(context.deepCopy()).squeeze(), axis=0)
-				if ONNX_INFERENCE:
-					value_opp_pred = predict_with_model(self.model, invert_state(current.state), output=["value_head"])		
-					value_pred = predict_with_model(self.model, current.state, output=["value_head"])			
-				else:
-					value_opp_pred = predict_with_model(self.model, invert_state(current.state), output=[""])
-					value_pred = predict_with_model(self.model, current.state, output=[""])	
+				value_opp_pred = predict_with_model(self.model, invert_state(current.state))		
+				value_pred = predict_with_model(self.model, current.state)			
 				utils[PLAYER1], utils[PLAYER2] = value_pred[0], value_opp_pred[0]
 			# If we are in a terminal node we can compute ground truth utilities
 			else:
@@ -167,17 +163,8 @@ class MCTS_UCT_alphazero:
 	# This method returns the move to play at the root, thus the move to play in the real game
 	# depending the number of visits of each depth 0 actions
 	def final_move_selection(self, root_node):
-		# Now that we have gone through the tree using PUCT scores, the MCTS will chose
-		# the best move to play by checking which node was the most visited
-		num_children = len(root_node.children)
-
 		# Arrays for the decision making
-		counter = np.zeros((num_children))
-
-		# For each children of the root, so for each legal moves
-		for i in range(num_children):
-			child = root_node.children[i]
-			counter[i] = child.visit_count/root_node.total_visit_count
+		counter = np.array([root_node.children[i].visit_count/root_node.total_visit_count for i in range(len(root_node.children))])
 		
 		# Get the decision
 		decision = root_node.children[counter.argmax()].move_from_parent

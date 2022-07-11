@@ -16,8 +16,8 @@ from utils import load_data, get_random_sample, load_nn
 ######### Training model from loaded data and saving weights #########
 
 if __name__ == '__main__': 
-	force_champion = sys.argv[2]
-	learning_rate = sys.argv[1]
+	learning_rate = float(sys.argv[1])
+	force_champion = bool(sys.argv[2])
 
 	X, y_values = load_data()
 	X, y_values = get_random_sample(X, y_values)
@@ -76,7 +76,7 @@ if __name__ == '__main__':
 		verbose=VERBOSE, 
 		validation_split=VALIDATION_SPLIT)
 	
-	print("--> Quick prediction check :"model.predict(np.expand_dims(X[0], axis=0)))		
+	print("--> Quick prediction check :", model.predict(np.expand_dims(X[0], axis=0)))		
 	#model.plot_metrics(history)
 
 	# If it is the first step, then there is no model yet and our

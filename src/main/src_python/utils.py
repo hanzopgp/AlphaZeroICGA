@@ -119,38 +119,11 @@ def convert_model_to_graph(model, model_type):
 		          logdir="./"+MODEL_PATH,
 		          name=GAME_NAME+"_"+model_type+".pb",
 		          as_text=False)
-		          
-#def load_graph(model_type):
-#	# Load frozen graph using TensorFlow 1.x functions
-#	with tf.io.gfile.GFile(MODEL_PATH+GAME_NAME+"_"+model_type+".pb", "rb") as f:
-#		graph_def = tf.compat.v1.GraphDef()
-#		loaded = graph_def.ParseFromString(f.read())
-#
-#	# Wrap frozen graph to ConcreteFunctions
-#	frozen_func = wrap_frozen_graph(graph_def=graph_def,
-#		                        inputs=["x:0"],
-#		                        outputs=["Identity:0"],
-#		                        print_graph=True)
-#	return frozen_func
-
-#def load_graph(model_type):
-#	from tensorflow.python.platform import gfile
-#	with tf.compat.v1.Session() as sess:
-#		with gfile.FastGFile(MODEL_PATH+GAME_NAME+"_"+model_type+"/saved_model"+".pb", 'rb') as f:
-#			graph_def = tf.compat.v1.GraphDef()
-#			graph_def.ParseFromString(f.read())
-#			sess.graph.as_default()
-#			g_in = tf.import_graph_def(graph_def)
-#	return sess
 	
 # Use the model to predict a value
 def predict_with_model(model, state, output=["value_head"]):
 	if ONNX_INFERENCE:
 		return model.run(output, {"input_1": state.astype(np.float32)})
-	if GRAPH_INFERENCE:
-		tensor_output = model.graph.get_tensor_by_name('import/dense_2/Sigmoid:0')
-		tensor_input = model.graph.get_tensor_by_name('import/dense_1_input:0')
-		return model.run(tensor_output, {tensor_input:sample})
 	return model.predict(state, verbose=0)
 	
 # This function checks if we are going to use the vanilla MCTS

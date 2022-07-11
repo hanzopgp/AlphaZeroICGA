@@ -89,7 +89,7 @@ def train_model(lr, force_champion):
 	print("********************************************************************************************")
 	print("************************************** TRAINING MODEL **************************************")
 	print("********************************************************************************************")
-	Popen("python3 src_python/brain/train_model.py "+str(force_champion)+" "+str(lr), shell=True).wait()
+	Popen("python3 src_python/brain/train_model.py "+str(lr)+" "+str(force_champion), shell=True).wait()
 	if ONNX_INFERENCE: 
 		convert_models_onnx()
 

@@ -40,19 +40,32 @@ if __name__ == '__main__':
 			momentum=MOMENTUM, 
 			reg_const=REG_CONST)
 		model.set_model(load_nn(model_type="outsider", inference=False))
-	# Else if there is no outsider but there is a champion, we are at 2nd step 
-	# and we create the outsider model with the champion as a baseline
-	elif os.path.exists(champion_path) and not force_champion:
-		model_type = "outsider"
-		print("--> Found a champion model, creating an outsider")
-		model = CustomModel(
-			input_dim=X[0].shape, 
-			output_dim=N_ROW*N_COL*N_ACTION_STACK,	 
-			n_res_layer=N_RES_LAYER, 
-			learning_rate=learning_rate, 
-			momentum=MOMENTUM, 
-			reg_const=REG_CONST)
-		model.set_model(load_nn(model_type="champion", inference=False))
+	# Else if there is no outsider but there is a champion
+	elif os.path.exists(champion_path):
+		# We need to beat MCTS vanilla and we re-train champion until it does
+		if force_champion:
+			model_type = "champion"
+			print("--> Found a champion model, re-training it to beat MCTS vanilla")
+			model = CustomModel(
+				input_dim=X[0].shape, 
+				output_dim=N_ROW*N_COL*N_ACTION_STACK,	 
+				n_res_layer=N_RES_LAYER, 
+				learning_rate=learning_rate, 
+				momentum=MOMENTUM, 
+				reg_const=REG_CONST)
+			model.set_model(load_nn(model_type="champion", inference=False))
+		# We need to create an outsider to fight against the champion model
+		else:
+			model_type = "outsider"
+			print("--> Found a champion model, creating an outsider")
+			model = CustomModel(
+				input_dim=X[0].shape, 
+				output_dim=N_ROW*N_COL*N_ACTION_STACK,	 
+				n_res_layer=N_RES_LAYER, 
+				learning_rate=learning_rate, 
+				momentum=MOMENTUM, 
+				reg_const=REG_CONST)
+			model.set_model(load_nn(model_type="champion", inference=False))
 	# Else if there is no model at all, we are at first step and we create the 
 	# champion model from scratch
 	else:

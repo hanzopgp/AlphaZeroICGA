@@ -117,7 +117,7 @@ def main_loop(n_iteration, n_workers):
 		else: # Outsider model lost
 			if not os.path.exists(MODEL_PATH+GAME_NAME+"_"+"outsider"+".h5"): # And it was against the vanilla MCTS
 				run_trials(n_workers, force_vanilla=True) # So we need to get more data with trials
-				train_model(lr, force_champion=True) # so we can train the model to perform better
+				train_model(lr, force_champion=True) # so we can train the champion model to perform better
 			else: # Outsider model lost to champion model
 				train_model(lr, force_champion=False) # So we need to train it more until it becomes the champion
 

@@ -10,8 +10,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 sys.path.append(os.getcwd()+"/src_python")
 
 
-from settings.config import ONNX_INFERENCE, PLAYER1, PLAYER2, CSTE_PUCT
-from settings.game_settings import N_ROW, N_COL, N_ACTION_STACK, N_REPRESENTATION_STACK
+from settings.config import PLAYER1, PLAYER2, CSTE_PUCT
 from utils import load_nn, format_state, invert_state, predict_with_model, utilities
 
 	
@@ -38,7 +37,7 @@ class MCTS_UCT_alphazero:
 	# Main method called to chose an action at depth 0
 	def select_action(self, game, context, max_seconds, max_iterations, max_depth):
 		# Init an empty node which will be our root
-		root = Node(None, None, 0, context, self.model)
+		root = Node(None, None, 0, context)
 		num_players = game.players().count()
 		
 		# Init our visit counter for that move in order to normalize

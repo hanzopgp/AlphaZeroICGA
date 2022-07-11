@@ -33,6 +33,15 @@ class MCTS_UCT_alphazero:
 		self.pre_reverse_action_index = pre_reverse_action_index
 		self.pre_coords = pre_coords
 		self.pre_3D_coords = pre_3D_coords
+
+	def chose_move_PPA(context, legal_moves, ppa_policy, ):
+		new_policy = np.zeros_like(ppa_policy)
+		for move in legal_moves:
+			current_context = context.deepCopy()
+			current_context.game().apply(current_context, move)
+			if current_context.trial().over():
+				new_policy[]
+			
 		
 	# Main method called to chose an action at depth 0
 	def select_action(self, game, context, max_seconds, max_iterations, max_depth):
@@ -106,7 +115,8 @@ class MCTS_UCT_alphazero:
 		# If we have some moves to expand
 		if len(current.unexpanded_moves) > 0:
 			# Chose a move randomly
-			move = current.unexpanded_moves.pop()
+			#move = current.unexpanded_moves.pop()
+			move = self.chose_move_PPA(current.unexpanded_moves, current.ppa_policy)
 			prior = 1/(len(current.unexpanded_moves)+1) # +1 because we pop()
 			
 			# We copy the context to play in a simulation

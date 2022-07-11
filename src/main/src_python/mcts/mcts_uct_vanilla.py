@@ -4,12 +4,12 @@ import random
 import math
 import time
 import numpy as np
+from main.src_python.settings.config import CSTE_PUCT
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 sys.path.append(os.getcwd()+"/src_python")
 
 
-from settings.game_settings import N_ROW, N_COL, N_ACTION_STACK
-from utils import utilities, softmax, format_state
+from utils import utilities, format_state
 
 	
 ######### Here is the main class to run the vanilla MCTS simulation #########
@@ -72,7 +72,7 @@ class MCTS_UCT_vanilla:
 			if not context_end.trial().over():
 				# We copy the context in order to
 				context_end = context_end.deepCopy()
-
+				
 				# play it out until the game is over
 				game.playout(context_end,
 					     None, # ais
@@ -122,12 +122,14 @@ class MCTS_UCT_vanilla:
 		# so we need to init some variables according to UCB
 		best_child = None
 		best_value = -math.inf
-		two_parent_log = 2.0 * math.log(max(1, current.visit_count))
 		num_best_found = 0
 		num_children = len(current.children)
 
 		# The mover can be both of the players since the games are alternating move games
 		mover = current.context.state().mover()
+
+		# Precompute before loop
+		log = CSTE_PUCT * math.log(max(1, current.visit_count))
 
 		# For each childrens of the mover
 		for i in range(num_children):
@@ -135,14 +137,14 @@ class MCTS_UCT_vanilla:
 			
 			# Compute UCB score
 			exploit = child.score_sums[mover] / child.visit_count
-			explore = math.sqrt(two_parent_log / child.visit_count)
+			explore = math.sqrt(log / child.visit_count)
 			value = exploit + explore
 
 			# Keep track of the best_child which has the best UCB score
 			if value > best_value:
-				best_value = value;
-				best_child = child;
-				num_best_found = 1;
+				best_value = value
+				best_child = child
+				num_best_found = 1
 			# Chose a random child if we have several optimal UCB scores
 			elif value == best_value:
 				rand = random.randint(0, num_best_found + 1)
@@ -156,22 +158,8 @@ class MCTS_UCT_vanilla:
 	# This method returns the move to play at the root, thus the move to play in the real game
 	# depending the number of visits of each depth 0 actions
 	def final_move_selection(self, root_node):
-		# Now that we have gone through the tree using UCB scores, the MCTS will chose
-		# the best move to play by checking which node was the most visited
-		num_children = len(root_node.children)
-		total_visit_count = root_node.total_visit_count
-
 		# Arrays for the decision making
-		counter = np.zeros((num_children))
-
-		# For each children of the root, so for each legal moves
-		for i in range(num_children):
-			child = root_node.children[i]
-			visit_count = child.visit_count
-			normalized_visit_count = visit_count/total_visit_count
-	
-			# Keeps track of our children and their visit_count
-			counter[i] = normalized_visit_count
+		counter = np.array([root_node.children[i].visit_count/root_node.total_visit_count for i in range(len(root_node.children))])
 		
 		# Get the decision
 		decision = root_node.children[counter.argmax()].move_from_parent
@@ -179,10 +167,12 @@ class MCTS_UCT_vanilla:
 		# Returns the move to play in the real game and the moves
 		# associated to their probability distribution
 		#return best_child.move_from_parent, state
-		return decision, np.expand_dims(format_state(root_node.context.deepCopy()).squeeze(), axis=0)
+		return decision, np.expand_dims(format_state(root_node.context).squeeze(), axis=0)
 
 class Node:
 	def __init__(self, parent, move_from_parent, context):
+		self.state = None
+		
 		# Variables to build the tree
 		self.children = []
 		self.parent = parent

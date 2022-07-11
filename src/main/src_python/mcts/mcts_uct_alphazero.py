@@ -70,10 +70,13 @@ class MCTS_UCT_alphazero:
 				# If the node expanded is a new one, we have to estimate a value for that node
 				if current.visit_count == 0:
 					break
+
+			context_end = current.context
 			
 			# If we broke out because we expanded a new node and not because the trial is over then it is time
 			# estimate the value thanks to the model
-			if not current.context.trial().over():
+			if not context_end.trial().over():
+				context_end = context_end.deepCopy()
 				utils = np.zeros(num_players+1)
 				current.state = np.expand_dims(format_state(context.deepCopy()).squeeze(), axis=0)
 				value_opp_pred = predict_with_model(self.model, invert_state(current.state))		

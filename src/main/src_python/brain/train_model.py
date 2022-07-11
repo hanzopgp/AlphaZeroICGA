@@ -42,7 +42,7 @@ if __name__ == '__main__':
 	elif os.path.exists(champion_path):
 		# We need to beat MCTS vanilla and we re-train champion until it does
 		if force_champion:
-			X, y_values = get_random_sample(X, y_values, first_step=False)
+			X, y_values = get_random_sample(X, y_values, first_step=True)
 			model_type = "champion"
 			print("--> Found a champion model, re-training it to beat MCTS vanilla")
 			model = CustomModel(

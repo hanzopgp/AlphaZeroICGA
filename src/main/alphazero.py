@@ -1,11 +1,12 @@
 import os
 import sys
 import re
+import pickle
 from subprocess import Popen
 sys.path.append(os.getcwd()+"/src_python")
 
 
-from settings.config import WINNERS_FILE, OUTSIDER_MIN_WINRATE, DEBUG_PRINT, MODEL_PATH, ONNX_INFERENCE, BASE_LEARNING_RATE, LEARNING_RATE_DECAY_IT, LEARNING_RATE_DECAY_FACTOR
+from settings.config import WINNERS_FILE, OUTSIDER_MIN_WINRATE, DEBUG_PRINT, MODEL_PATH, DATASET_PATH, ONNX_INFERENCE, BASE_LEARNING_RATE, LEARNING_RATE_DECAY_IT, LEARNING_RATE_DECAY_FACTOR
 from settings.game_settings import GAME_NAME
 
 
@@ -32,6 +33,12 @@ def parallelize_command(command, n):
 		for _ in range(n-1):
 			string += "ant " + command + " &"
 	return string + " wait"
+
+def empty_dataset():
+	empty_list = []
+	openfile = open(DATASET_PATH+GAME_NAME+".pkl", 'wb')
+	pickle.dump(empty_list, openfile)
+	openfile.close()
 	
 def convert_models_onnx():
 	print("********************************************************************************************")
@@ -69,6 +76,12 @@ def run_trials(n_workers, force_vanilla):
 	print("********************************************************************************************")
 	Popen(parallelize_command("run_trials -Dforce_vanilla="+str(force_vanilla), n_workers), shell=True).wait()
 	
+	if force_vanilla:
+		print("********************************************************************************************")
+		print("************************************ DELETING OLD DATASET ***********************************")
+		print("********************************************************************************************")
+		empty_dataset()
+
 	print("********************************************************************************************")
 	print("************************************** MERGING DATASETS ************************************")
 	print("********************************************************************************************")

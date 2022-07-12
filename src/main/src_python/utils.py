@@ -63,19 +63,12 @@ def load_data():
 def get_random_sample(X, y_values, first_step=False):
 	if first_step:
 		train_sample = X.shape[0]
-<<<<<<< HEAD
 		idx = np.random.choice(np.arange(X.shape[0]), train_sample, replace=False)
 	else:
 		train_sample = TRAIN_SAMPLE_SIZE if TRAIN_SAMPLE_SIZE < X.shape[0] else X.shape[0]
 		# Here we take only the last 2/3 of the dataset to avoid low quality data from first iterations
 		idx = np.random.choice(np.arange(X.shape[0]//3, X.shape[0]), train_sample, replace=True)
 	print("--> Training on", train_sample, "examples, Chosen between index [", idx.min(), idx.max(), "]")
-=======
-	else:
-		train_sample = TRAIN_SAMPLE_SIZE if TRAIN_SAMPLE_SIZE < X.shape[0] else X.shape[0]
-	print("--> Training on", train_sample, "examples")
-	idx = np.random.choice(np.arange(X.shape[0]), train_sample, replace=False)
->>>>>>> 3d2df1f92aab023606ae6d0259ee4eb6332dc1fa
 	return X[idx], y_values[idx]
 
 def get_random_hash():
@@ -114,24 +107,6 @@ def load_nn(model_type, inference):
 	print("--> Done !")
 	return model
 	
-<<<<<<< HEAD
-=======
-def convert_model_to_graph(model, model_type):
-	# Convert Keras model to ConcreteFunction
-	full_model = tf.function(lambda x: model(x))
-	full_model = full_model.get_concrete_function(tf.TensorSpec(model.inputs[0].shape, model.inputs[0].dtype))
-
-	# Get frozen ConcreteFunction
-	frozen_func = convert_variables_to_constants_v2(full_model)
-	frozen_func.graph.as_graph_def()
-
-	# Save frozen graph from frozen ConcreteFunction to hard drive
-	tf.io.write_graph(graph_or_graph_def=frozen_func.graph,
-		          logdir="./"+MODEL_PATH,
-		          name=GAME_NAME+"_"+model_type+".pb",
-		          as_text=False)
-	
->>>>>>> 3d2df1f92aab023606ae6d0259ee4eb6332dc1fa
 # Use the model to predict a value
 def predict_with_model(model, state, output=["value_head"]):
 	if ONNX_INFERENCE:

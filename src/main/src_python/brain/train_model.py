@@ -19,7 +19,7 @@ if __name__ == '__main__':
 	learning_rate = float(sys.argv[1])
 	force_champion = bool(sys.argv[2])
 
-	print("--> Current learning rate :", learning_rate)
+	print("* Current learning rate :", learning_rate)
 
 	X, y_values = load_data()
 

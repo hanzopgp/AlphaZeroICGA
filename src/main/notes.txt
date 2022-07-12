@@ -10,6 +10,7 @@ comeback : screen -r
 - maybe we can predict values until it converge, then start training policy and check if converge
 - value is usefull but we might lose too much time expanding useless nodes because of random policy
 - max number of moves per games to ensure quality data
+
 - try dropout
 - test more mcts simu when vanilla mcts generating data
 

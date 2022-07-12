@@ -8,7 +8,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 sys.path.append(os.getcwd()+"/src_python")
 
 
-from settings.config import MODEL_PATH, MAX_SAMPLE, MAX_GAME_MOVES, MAX_GAME_DURATION, DEBUG_PRINT, PROFILING_ACTIVATED, NUM_EPISODE, PLAYER1, PLAYER2, THINKING_TIME_AGENT1, THINKING_TIME_AGENT2, MAX_ITERATION_AGENT1, MAX_ITERATION_AGENT2
+from settings.config import MODEL_PATH, MAX_SAMPLE, MAX_GAME_MOVES, MAX_GAME_DURATION, DEBUG_PRINT, PROFILING_ACTIVATED, NUM_EPISODE, PLAYER1, PLAYER2, THINKING_TIME_AGENT, MAX_ITERATION_AGENT
 from settings.game_settings import GAME_NAME, N_ROW, N_COL, N_REPRESENTATION_STACK, N_ACTION_STACK
 from optimization.precompute import precompute_all
 from mcts.mcts_uct_vanilla import MCTS_UCT_vanilla
@@ -30,10 +30,13 @@ class RunningTrials:
 			mcts1 = MCTS_UCT_vanilla()
 			mcts2 = MCTS_UCT_vanilla()
 			n_episode = NUM_EPISODE * 10
+			n_episode = NUM_EPISODE * 10
+			max_it = MAX_ITERATION_AGENT * 3
 		else:
 			mcts1 = MCTS_UCT_alphazero()
 			mcts2 = MCTS_UCT_alphazero()
 			n_episode = NUM_EPISODE
+			max_it = MAX_ITERATION_AGENT
 		mcts1.init_ai(game, PLAYER1)
 		mcts2.init_ai(game, PLAYER2)
 		
@@ -92,9 +95,9 @@ class RunningTrials:
 				
 				# Move with custom python AI and save the move distribution
 				if mover == 1:
-					move, state = mcts1.select_action(game, context, THINKING_TIME_AGENT1, MAX_ITERATION_AGENT1, max_depth=-1)
+					move, state = mcts1.select_action(game, context, THINKING_TIME_AGENT, max_it, max_depth=-1)
 				else:
-					move, state = mcts2.select_action(game, context, THINKING_TIME_AGENT2, MAX_ITERATION_AGENT2, max_depth=-1)
+					move, state = mcts2.select_action(game, context, THINKING_TIME_AGENT, max_it, max_depth=-1)
 					
 				n_moves += 1
 

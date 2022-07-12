@@ -17,10 +17,7 @@
 
 ######### TIME CONSUMING VARIABLES #########
 
-FORCE_VANILLA = False
-
 ONNX_INFERENCE = True
-GRAPH_INFERENCE = False
 
 N_EPOCHS = 100
 EARLY_STOPPING_PATIENCE = 10
@@ -67,12 +64,14 @@ MAIN_ACTIVATION = "relu"
 FILTERS = 64
 KERNEL_SIZE = (3,3)
 FIRST_KERNEL_SIZE = (3,3)
-USE_BIAS = False
-N_RES_LAYER = 10
-NEURONS_VALUE_HEAD = 32 # number of neurons in last dense layer
+USE_BIAS = True
+N_RES_LAYER = 5
+NEURONS_VALUE_HEAD = 128 # number of neurons in last dense layer
 
-OPTIMIZER = "adam"
-LEARNING_RATE = 0.1
+OPTIMIZER = "sgd"
+LEARNING_RATE_DECAY_IT = 5 # LR decay every 5 alphazero iteration
+LEARNING_RATE_DECAY_FACTOR = 5 # divided by 5 each time
+BASE_LEARNING_RATE = 0.1
 MOMENTUM = 0.9
 REG_CONST = 1e-4 # L2 reg
 

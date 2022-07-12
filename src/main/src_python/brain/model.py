@@ -3,6 +3,7 @@ import os
 import absl.logging
 import tensorflow as tf
 import warnings
+from matplotlib import pyplot as plt
 warnings.filterwarnings("ignore")
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 sys.path.append(os.getcwd()+"/src_python")
@@ -15,9 +16,8 @@ from tensorflow.keras.callbacks import EarlyStopping
 from keras import regularizers
 
 
-from settings.config import OPTIMIZER, MODEL_PATH, EARLY_STOPPING_PATIENCE, MAIN_ACTIVATION, FILTERS, KERNEL_SIZE, USE_BIAS, FIRST_KERNEL_SIZE, NEURONS_VALUE_HEAD, ONNX_INFERENCE, GRAPH_INFERENCE
+from settings.config import OPTIMIZER, MODEL_PATH, EARLY_STOPPING_PATIENCE, MAIN_ACTIVATION, FILTERS, KERNEL_SIZE, USE_BIAS, FIRST_KERNEL_SIZE, NEURONS_VALUE_HEAD, ONNX_INFERENCE
 from settings.game_settings import GAME_NAME
-from utils import softmax_cross_entropy_with_logits, convert_model_to_graph
 
 
 ######### Here is the class that contain our AlphaZero model #########
@@ -59,7 +59,7 @@ class CustomModel():
 		print("\n--> Saving model for the game :", GAME_NAME, ", model type :", model_type)
 		self.model.save(MODEL_PATH+GAME_NAME+"_"+model_type+".h5")
 		# Save in save_model mode to convert in onnx format for inference
-		if ONNX_INFERENCE or GRAPH_INFERENCE:
+		if ONNX_INFERENCE:
 			tf.saved_model.save(self.model, MODEL_PATH+GAME_NAME+"_"+model_type)
 		#if GRAPH_INFERENCE:
 		#	convert_model_to_graph(self.model, model_type)
@@ -102,7 +102,6 @@ class CustomModel():
 		    restore_best_weights=True)
 		return [es]
 
-		
 	# This method builds our entire neural network
 	def build_model(self):
 		# First layer is in input layer
@@ -116,9 +115,7 @@ class CustomModel():
 		val_head = self.value_head(x)
 		# Finaly we declare our model
 		model = Model(inputs=[input_layer], outputs=[val_head])
-		model.compile(
-			loss="mean_squared_error",
-			optimizer=self.opt)
+		model.compile(loss="mean_squared_error", optimizer=self.opt)
 		self.model = model
 		
 	# This method returns a classical convolutional layer with batch normalization

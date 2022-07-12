@@ -34,6 +34,33 @@ class MCTS_UCT_alphazero:
 		self.pre_reverse_action_index = pre_reverse_action_index
 		self.pre_coords = pre_coords
 		self.pre_3D_coords = pre_3D_coords
+
+	def get_values(self, current):
+		# If we broke out because we expanded a new node and not because the trial is over then it is time
+		# estimate the value thanks to the model
+		if not current.context.trial().over():
+			utils = np.zeros(3)
+			current.state = np.expand_dims(format_state(current.context.deepCopy()).squeeze(), axis=0)
+			current.value_pred = predict_with_model(self.model, current.state)
+			current.value_opp_pred = predict_with_model(self.model, invert_state(current.state))				
+			utils[PLAYER1], utils[PLAYER2] = current.value_pred[0], current.value_opp_pred[0]
+		# If we are in a terminal node we can compute ground truth utilities
+		else:
+			# Compute utilities thanks to our functions for both players
+			utils = utilities(current.context)
+		return utils
+
+	def backpropagate_values(self, node, utils):
+		# We propagate the values from the current node to the root
+		while node is not None:
+			# visit_count variable for each nodes in order to compute UCB scores
+			node.visit_count += 1
+			node.total_visit_count += 1
+			# score_sums variable for each players in order to compute UCB scores
+			for p in range(1, 3):
+				node.score_sums[p] += utils[p]
+			# We propagate the values from leaves to the root through the whole tree
+			node = node.parent
 		
 	# Main method called to chose an action at depth 0
 	def select_action(self, game, context, max_seconds, max_iterations, max_depth):
@@ -72,35 +99,9 @@ class MCTS_UCT_alphazero:
 				if current.visit_count == 0:
 					break
 			
-			# If we broke out because we expanded a new node and not because the trial is over then it is time
-			# estimate the value thanks to the model
-			if not current.context.trial().over():
-				utils = np.zeros(num_players+1)
-				if current.value_opp_pred is None:
-					current.state = np.expand_dims(format_state(context.deepCopy()).squeeze(), axis=0)
-					if ONNX_INFERENCE:
-						current.value_opp_pred = predict_with_model(self.model, invert_state(current.state), output=["value_head"])				
-					else:
-						current.value_opp_pred = predict_with_model(self.model, invert_state(current.state), output=[""])
-				else:
-					print("Skipped computation")
-				current.value_pred = predict_with_model(self.model, current.state, output=["value_head"])	
-				utils[PLAYER1], utils[PLAYER2] = current.value_pred[0], current.value_opp_pred[0]
-			# If we are in a terminal node we can compute ground truth utilities
-			else:
-				# Compute utilities thanks to our functions for both players
-				utils = utilities(current.context)
+			utils = self.get_values(current)
 
-			# We propagate the values from the current node to the root
-			while current is not None:
-				# visit_count variable for each nodes in order to compute PUCT scores
-				current.visit_count += 1
-				current.total_visit_count += 1
-				# score_sums variable for each players in order to compute PUCT scores
-				for p in range(1, num_players+1):
-					current.score_sums[p] += utils[p]
-				# We propagate the values from leaves to the root through the whole tree
-				current = current.parent
+			self.backpropagate_values(current, utils)
 
 			# Keep track of the number of iteration in case there is a max
 			num_iterations += 1

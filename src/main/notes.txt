@@ -1,9 +1,17 @@
+launch : screen
+quit : control+a d
+comeback : screen -r
+
+============================================================================
+
 - leela zero 32 filters for heads --> not converging anymore ?
 - give up policy prediction and only learn values ? (why not 2 head for value and opp value, why would we predict it twice with inverted state?)
-- maybe need to run trials again when dojo'ing vs vanilla mcts
+- maybe need to run trials again when dojo'ing vs vanilla mcts 
 - maybe we can predict values until it converge, then start training policy and check if converge
 - value is usefull but we might lose too much time expanding useless nodes because of random policy
 - max number of moves per games to ensure quality data
+- try dropout
+- test more mcts simu when vanilla mcts generating data
 
 ============================================================================
 

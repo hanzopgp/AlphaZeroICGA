@@ -26,12 +26,42 @@ class MCTS_UCT_vanilla:
 		self.pre_reverse_action_index = pre_reverse_action_index
 		self.pre_coords = pre_coords
 		self.pre_3D_coords = pre_3D_coords
+
+	def get_values(self, context, game):
+		# If we broke out because we expanded a new node and not because the trial is over then it is time
+		# to playout in case we don't have a model, or to estimate the value if we have one
+		if not context.trial().over():
+			# We copy the context in order to
+			context = context.deepCopy()
+
+			# play it out until the game is over
+			game.playout(context,
+						None, # ais
+						-1.0, # thinking_time
+						None, # playoutMoveSelector
+						0,    # max_num_biased_actions
+						-1,   # max_num_playout_actions
+						None) # random selector
+						
+		# Compute utilities thanks to our functions for both players
+		return utilities(context)
+
+	def backpropagate_values(self, node, utils):
+		# We propagate the values from the current node to the root
+		while node is not None:
+			# visit_count variable for each nodes in order to compute UCB scores
+			node.visit_count += 1
+			node.total_visit_count += 1
+			# score_sums variable for each players in order to compute UCB scores
+			for p in range(1, 3):
+				node.score_sums[p] += utils[p]
+			# We propagate the values from leaves to the root through the whole tree
+			node = node.parent
 		
 	# Main method called to chose an action at depth 0
 	def select_action(self, game, context, max_seconds, max_iterations, max_depth):
 		# Init an empty node which will be our root
 		root = Node(None, None, context)
-		num_players = game.players().count()
 		
 		# Init our visit counter for that move in order to normalize
 		# the visit counts per child
@@ -65,36 +95,9 @@ class MCTS_UCT_vanilla:
 				if current.visit_count == 0:
 					break
 
-			context_end = current.context
+			utils = self.get_values(current.context, game)
 
-			# If we broke out because we expanded a new node and not because the trial is over then it is time
-			# to playout in case we don't have a model, or to estimate the value if we have one
-			if not context_end.trial().over():
-				# We copy the context in order to
-				context_end = context_end.deepCopy()
-
-				# play it out until the game is over
-				game.playout(context_end,
-					     None, # ais
-					     -1.0, # thinking_time
-					     None, # playoutMoveSelector
-					     0,    # max_num_biased_actions
-					     -1,   # max_num_playout_actions
-					     None) # random selector
-					     
-			# Compute utilities thanks to our functions for both players
-			utils = utilities(context_end)
-
-			# We propagate the values from the current node to the root
-			while current is not None:
-				# visit_count variable for each nodes in order to compute UCB scores
-				current.visit_count += 1
-				current.total_visit_count += 1
-				# score_sums variable for each players in order to compute UCB scores
-				for p in range(1, num_players+1):
-					current.score_sums[p] += utils[p]
-				# We propagate the values from leaves to the root through the whole tree
-				current = current.parent
+			self.backpropagate_values(current, utils)
 
 			# Keep track of the number of iteration in case there is a max
 			num_iterations += 1
@@ -139,9 +142,9 @@ class MCTS_UCT_vanilla:
 
 			# Keep track of the best_child which has the best UCB score
 			if value > best_value:
-				best_value = value;
-				best_child = child;
-				num_best_found = 1;
+				best_value = value
+				best_child = child
+				num_best_found = 1
 			# Chose a random child if we have several optimal UCB scores
 			elif value == best_value:
 				rand = random.randint(0, num_best_found + 1)

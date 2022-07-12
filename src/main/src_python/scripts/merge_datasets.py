@@ -64,9 +64,6 @@ for i in range(1, full_X.shape[0]):
 	full_X_final = np.concatenate((full_X_final, full_X[i]), axis=0)
 	full_y_values_final = np.concatenate((full_y_values_final, full_y_values[i]), axis=0)
 
-#print(full_X_final.shape)
-#print(full_y_values_final.shape)
-
 # Save it to a dataset without hash
 add_to_dataset(full_X_final, full_y_values_final, hash_code="")
 

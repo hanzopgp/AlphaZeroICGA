@@ -20,7 +20,7 @@
 ONNX_INFERENCE = True
 
 N_EPOCHS = 100
-EARLY_STOPPING_PATIENCE = 10
+EARLY_STOPPING_PATIENCE = 20
 
 NUM_DOJO = 2
 MAX_ITERATION_AGENTS_DOJO = 30 
@@ -44,12 +44,12 @@ PLAYER2 = 2
 DATASET_PATH = "./datasets/"
 MODEL_PATH = "./models/"
 WINNERS_FILE="./models/save_winners.txt"
-N_MOVES_TYPICAL_POSITION_BASHNI = 15 # need to think a bit more about this one !	
+N_MOVES_TYPICAL_POSITION_BASHNI = 15
 OUTSIDER_MIN_WINRATE = 0.55
 
 ######### MCTS PARAMETERS #########
 
-CSTE_PUCT = 2 # no idea about the value of this variable in the paper 
+CSTE_PUCT = 2 # exploration constant 
 MAX_SAMPLE = 10000 # can decide the max size of the dataset 
 
 ######### NN parameters #########
@@ -73,7 +73,7 @@ LEARNING_RATE_DECAY_IT = 5 # LR decay every 5 alphazero iteration
 LEARNING_RATE_DECAY_FACTOR = 5 # divided by 5 each time
 BASE_LEARNING_RATE = 0.1
 MOMENTUM = 0.9
-REG_CONST = 1e-4 # L2 reg
+REG_CONST = 1e-5 # L2 reg
 
 ######### OPTIMIZATION VARIABLES #########
 

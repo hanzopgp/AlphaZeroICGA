@@ -41,7 +41,7 @@ if __name__ == '__main__':
 			reg_const=REG_CONST)
 		model.set_model(load_nn(model_type="outsider", inference=False))
 	# Else if there is no outsider but there is a champion
-	elif os.path.exists(champion_path) and not force_champion:
+	elif os.path.exists(champion_path):
 		# We need to beat MCTS vanilla and we re-train champion until it does
 		if force_champion:
 			X, y_values = get_random_sample(X, y_values, first_step=True)
@@ -95,7 +95,7 @@ if __name__ == '__main__':
 		verbose=VERBOSE, 
 		validation_split=VALIDATION_SPLIT)
 	
-	print(model.predict(np.expand_dims(X[0], axis=0)))		
+	print("--> Quick prediction check :", model.predict(np.expand_dims(X[0], axis=0)))		
 	#model.plot_metrics(history)
 
 	# If it is the first step, then there is no model yet and our

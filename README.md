@@ -124,7 +124,9 @@ The required python librairies are :
 
 Go to the src/main/ directory and run the next commands in a terminal :
 
-`nano src_python/settings/config.py` : set the settings to run AlphaZero such as number of simulations, game type...
+`nano src_python/settings/config.py` : set the settings to run AlphaZero such as number of MCTS simulation, the model hyper-parameters...
+
+`nano src_python/settings/game_settings.py` : set the settings for the different games AlphaZero can play such as number of rows, columns...
 
 `python3 alphazero.py <n_loop> <n_workers>` : runs the whole loop (MCTS simulation with random moves -> dataset -> train model -> save model -> MCTS simulation with model predicting moves -> dataset -> ...). **n_loop** is the number of loop it will achieve. **n_workers** is the number of processes which will be executed in parallel.
 
@@ -134,21 +136,21 @@ The python alphazero script does everything, the following commands are for debu
 
 `ant build` : compile the java file in **bin/**.
 
-`ant run_trials` : runs the MCTS simulations only (randomly or using the model depending if there is a model in **models/**) and creates a dataset.
+`ant run_trials Dforce_vanilla=<force_vanilla>` : runs the MCTS simulations only (randomly or using the model depending if there is a model in **models/**) and creates a dataset. force_vanilla is an argument which force the MCTS vanilla to play even if there is a model in **models/**.
 
-`ant run_dojos` : runs a 1 versus 1 between the last model (the outsider) and the best current model (the champion model) and outputs some stats.
+`ant run_dojos` : runs a 1 versus 1 between the last model (the outsider) and the best current model (the champion model) and outputs some stats. If there is only one model (the champion), runs a 1 versus 1 between the champion model and the MCTS vanilla.
 
 `ant run_tests` : runs tests against Ludii built-in AIs.
 
-`ant train_model` : only trains the model using the dataset and save the best model.
-
 `ant create_agent` : takes the best model and build an agent as a jar file for the Ludii software.
+
+`python3 src_python/brain/train_model.py <learning_rate> <force_champion>` : only trains the model using the dataset and saves the best model. force_champion is an argument which force the script to train de champion, default value is false.
 
 `python3 src_python/scripts/merge_datasets.py` : merges all the datasets in **datasets/** with an hash into a unique dataset.
 
 `python3 src_python/scripts/merge_txts.py` : merges all the text files in **models/** with an hash into a unique txt file.
 
-`python3 src_python/scripts/switch_model.py` : switch optimizer into champion and champion into old_star.
+`python3 src_python/scripts/switch_model.py` : switch outsider to champion and champion to old_star.
 
 ## Fight it
 

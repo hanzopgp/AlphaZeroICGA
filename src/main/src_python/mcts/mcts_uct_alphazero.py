@@ -11,7 +11,7 @@ sys.path.append(os.getcwd()+"/src_python")
 
 
 from settings.game_settings import N_REPRESENTATION_STACK, N_ROW, N_COL
-from settings.config import PLAYER1, PLAYER2, CSTE_PUCT, MINIMUM_QUEUE_PREDICTION
+from settings.config import ONNX_INFERENCE, PLAYER1, PLAYER2, CSTE_PUCT, MINIMUM_QUEUE_PREDICTION
 from utils import load_nn, format_state, invert_state, predict_with_model, utilities
 
 	
@@ -70,8 +70,12 @@ class MCTS_UCT_alphazero:
 			node.state = np.expand_dims(format_state(node.context).squeeze(), axis=0)
 			inverted_states[i] = np.expand_dims(invert_state(node.state), axis=0)
 			states[i] = node.state
-		value_preds = predict_with_model(self.model, states)[0]
-		value_opp_preds = predict_with_model(self.model, inverted_states)[0]
+		if ONNX_INFERENCE:
+			value_preds = predict_with_model(self.model, states)[0]
+			value_opp_preds = predict_with_model(self.model, inverted_states)[0]
+		else:
+			value_preds = predict_with_model(self.model, states)
+			value_opp_preds = predict_with_model(self.model, inverted_states)
 		for i, node in enumerate(nodes):
 			node.value_preds = value_preds[i]
 			node.value_opp_preds = value_opp_preds[i]
@@ -136,9 +140,10 @@ class MCTS_UCT_alphazero:
 			# self.backpropagate_values(current, utils)			
 
 			predict_queue.append(current)
-			if len(predict_queue) % MINIMUM_QUEUE_PREDICTION == 0 or num_iterations == max_its - 1:
+			if len(predict_queue) >= MINIMUM_QUEUE_PREDICTION or num_iterations == max_its - 1:
 				utils = self.predict_values(predict_queue)
 				self.backpropagate_predicted_values(predict_queue, utils)
+				predict_queue = []
 			else:
 				current.value_pred = 0
 				current.value_opp_pred = 0

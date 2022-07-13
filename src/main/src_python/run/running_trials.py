@@ -30,7 +30,8 @@ class RunningTrials:
 			mcts1 = MCTS_UCT_vanilla()
 			mcts2 = MCTS_UCT_vanilla()
 			n_episode = NUM_EPISODE * 10
-			max_it = MAX_ITERATION_AGENT * 3
+			#max_it = MAX_ITERATION_AGENT * 3
+			max_it = MAX_ITERATION_AGENT 
 		else:
 			mcts1 = MCTS_UCT_alphazero()
 			mcts2 = MCTS_UCT_alphazero()

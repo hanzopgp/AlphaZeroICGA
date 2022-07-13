@@ -10,7 +10,8 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 sys.path.append(os.getcwd()+"/src_python")
 
 
-from settings.config import PLAYER1, PLAYER2, CSTE_PUCT
+from settings.game_settings import N_REPRESENTATION_STACK, N_ROW, N_COL
+from settings.config import PLAYER1, PLAYER2, CSTE_PUCT, MINIMUM_QUEUE_PREDICTION
 from utils import load_nn, format_state, invert_state, predict_with_model, utilities
 
 	
@@ -60,6 +61,36 @@ class MCTS_UCT_alphazero:
 				node.score_sums[p] += utils[p]
 			# We propagate the values from leaves to the root through the whole tree
 			node = node.parent
+
+	def predict_values(self, nodes):
+		states = np.zeros((len(nodes), N_ROW, N_COL, N_REPRESENTATION_STACK))
+		inverted_states = np.zeros((len(nodes), N_ROW, N_COL, N_REPRESENTATION_STACK))
+		utils = np.zeros((len(nodes), 3))
+		for i, node in enumerate(nodes):
+			node.state = np.expand_dims(format_state(node.context).squeeze(), axis=0)
+			inverted_states[i] = np.expand_dims(invert_state(node.state), axis=0)
+			states[i] = node.state
+		value_preds = predict_with_model(self.model, states)[0]
+		value_opp_preds = predict_with_model(self.model, inverted_states)[0]
+		for i, node in enumerate(nodes):
+			node.value_preds = value_preds[i]
+			node.value_opp_preds = value_opp_preds[i]
+		utils[:,PLAYER1] = value_preds.squeeze()
+		utils[:,PLAYER2] = value_opp_preds.squeeze()
+		return utils
+		
+	def backpropagate_predicted_values(self, nodes, utils):
+		for i, node in enumerate(nodes):
+			while node is not None:
+				node.score_sums[PLAYER1] = utils[i, PLAYER1]
+				node.score_sums[PLAYER2] = utils[i, PLAYER2]
+				node = node.parent
+
+	def backpropagate_visit_counts(self, node):
+		while node is not None:
+				node.visit_count += 1
+				node.total_visit_count += 1
+				node = node.parent
 		
 	# Main method called to chose an action at depth 0
 	def select_action(self, game, context, max_seconds, max_iterations, max_depth):
@@ -78,6 +109,9 @@ class MCTS_UCT_alphazero:
 
 		# Iteration counter
 		num_iterations = 0
+
+		# Queue to predict in batch
+		predict_queue = []
 
 		# Loop making sure we respect the max values
 		while num_iterations < max_its and time.time() < stop_time:
@@ -98,9 +132,17 @@ class MCTS_UCT_alphazero:
 				if current.visit_count == 0:
 					break
 			
-			utils = self.get_values(current)
+			# utils = self.get_values(current)
+			# self.backpropagate_values(current, utils)			
 
-			self.backpropagate_values(current, utils)
+			predict_queue.append(current)
+			if len(predict_queue) % MINIMUM_QUEUE_PREDICTION == 0 or num_iterations == max_its - 1:
+				utils = self.predict_values(predict_queue)
+				self.backpropagate_predicted_values(predict_queue, utils)
+			else:
+				current.value_pred = 0
+				current.value_opp_pred = 0
+			self.backpropagate_visit_counts(current)
 
 			# Keep track of the number of iteration in case there is a max
 			num_iterations += 1

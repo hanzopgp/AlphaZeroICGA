@@ -4,7 +4,7 @@ import random
 import math
 import time
 import numpy as np
-from src_python.settings.config import CSTE_PUCT
+from src_python.settings.config import CSTE_PUCT, N_PLAYERS, PLAYER1, PLAYER2
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 sys.path.append(os.getcwd()+"/src_python")
 
@@ -18,15 +18,18 @@ class MCTS_UCT_vanilla:
 	def __init__(self):
 		self._player_id = -1
 
+	# Fix the player who will play with MCTS in case we load this class with Ludii
 	def init_ai(self, game, player_id):
 		self._player_id = player_id
 		
+	# Set some precomputed functions
 	def set_precompute(self, pre_action_index, pre_reverse_action_index, pre_coords, pre_3D_coords):
 		self.pre_action_index = pre_action_index
 		self.pre_reverse_action_index = pre_reverse_action_index
 		self.pre_coords = pre_coords
 		self.pre_3D_coords = pre_3D_coords
 
+	# Get the value of a node by doing a rollout
 	def get_values(self, context, game):
 		# If we broke out because we expanded a new node and not because the trial is over then it is time
 		# to playout in case we don't have a model, or to estimate the value if we have one
@@ -53,8 +56,8 @@ class MCTS_UCT_vanilla:
 			node.visit_count += 1
 			node.total_visit_count += 1
 			# score_sums variable for each players in order to compute UCB scores
-			for p in range(1, 3):
-				node.score_sums[p] += utils[p]
+			node.score_sums[PLAYER1] += utils[PLAYER1]
+			node.score_sums[PLAYER2] += utils[PLAYER2]
 			# We propagate the values from leaves to the root through the whole tree
 			node = node.parent
 		
@@ -95,8 +98,10 @@ class MCTS_UCT_vanilla:
 				if current.visit_count == 0:
 					break
 
+			# Get values for the current node which made it out of the while true loop
 			utils = self.get_values(current.context, game)
 
+			# Backpropagate its values and visit_counts
 			self.backpropagate_values(current, utils)
 
 			# Keep track of the number of iteration in case there is a max
@@ -113,20 +118,19 @@ class MCTS_UCT_vanilla:
 			move = current.unexpanded_moves.pop()
 				
 			# We copy the context to play in a simulation
-			context = current.context.deepCopy()
+			current_context = current.context.deepCopy()
 			
 			# Apply the move in the simulation
-			context.game().apply(context, move)
+			current_context.game().apply(current_context, move)
 			
 			# Return a new node, with the new child (which is the move played)
-			return Node(current, move, context)
+			return Node(current, move, current_context)
 
 		# We are now looking for the best value in the children of the current node
 		# so we need to init some variables according to UCB
 		best_child = None
 		best_value = -math.inf
 		num_best_found = 0
-		num_children = len(current.children)
 
 		# The mover can be both of the players since the games are alternating move games
 		mover = current.context.state().mover()
@@ -135,7 +139,7 @@ class MCTS_UCT_vanilla:
 		log = CSTE_PUCT * math.log(max(1, current.visit_count))
 
 		# For each childrens of the mover
-		for i in range(num_children):
+		for i in range(len(current.children)):
 			child = current.children[i]
 			
 			# Compute UCB score
@@ -170,7 +174,7 @@ class MCTS_UCT_vanilla:
 		# Returns the move to play in the real game and the moves
 		# associated to their prob	ability distribution
 		#return best_child.move_from_parent, state
-		return decision, np.expand_dims(format_state(root_node.context).squeeze(), axis=0)
+		return decision, np.expand_dims(format_state(root_node.context, self.pre_coords).squeeze(), axis=0)
 
 class Node:
 	def __init__(self, parent, move_from_parent, context):

@@ -11,7 +11,7 @@ sys.path.append(os.getcwd()+"/src_python")
 
 
 from settings.game_settings import N_REPRESENTATION_STACK, N_ROW, N_COL
-from settings.config import ONNX_INFERENCE, PLAYER1, PLAYER2, CSTE_PUCT, MINIMUM_QUEUE_PREDICTION
+from settings.config import N_PLAYERS, ONNX_INFERENCE, PLAYER1, PLAYER2, CSTE_PUCT, MINIMUM_QUEUE_PREDICTION
 from utils import load_nn, format_state, invert_state, predict_with_model, utilities
 
 	
@@ -35,11 +35,12 @@ class MCTS_UCT_alphazero:
 		self.pre_coords = pre_coords
 		self.pre_3D_coords = pre_3D_coords
 
+	# Get values of the current node one by one
 	def get_values(self, current):
 		# If we broke out because we expanded a new node and not because the trial is over then it is time
 		# estimate the value thanks to the model
 		if not current.context.trial().over():
-			utils = np.zeros(3)
+			utils = np.zeros(N_PLAYERS)
 			current.state = np.expand_dims(format_state(current.context.deepCopy(), self.pre_coords).squeeze(), axis=0)
 			current.value_pred = predict_with_model(self.model, current.state)
 			current.value_opp_pred = predict_with_model(self.model, invert_state(current.state))				
@@ -50,6 +51,7 @@ class MCTS_UCT_alphazero:
 			utils = utilities(current.context)
 		return utils
 
+	# Backpropagates the values and the visit counts of the current node
 	def backpropagate_values(self, node, utils):
 		# We propagate the values from the current node to the root
 		while node is not None:
@@ -57,42 +59,47 @@ class MCTS_UCT_alphazero:
 			node.visit_count += 1
 			node.total_visit_count += 1
 			# score_sums variable for each players in order to compute UCB scores
-			for p in range(1, 3):
-				node.score_sums[p] += utils[p]
+			node.score_sums[PLAYER1] += utils[PLAYER1]
+			node.score_sums[PLAYER2] += utils[PLAYER2]
 			# We propagate the values from leaves to the root through the whole tree
 			node = node.parent
 
+	# Estimate the values of a batch of nodes
 	def predict_values(self, nodes):
+		# We will need the states and inverted states to predict the utils
 		states = np.zeros((len(nodes), N_ROW, N_COL, N_REPRESENTATION_STACK))
 		inverted_states = np.zeros((len(nodes), N_ROW, N_COL, N_REPRESENTATION_STACK))
-		utils = np.zeros((len(nodes), 3))
+		utils = np.zeros((len(nodes), N_PLAYERS))
+
+		# For each node of the batch
 		for i, node in enumerate(nodes):
+			# We compute their states
 			node.state = np.expand_dims(format_state(node.context, self.pre_coords).squeeze(), axis=0)
 			inverted_states[i] = np.expand_dims(invert_state(node.state), axis=0)
 			states[i] = node.state
-			# node.state = np.zeros((N_ROW, N_COL, N_REPRESENTATION_STACK))
-			# inverted_states[i] = np.zeros((N_ROW, N_COL, N_REPRESENTATION_STACK))
-			# states[i] = node.state
+
+		# Then we predict the values for that batch of states
 		if ONNX_INFERENCE:
 			value_preds = predict_with_model(self.model, states)[0]
 			value_opp_preds = predict_with_model(self.model, inverted_states)[0]
 		else:
 			value_preds = predict_with_model(self.model, states)
 			value_opp_preds = predict_with_model(self.model, inverted_states)
-		for i, node in enumerate(nodes):
-			node.value_preds = value_preds[i]
-			node.value_opp_preds = value_opp_preds[i]
+
+		# Then we can fill and return the utility array
 		utils[:,PLAYER1] = value_preds.squeeze()
 		utils[:,PLAYER2] = value_opp_preds.squeeze()
 		return utils
 		
+	# Backpropagates the predicted values in the tree for a batch of nodes
 	def backpropagate_predicted_values(self, nodes, utils):
 		for i, node in enumerate(nodes):
 			while node is not None:
-				node.score_sums[PLAYER1] = utils[i, PLAYER1]
-				node.score_sums[PLAYER2] = utils[i, PLAYER2]
+				node.score_sums[PLAYER1] += utils[i, PLAYER1]
+				node.score_sums[PLAYER2] += utils[i, PLAYER2]
 				node = node.parent
 
+	# Backpropagate the visit counts of a node
 	def backpropagate_visit_counts(self, node):
 		while node is not None:
 				node.visit_count += 1
@@ -103,7 +110,6 @@ class MCTS_UCT_alphazero:
 	def select_action(self, game, context, max_seconds, max_iterations, max_depth):
 		# Init an empty node which will be our root
 		root = Node(None, None, context)
-		num_players = game.players().count()
 		
 		# Init our visit counter for that move in order to normalize
 		# the visit counts per child
@@ -137,10 +143,7 @@ class MCTS_UCT_alphazero:
 
 				# If the node expanded is a new one, we have to estimate a value for that node
 				if current.visit_count == 0:
-					break
-			
-			# utils = self.get_values(current)
-			# self.backpropagate_values(current, utils)			
+					break	
 
 			# Adding the current node to the predict queue list in order to estimate the values later
 			predict_queue.append(current)
@@ -148,7 +151,6 @@ class MCTS_UCT_alphazero:
 			# Here we predict values if the queue length is higher than a minimum value or if it's the
 			# last iteration in order to avoid missing values before the final decision
 			if len(predict_queue) >= MINIMUM_QUEUE_PREDICTION or num_iterations == max_its - 1:
-				# print("Predicting ", len(predict_queue), "values at iteration ", num_iterations)
 				# Predict the values of the whole queue 
 				utils = self.predict_values(predict_queue)
 				# Backpropagated the utility scores
@@ -160,6 +162,7 @@ class MCTS_UCT_alphazero:
 			else:
 				current.value_pred = 0
 				current.value_opp_pred = 0
+
 			# Here for each node we backpropagate the visit counts	
 			self.backpropagate_visit_counts(current)
 
@@ -190,7 +193,6 @@ class MCTS_UCT_alphazero:
 		best_child = None
 		best_value = -math.inf
 		num_best_found = 0
-		num_children = len(current.children)
 
 		# The mover can be both of the players since the games are alternating move games
 		mover = current.context.state().mover()
@@ -199,15 +201,13 @@ class MCTS_UCT_alphazero:
 		log = CSTE_PUCT * math.log(max(1, current.visit_count))
 
 		# For each childrens of the mover
-		for i in range(num_children):
+		for i in range(len(current.children)):
 			child = current.children[i]
 
 			# Compute the UCB score
 			exploit = child.score_sums[mover] / child.visit_count
-			explore = CSTE_PUCT * math.sqrt(log / child.visit_count)
+			explore = math.sqrt(log / child.visit_count)
 			value = exploit + explore
-
-			#print(child.score_sums[mover], child.visit_count, CSTE_PUCT * math.sqrt(log / child.visit_count))
 			
 			# Keep track of the best_child which has the best PUCT score
 			if value > best_value:
@@ -233,9 +233,7 @@ class MCTS_UCT_alphazero:
 		# Get the decision
 		decision = root_node.children[counter.argmax()].move_from_parent
 				
-		# Returns the move to play in the real game and the moves
-		# associated to their probability distribution
-		#return best_child.move_from_parent, state
+		# Returns the move to play in the real game and the root node state
 		return decision, root_node.state
 
 

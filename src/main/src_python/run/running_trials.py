@@ -8,7 +8,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 sys.path.append(os.getcwd()+"/src_python")
 
 
-from settings.config import MODEL_PATH, MAX_SAMPLE, MAX_GAME_MOVES, MAX_GAME_DURATION, DEBUG_PRINT, PROFILING_ACTIVATED, NUM_EPISODE, PLAYER1, PLAYER2, THINKING_TIME_AGENT, MAX_ITERATION_AGENT
+from settings.config import MODEL_PATH, MAX_SAMPLE, MAX_GAME_MOVES, MAX_GAME_DURATION, VANILLA_EPISODE_MULTIPLIER, DEBUG_PRINT, PROFILING_ACTIVATED, NUM_EPISODE, PLAYER1, PLAYER2, THINKING_TIME_AGENT, MAX_ITERATION_AGENT
 from settings.game_settings import GAME_NAME, N_ROW, N_COL, N_REPRESENTATION_STACK, N_ACTION_STACK
 from optimization.precompute import precompute_all
 from mcts.mcts_uct_vanilla import MCTS_UCT_vanilla
@@ -29,7 +29,7 @@ class RunningTrials:
 		if check_if_first_step() or force_vanilla:
 			mcts1 = MCTS_UCT_vanilla()
 			mcts2 = MCTS_UCT_vanilla()
-			n_episode = NUM_EPISODE * 10
+			n_episode = NUM_EPISODE * VANILLA_EPISODE_MULTIPLIER
 			#max_it = MAX_ITERATION_AGENT * 3
 			max_it = MAX_ITERATION_AGENT 
 		else:
@@ -44,8 +44,7 @@ class RunningTrials:
 		tmp_context = context.deepCopy()
 		game.start(tmp_context)
 		position_example = tmp_context.state().owned().positions(PLAYER1)
-		pre_action_index, pre_reverse_action_index, pre_coords, pre_3D_coords = precompute_all(position_example)
-		# sys.exit()
+		pre_action_index, pre_reverse_action_index, pre_coords, pre_3D_coords = precompute_all()
 		mcts1.set_precompute(pre_action_index, pre_reverse_action_index, pre_coords, pre_3D_coords)
 		mcts2.set_precompute(pre_action_index, pre_reverse_action_index, pre_coords, pre_3D_coords)
 		
@@ -78,8 +77,6 @@ class RunningTrials:
 			
 			# Main game loop			
 			while not trial.over():
-				# Sometimes the game is way too long and has to be stopped
-				# and considered as a draw
 				if time.time() - start_time  > stop_time:
 					if DEBUG_PRINT: print("--> Ended one game because it was too long")
 					break

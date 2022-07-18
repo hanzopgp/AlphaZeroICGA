@@ -7,6 +7,7 @@ import onnxruntime
 import numpy as np
 import tensorflow as tf
 import warnings
+from subprocess import Popen
 warnings.filterwarnings("ignore")
 sys.path.append(os.getcwd()+"/src_python")
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -15,7 +16,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 from tensorflow.keras.models import load_model
 
 
-from settings.config import MODEL_PATH, DATASET_PATH, TRAIN_SAMPLE_SIZE, ONNX_INFERENCE, INDEX_ACTION_TAB_SIGN, PLAYER1, PLAYER2
+from settings.config import MODEL_PATH, DATASET_PATH, MAX_SIZE_FULL_DATASET, TRAIN_SAMPLE_SIZE, ONNX_INFERENCE, INDEX_ACTION_TAB_SIGN, PLAYER1, PLAYER2
 from settings.game_settings import GAME_NAME, N_ROW, N_COL, N_REPRESENTATION_STACK, N_ACTION_STACK, N_DISTANCE, N_ORIENTATION, N_LEVELS, N_TIME_STEP
 
 
@@ -52,6 +53,14 @@ def load_data():
 	for i in range(1, X.shape[0]):
 		final_X = np.concatenate((final_X, X[i]), axis=0)
 		final_y_values = np.concatenate((final_y_values, y_values[i]), axis=0)
+
+	if final_X.shape[0] > MAX_SIZE_FULL_DATASET:
+		print("--> Size of the dataset exceeded", MAX_SIZE_FULL_DATASET, "examples")
+		print("--> Deleting some examples and re-writing pickle file")
+		final_X, final_y_values = final_X[:MAX_SIZE_FULL_DATASET], final_y_values[MAX_SIZE_FULL_DATASET:] 
+		Popen("rm "+pkl_path, shell=True).wait()
+		add_to_dataset(final_X, final_y_values)
+		print("--> Done !")
 		
 	# Print some stats
 	print("* Number of examples in the dataset :", final_X.shape[0])
@@ -77,10 +86,9 @@ def get_random_hash():
 def add_to_dataset(X, y_values, hash_code=""):
 	print("--> Saving data to pickle for the game :", GAME_NAME)
 	if len(hash_code) >= 1:
-		print("--> Hash code :", hash_code)
+		print("* Hash code :", hash_code)
 	pkl_path = DATASET_PATH+GAME_NAME+hash_code+".pkl"
-	my_data = {'X': X,
-	   	   'y_values': y_values}
+	my_data = {'X': X, 'y_values': y_values}
 	if os.path.exists(pkl_path): 
 		with open(pkl_path, 'ab+') as fp:
 			pickle.dump(my_data, fp)
@@ -108,10 +116,10 @@ def load_nn(model_type, inference):
 	return model
 	
 # Use the model to predict a value
-def predict_with_model(model, state, output=["value_head"]):
+def predict_with_model(model, X, output=["value_head"]):
 	if ONNX_INFERENCE:
-		return model.run(output, {"input_1": state.astype(np.float32)})
-	return model.predict(state, verbose=0)
+		return model.run(output, {"input_1": X.astype(np.float32)})
+	return model.predict(X, verbose=0)
 	
 # This function checks if we are going to use the vanilla MCTS
 # because we don't have a model yet or if we are going to use
@@ -261,19 +269,18 @@ def format_positions(positions, lvl, val, pre_coords):
 	res = np.zeros((N_ROW, N_COL))
 	pos = positions[0]
 
-	tmp_lvl = []
-	tmp_site = []
+	# tmp_lvl = []
+	# tmp_site = []
+
 	for i in range(pos.size()):
-		# Filling presence map per level
 		p = pos.get(i)
-		# if p.level() == lvl:
-		# 	res[p.site()] = val
-		tmp_lvl.append(p.level())
-		tmp_site.append(p.site())
-	#(res[tmp_site])[tmp_lvl==lvl] = val
-	mask_lvl = np.where(tmp_lvl==lvl, True, False)
-	res[pre_coords[tmp_site]][mask_lvl] = val
-	# res[pre_coords[tmp_site]] = np.where(tmp_lvl==lvl, True, False)
+		if p.level() == lvl:
+			res[pre_coords[p.site()]] = val
+
+	# 	tmp_lvl.append(p.level())
+	# 	tmp_site.append(p.site())
+	# mask_lvl = np.where(tmp_lvl==lvl, True, False)
+	# res[pre_coords[tmp_site]][mask_lvl] = val
 
 	# for i in range(pos.size()):
 	# 	# Filling presence map per level

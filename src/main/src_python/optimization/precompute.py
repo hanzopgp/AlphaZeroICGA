@@ -69,7 +69,7 @@ def precompute_get_3D_coord():
 # 			# pre_position[java_loc.site()][java_loc.level()] = format_loc(res, java_loc, level, val=1)
 # 	return pre_position
 
-def precompute_all(position_example):
+def precompute_all():
 	return precompute_action_index(), precompute_reverse_action_index(), precompute_get_coord(), precompute_get_3D_coord()#, precompute_format_positions(position_example)
 
 

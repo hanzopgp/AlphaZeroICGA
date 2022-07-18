@@ -2,11 +2,15 @@
 - for loc in locations:
 	arr[][] = location.site(), location.lvl()
 
+
+0.73 200//3, 0.78 200//6, 0.64 200//20
+
+
 ============================================================================
 
 - try dropout
-- try predict batch
 - try npy or hdf5 for dataset storage
+- try leaky relu
 
 ============================================================================
 

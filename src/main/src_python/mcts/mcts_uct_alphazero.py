@@ -125,13 +125,14 @@ class MCTS_UCT_alphazero:
 
 		# Queue to predict in batch
 		predict_queue = []
+		full_queue = []
 
 		# Loop making sure we respect the max values
 		while num_iterations < max_its and time.time() < stop_time:
 			# Our current node will be the root to start
 			current = root
 
-			# We are looping until we reach a terminal state on the current node
+			# We are looping until we we discover a terminal/new node
 			while True:
 				# Here the game is over so we break out, then we compute the utilities and backpropagate the values
 				if current.context.trial().over():
@@ -147,7 +148,7 @@ class MCTS_UCT_alphazero:
 
 			# Adding the current node to the predict queue list in order to estimate the values later
 			predict_queue.append(current)
-
+			full_queue.append(current)
 			# Here we predict values if the queue length is higher than a minimum value or if it's the
 			# last iteration in order to avoid missing values before the final decision
 			if len(predict_queue) >= MINIMUM_QUEUE_PREDICTION or num_iterations == max_its - 1:
@@ -161,16 +162,23 @@ class MCTS_UCT_alphazero:
 			# backpropagate the values. This makes us save time and the MCTS becomes pessimistic
 			else:
 				current.value_pred = 0
-				current.value_opp_pred = 0
-
+				current.value_opp_pred = 0	
+				
 			# Here for each node we backpropagate the visit counts	
 			self.backpropagate_visit_counts(current)
 
 			# Keep track of the number of iteration in case there is a max
 			num_iterations += 1
 
+		# print("----->", full_queue)
+		# print(len(full_queue))
+		# for i in full_queue:
+		# 	print(i.score_sums[PLAYER1])
+		# 	print(i.score_sums[PLAYER2])
+		# exit()
+
 		# Return the final move thanks to the scores
-		return self.final_move_selection(root)
+		return self.select_root_child_node(root)
 
 	# This method choses what node to select and expand depending the PUCT score
 	def select_node(self, current):
@@ -226,7 +234,7 @@ class MCTS_UCT_alphazero:
 
 	# This method returns the move to play at the root, thus the move to play in the real game
 	# depending the number of visits of each depth 0 actions
-	def final_move_selection(self, root_node):
+	def select_root_child_node(self, root_node):
 		# Arrays for the decision making
 		counter = np.array([root_node.children[i].visit_count/root_node.total_visit_count for i in range(len(root_node.children))])
 		

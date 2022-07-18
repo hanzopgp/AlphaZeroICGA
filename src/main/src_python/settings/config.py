@@ -34,12 +34,13 @@ THINKING_TIME_AGENTS_DOJO = -1
 MAX_GAME_DURATION = -1 # Max episode or dojo duration in seconds
 MAX_GAME_MOVES = 200 # Max episode or dojo duration in number of moves
 
-MINIMUM_QUEUE_PREDICTION = MAX_ITERATION_AGENT//3 + 2 # Max number of nodes discovered before computing the values estimation with our model
+N_BATCH_PREDICTION = 5 # Number of batch per MCTS simulation
+MINIMUM_QUEUE_PREDICTION = MAX_ITERATION_AGENT//N_BATCH_PREDICTION + 1 # Max number of nodes discovered before computing the values estimation with our model
 
 ######### CONSTANT VARIABLES #########
 
 DEBUG_PRINT = True # Prints additional informations during the self play and scripts
-PROFILING_ACTIVATED = False # Prints additional informations such as the time per function
+PROFILING_ACTIVATED = True # Prints additional informations such as the time per function
 PLAYER1 = 1
 PLAYER2 = 2
 N_PLAYERS = 2 + 1
@@ -48,12 +49,12 @@ MODEL_PATH = "./models/"
 WINNERS_FILE="./models/save_winners.txt"
 N_MOVES_TYPICAL_POSITION_BASHNI = 15
 OUTSIDER_MIN_WINRATE = 0.55
-MAX_SIZE_FULL_DATASET = 15000 # Maximum number of examples in the dataset
+MAX_SIZE_FULL_DATASET = 20_000 # Maximum number of examples in the dataset
 
 ######### MCTS PARAMETERS #########
 
 CSTE_PUCT = 2 # Exploration constant 
-MAX_SAMPLE = 10000 # Can decide the max size of the dataset 
+MAX_SAMPLE = 10_000 # Can decide the max size of the dataset 
 
 ######### NN parameters #########
 

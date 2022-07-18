@@ -108,7 +108,7 @@ class MCTS_UCT_vanilla:
 			num_iterations += 1
 
 		# Return the final move thanks to the scores
-		return self.final_move_selection(root)
+		return self.select_root_child_node(root)
 
 	# This method choses what node to select and expand depending the UCB score
 	def select_node(self, current):
@@ -164,7 +164,7 @@ class MCTS_UCT_vanilla:
 
 	# This method returns the move to play at the root, thus the move to play in the real game
 	# depending the number of visits of each depth 0 actions
-	def final_move_selection(self, root_node):
+	def select_root_child_node(self, root_node):
 		# Arrays for the decision making
 		counter = np.array([root_node.children[i].visit_count/root_node.total_visit_count for i in range(len(root_node.children))])
 		
@@ -177,9 +177,7 @@ class MCTS_UCT_vanilla:
 		return decision, np.expand_dims(format_state(root_node.context, self.pre_coords).squeeze(), axis=0)
 
 class Node:
-	def __init__(self, parent, move_from_parent, context):
-		self.state = None
-		
+	def __init__(self, parent, move_from_parent, context):		
 		# Variables to build the tree
 		self.children = []
 		self.parent = parent

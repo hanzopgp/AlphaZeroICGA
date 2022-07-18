@@ -16,7 +16,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 from tensorflow.keras.models import load_model
 
 
-from settings.config import MODEL_PATH, DATASET_PATH, MAX_SIZE_FULL_DATASET, TRAIN_SAMPLE_SIZE, ONNX_INFERENCE, INDEX_ACTION_TAB_SIGN, PLAYER1, PLAYER2
+from settings.config import MODEL_PATH, DATASET_PATH, DEBUG_PRINT, MAX_SIZE_FULL_DATASET, TRAIN_SAMPLE_SIZE, ONNX_INFERENCE, INDEX_ACTION_TAB_SIGN, PLAYER1, PLAYER2
 from settings.game_settings import GAME_NAME, N_ROW, N_COL, N_REPRESENTATION_STACK, N_ACTION_STACK, N_DISTANCE, N_ORIENTATION, N_LEVELS, N_TIME_STEP
 
 
@@ -60,12 +60,13 @@ def load_data():
 		final_X, final_y_values = final_X[:MAX_SIZE_FULL_DATASET], final_y_values[MAX_SIZE_FULL_DATASET:] 
 		Popen("rm "+pkl_path, shell=True).wait()
 		add_to_dataset(final_X, final_y_values)
-		print("--> Done !")
 		
 	# Print some stats
-	print("* Number of examples in the dataset :", final_X.shape[0])
-	print("* X shape", final_X.shape)
-	print("* y_values shape", final_y_values.shape)
+	if DEBUG_PRINT:
+		print("* Number of examples in the dataset :", final_X.shape[0])
+		print("* X shape", final_X.shape)
+		print("* y_values shape", final_y_values.shape)
+	
 	print("--> Done !")
 	return final_X, final_y_values
 	

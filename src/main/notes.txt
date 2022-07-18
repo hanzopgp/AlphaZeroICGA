@@ -1,3 +1,9 @@
+- we have an object [location, location] with location(site, type)
+- for loc in locations:
+	arr[][] = location.site(), location.lvl()
+
+============================================================================
+
 - try dropout
 - try predict batch
 - try npy or hdf5 for dataset storage

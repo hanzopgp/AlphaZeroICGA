@@ -1,11 +1,15 @@
 import os
 import sys
 import numpy as np
+
+sys.path.append(os.getcwd()+"/libs")
 sys.path.append(os.getcwd()+"/src_python")
 
+import jpy
 
-from utils import index_action, reverse_index_action, get_coord, get_3D_coord, format_positions
-from settings.game_settings import N_ROW, N_COL, N_ACTION_STACK
+
+from utils import index_action, reverse_index_action, get_coord, get_3D_coord, format_positions, format_loc
+from settings.game_settings import N_ROW, N_COL, N_ACTION_STACK, N_LEVELS
 
 
 def precompute_action_index():
@@ -41,21 +45,35 @@ def precompute_get_3D_coord():
 		for index_return in range(n_returns):
 			pre_3D_coords[value][index_return] = get_3D_coord(value)[index_return]
 	return pre_3D_coords
+
+# Takes an example of position java object and creates all the possible deviation
+# def create_all_possible_java_loc(position_example):
+# 	position_example = position_example[0]
+# 	location_example = position_example.get(0).copy()
+# 	all_possible_java_loc = []
+# 	FullLocation = jpy.get_type('other.location.FullLocation')
+# 	for site in range(N_ROW*N_COL):
+# 		for lvl in range(N_LEVELS):
+# 			all_possible_java_loc.append(FullLocation(site, lvl))	
+# 	# print(all_possible_java_pos) 
+# 	# for test in all_possible_java_pos[:10]:
+# 	# 	print(test.site(), test.level())
+# 	return all_possible_java_loc
 	
-#def precompute_format_positions():
-#	n_returns = 1
-#	pre_position = np.zeros((N_ROW*N_COL), dtype=object)
-#	for pos in range(N_ROW*N_COL):
-#		for level in range(N_LEVEL):
-#			for index_return in range(n_returns):
-#				pre_position[value][level][index_return] = format_positions(pos, level, val=1)[index_return]
-#	return pre_position.reshape(N_ROW, N_COL)	
-	
-def precompute_all():
-	return precompute_action_index(), precompute_reverse_action_index(), precompute_get_coord(), precompute_get_3D_coord()
+# def precompute_format_positions(position_example):
+# 	all_possible_java_loc = [create_all_possible_java_loc(position_example)]
+# 	pre_position = np.zeros((N_ROW*N_COL, N_LEVELS), dtype=object)
+# 	for java_loc in all_possible_java_loc:
+# 		for level in range(N_LEVELS):
+# 			pre_position[java_pos.site()][java_pos.level()] = format_positions(java_pos, level, val=1)
+# 			# pre_position[java_loc.site()][java_loc.level()] = format_loc(res, java_loc, level, val=1)
+# 	return pre_position
+
+def precompute_all(position_example):
+	return precompute_action_index(), precompute_reverse_action_index(), precompute_get_coord(), precompute_get_3D_coord()#, precompute_format_positions(position_example)
 
 
-#precompute_format_positions()
+# precompute_format_positions()
 
 
 #r = np.random.rand()

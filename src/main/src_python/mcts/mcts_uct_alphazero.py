@@ -40,7 +40,7 @@ class MCTS_UCT_alphazero:
 		# estimate the value thanks to the model
 		if not current.context.trial().over():
 			utils = np.zeros(3)
-			current.state = np.expand_dims(format_state(current.context.deepCopy()).squeeze(), axis=0)
+			current.state = np.expand_dims(format_state(current.context.deepCopy(), self.pre_coords).squeeze(), axis=0)
 			current.value_pred = predict_with_model(self.model, current.state)
 			current.value_opp_pred = predict_with_model(self.model, invert_state(current.state))				
 			utils[PLAYER1], utils[PLAYER2] = current.value_pred[0], current.value_opp_pred[0]
@@ -67,9 +67,12 @@ class MCTS_UCT_alphazero:
 		inverted_states = np.zeros((len(nodes), N_ROW, N_COL, N_REPRESENTATION_STACK))
 		utils = np.zeros((len(nodes), 3))
 		for i, node in enumerate(nodes):
-			node.state = np.expand_dims(format_state(node.context).squeeze(), axis=0)
+			node.state = np.expand_dims(format_state(node.context, self.pre_coords).squeeze(), axis=0)
 			inverted_states[i] = np.expand_dims(invert_state(node.state), axis=0)
 			states[i] = node.state
+			# node.state = np.zeros((N_ROW, N_COL, N_REPRESENTATION_STACK))
+			# inverted_states[i] = np.zeros((N_ROW, N_COL, N_REPRESENTATION_STACK))
+			# states[i] = node.state
 		if ONNX_INFERENCE:
 			value_preds = predict_with_model(self.model, states)[0]
 			value_opp_preds = predict_with_model(self.model, inverted_states)[0]
@@ -139,14 +142,25 @@ class MCTS_UCT_alphazero:
 			# utils = self.get_values(current)
 			# self.backpropagate_values(current, utils)			
 
+			# Adding the current node to the predict queue list in order to estimate the values later
 			predict_queue.append(current)
+
+			# Here we predict values if the queue length is higher than a minimum value or if it's the
+			# last iteration in order to avoid missing values before the final decision
 			if len(predict_queue) >= MINIMUM_QUEUE_PREDICTION or num_iterations == max_its - 1:
+				# print("Predicting ", len(predict_queue), "values at iteration ", num_iterations)
+				# Predict the values of the whole queue 
 				utils = self.predict_values(predict_queue)
+				# Backpropagated the utility scores
 				self.backpropagate_predicted_values(predict_queue, utils)
+				# Empty the predict queue
 				predict_queue = []
+			# If it's not time to estimate the values then we put all the values to 0, we don't need to 
+			# backpropagate the values. This makes us save time and the MCTS becomes pessimistic
 			else:
 				current.value_pred = 0
 				current.value_opp_pred = 0
+			# Here for each node we backpropagate the visit counts	
 			self.backpropagate_visit_counts(current)
 
 			# Keep track of the number of iteration in case there is a max

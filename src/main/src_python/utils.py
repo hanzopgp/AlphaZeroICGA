@@ -257,18 +257,39 @@ def invert_state(state):
 	return inverted_state
 
 # Create a numpy array from the java owned positions
-def format_positions(positions, lvl, val):
-	res = np.zeros((N_ROW*N_COL))
-	for pos in positions:
-		for i in range(pos.size()):
-			# Filling presence map per level
-			p = pos.get(i)
-			if p.level() == lvl:
-				res[p.site()] = val
-	return res.reshape(N_ROW, N_COL)
+def format_positions(positions, lvl, val, pre_coords):
+	res = np.zeros((N_ROW, N_COL))
+	pos = positions[0]
+
+	tmp_lvl = []
+	tmp_site = []
+	for i in range(pos.size()):
+		# Filling presence map per level
+		p = pos.get(i)
+		# if p.level() == lvl:
+		# 	res[p.site()] = val
+		tmp_lvl.append(p.level())
+		tmp_site.append(p.site())
+	#(res[tmp_site])[tmp_lvl==lvl] = val
+	mask_lvl = np.where(tmp_lvl==lvl, True, False)
+	res[pre_coords[tmp_site]][mask_lvl] = val
+	# res[pre_coords[tmp_site]] = np.where(tmp_lvl==lvl, True, False)
+
+	# for i in range(pos.size()):
+	# 	# Filling presence map per level
+	# 	p = pos.get(i)
+	# 	if p.level() == lvl:
+	# 		res[pre_coords[p.site()]] = val
+
+	return res
+
+def format_loc(res, loc, lvl, val):
+	# Filling presence map per level
+	if loc.level() == lvl:
+		res[loc.site()] = val
 
 # Build the input of the NN for AlphaZero algorithm thanks to the context object
-def format_state(context):
+def format_state(context, pre_coords):
 	res = np.zeros(((N_TIME_STEP*2), N_LEVELS, N_ROW, N_COL))
 	
 	# Here we copy the state since we are going to need to undo moves
@@ -283,8 +304,8 @@ def format_state(context):
 		owned = context_copy.state().owned()
 		# We fill levels positions for each time step
 		for j in range(N_LEVELS):
-			res[i][j] = format_positions(owned.positions(PLAYER1), lvl=j, val=1)
-			res[i+1][j]= format_positions(owned.positions(PLAYER2), lvl=j, val=1)
+			res[i][j] = format_positions(owned.positions(PLAYER1), lvl=j, val=1, pre_coords=pre_coords)
+			res[i+1][j]= format_positions(owned.positions(PLAYER2), lvl=j, val=1, pre_coords=pre_coords)
 		# After filling the positions for one time step we undo one game move
 		# to fill the previous time step
 		try:

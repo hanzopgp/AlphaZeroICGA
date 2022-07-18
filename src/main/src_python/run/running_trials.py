@@ -41,7 +41,11 @@ class RunningTrials:
 		mcts2.init_ai(game, PLAYER2)
 		
 		# Precompute some functions
-		pre_action_index, pre_reverse_action_index, pre_coords, pre_3D_coords = precompute_all()
+		tmp_context = context.deepCopy()
+		game.start(tmp_context)
+		position_example = tmp_context.state().owned().positions(PLAYER1)
+		pre_action_index, pre_reverse_action_index, pre_coords, pre_3D_coords = precompute_all(position_example)
+		# sys.exit()
 		mcts1.set_precompute(pre_action_index, pre_reverse_action_index, pre_coords, pre_3D_coords)
 		mcts2.set_precompute(pre_action_index, pre_reverse_action_index, pre_coords, pre_3D_coords)
 		

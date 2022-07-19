@@ -18,6 +18,7 @@ from utils import write_winner, get_random_hash, check_if_first_step
 
 ######### Here is the class called in the java file to run dojo #########	
 
+
 class RunningDojos:
 	def run_dojo(self, game, trial, context):
 		# Init both agents
@@ -57,8 +58,6 @@ class RunningDojos:
 			
 			# Main game loop			
 			while not trial.over():
-				# Sometimes the game is way too long and has to be stopped
-				# and considered as a draw
 				if time.time() - start_time  > stop_time:
 					if DEBUG_PRINT: print("--> Ended one game because it was too long")
 					break

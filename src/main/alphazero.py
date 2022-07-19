@@ -129,20 +129,15 @@ def main_loop(n_iteration, n_workers):
 
 		if outsider_won: # Outsider model won
 			run_trials(n_workers, force_vanilla=False) # So we run self play trials between models
-			train_model(lr, force_champion=False) # And we train the outsider
-		else: # Outsider model lost
-			if not os.path.exists(MODEL_PATH+GAME_NAME+"_"+"outsider"+".h5"): # And it was against the vanilla MCTS
-				run_trials(n_workers, force_vanilla=True) # So we need to get more data with trials
-				train_model(lr, force_champion=True) # so we can train the model to perform better
-			else: # Outsider model lost to champion model
-				train_model(lr, force_champion=False) # So we need to train it more until it becomes the champion
+		train_model(lr, force_champion=False) # We need to train it more until it becomes the champion
 
-		# Run dojos to evaluate the newest model
-		run_dojos(n_workers)
-		# Switch models if the dojo was champion model vs outsider model
-		outsider_won = decide_if_switch_model()
-		if outsider_won:
-			switch_model()
+		if alphazero_iteration >= 1:
+			# Run dojos to evaluate the newest model
+			run_dojos(n_workers)
+			# Switch models if the dojo was champion model vs outsider model
+			outsider_won = decide_if_switch_model()
+			if outsider_won:
+				switch_model()
 		
 		alphazero_iteration += 1
 			

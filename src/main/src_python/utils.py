@@ -119,8 +119,10 @@ def load_nn(model_type, inference):
 # Use the model to predict a value
 def predict_with_model(model, X, output=["value_head"]):
 	if ONNX_INFERENCE:
-		return model.run(output, {"input_1": X.astype(np.float32)})
-	return model.predict(X, verbose=0)
+		res = model.run(output, {"input_1": X.astype(np.float32)})
+	res = model.predict(X, verbose=0)
+	print(res)
+	return res
 	
 # This function checks if we are going to use the vanilla MCTS
 # because we don't have a model yet or if we are going to use

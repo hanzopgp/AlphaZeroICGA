@@ -17,7 +17,7 @@
 
 ######### TIME CONSUMING VARIABLES #########
 
-ONNX_INFERENCE = False # ONNX inference should be False if using GPU
+ONNX_INFERENCE = True # ONNX inference should be False if using GPU
 
 N_EPOCHS = 100
 EARLY_STOPPING_PATIENCE = 20

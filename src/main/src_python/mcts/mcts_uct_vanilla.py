@@ -9,6 +9,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 sys.path.append(os.getcwd()+"/src_python")
 
 
+import settings
 from utils import utilities, format_state
 
 	
@@ -106,6 +107,7 @@ class MCTS_UCT_vanilla:
 
 			# Keep track of the number of iteration in case there is a max
 			num_iterations += 1
+			settings.config.MEAN_ITERATION_VANILLA += 1 
 
 		# Return the final move thanks to the scores
 		return self.select_root_child_node(root)

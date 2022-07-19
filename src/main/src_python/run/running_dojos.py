@@ -9,7 +9,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 sys.path.append(os.getcwd()+"/src_python")
 
 
-from settings.config import PLAYER1, PLAYER2, NUM_DOJO, MAX_ITERATION_AGENTS_DOJO, THINKING_TIME_AGENTS_DOJO, MAX_GAME_DURATION, DEBUG_PRINT, MAX_GAME_MOVES
+from settings.config import PLAYER1, PLAYER2, NUM_DOJO, MAX_ITERATION_AGENTS_DOJO, THINKING_TIME_AGENTS_DOJO, MAX_GAME_DURATION, DEBUG_PRINT, MAX_GAME_MOVES, MEAN_ITERATION_VANILLA, MEAN_ITERATION_ALPHAZERO
 from optimization.precompute import precompute_all 
 from mcts.mcts_uct_alphazero import MCTS_UCT_alphazero
 from mcts.mcts_uct_vanilla import MCTS_UCT_vanilla
@@ -46,6 +46,7 @@ class RunningDojos:
 		# Declare some variables for statistics
 		champion_mcts_win, outsider_mcts_win, draw, total = 0, 0, 0, 0
 		duration = np.zeros(NUM_DOJO)
+		n_total_moves = 0
 
 		print("--> Running", NUM_DOJO, "games")
 		
@@ -72,6 +73,7 @@ class RunningDojos:
 					move, _ = outsider_mcts.select_action(game, context, THINKING_TIME_AGENTS_DOJO, MAX_ITERATION_AGENTS_DOJO, max_depth=-1)
 
 				n_moves += 1
+				n_total_moves += 1
 				
 				context.game().apply(context, move)
 	
@@ -92,12 +94,15 @@ class RunningDojos:
 		if DEBUG_PRINT:
 			if not check_if_first_step():
 				print("* Vanilla MCTS AI winrate:", champion_mcts_win/total)
+				print("* Vanilla MCTS mean iteration:", MEAN_ITERATION_VANILLA/n_total_moves)
 			else:
 				print("* Champion AI winrate:", champion_mcts_win/total)
+				print("* Champion AI mean iteration:", MEAN_ITERATION_ALPHAZERO/n_total_moves)
 			print("* Outsider AI winrate:", outsider_mcts_win/total)
 			print("* Draws:", draw/total)
 			print("* Mean game duration", duration.mean())
 			print("* Max game duration", duration.max())
+
 		
 		# Return 1 or -1 depending the winner so we can decide what
 		# is the next step to do in our script

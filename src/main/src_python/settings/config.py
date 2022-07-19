@@ -28,8 +28,10 @@ MAX_ITERATION_AGENT = 200 # Max number of nodes discovered by the MCTS
 THINKING_TIME_AGENT = -1 # Max number of seconds for the MCTS to run
 
 NUM_DOJO = 2
-MAX_ITERATION_AGENTS_DOJO = 200 
-THINKING_TIME_AGENTS_DOJO = -1
+MAX_ITERATION_AGENTS_DOJO = -1 
+THINKING_TIME_AGENTS_DOJO = 1
+MEAN_ITERATION_VANILLA = 0
+MEAN_ITERATION_ALPHAZERO = 0
 
 MAX_GAME_DURATION = -1 # Max episode or dojo duration in seconds
 MAX_GAME_MOVES = 200 # Max episode or dojo duration in number of moves

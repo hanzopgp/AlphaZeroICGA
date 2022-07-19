@@ -9,7 +9,7 @@ warnings.filterwarnings("ignore")
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 sys.path.append(os.getcwd()+"/src_python")
 
-
+import settings
 from settings.game_settings import N_REPRESENTATION_STACK, N_ROW, N_COL
 from settings.config import N_PLAYERS, ONNX_INFERENCE, PLAYER1, PLAYER2, CSTE_PUCT, MINIMUM_QUEUE_PREDICTION
 from utils import load_nn, format_state, invert_state, predict_with_model, utilities
@@ -169,6 +169,7 @@ class MCTS_UCT_alphazero:
 
 			# Keep track of the number of iteration in case there is a max
 			num_iterations += 1
+			settings.config.MEAN_ITERATION_ALPHAZERO += 1
 
 		# print("----->", full_queue)
 		# print(len(full_queue))

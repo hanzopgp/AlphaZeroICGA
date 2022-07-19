@@ -54,8 +54,8 @@ def load_data():
 		final_X = np.concatenate((final_X, X[i]), axis=0)
 		final_y_values = np.concatenate((final_y_values, y_values[i]), axis=0)
 
-	if final_X.shape[0] > MAX_SIZE_FULL_DATASET:
-		print("--> Size of the dataset exceeded", MAX_SIZE_FULL_DATASET, "examples")
+	if final_X.shape[0] >= MAX_SIZE_FULL_DATASET:
+		print("--> Size of the dataset exceeded :", MAX_SIZE_FULL_DATASET, "examples")
 		print("--> Deleting some examples and re-writing pickle file")
 		final_X, final_y_values = final_X[:MAX_SIZE_FULL_DATASET], final_y_values[MAX_SIZE_FULL_DATASET:] 
 		Popen("rm "+pkl_path, shell=True).wait()

@@ -106,7 +106,7 @@ class MCTS_UCT_alphazero:
 				node.total_visit_count += 1
 				node = node.parent
 		
-	# Main method called to chose an action at depth 0
+	# Main method called to choose an action at depth 0
 	def select_action(self, game, context, max_seconds, max_iterations, max_depth):
 		# Init an empty node which will be our root
 		root = Node(None, None, context)
@@ -138,7 +138,7 @@ class MCTS_UCT_alphazero:
 				if current.context.trial().over():
 					break
 			
-				# Here we chose a current node and it is a new one, selected thanks the model policy 
+				# Here we choose a current node and it is a new one, selected thanks the model policy 
 				# (if the current node has still unexpanded moves)
 				current = self.select_node(current)
 
@@ -184,7 +184,7 @@ class MCTS_UCT_alphazero:
 	def select_node(self, current):
 		# If we have some moves to expand
 		if len(current.unexpanded_moves) > 0:
-			# Chose a move randomly
+			# Choose a move randomly
 			move = current.unexpanded_moves.pop()
 			
 			# We copy the context to play in a simulation
@@ -222,7 +222,7 @@ class MCTS_UCT_alphazero:
 				best_value = value
 				best_child = child
 				num_best_found = 1
-			# Chose a random child if we have several optimal PUCT scores
+			# Choose a random child if we have several optimal PUCT scores
 			elif value == best_value:
 				rand = random.randint(0, num_best_found + 1)
 				if rand == 0:

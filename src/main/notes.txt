@@ -5,12 +5,12 @@
 
 0.73 200//3, 0.78 200//6, 0.64 200//20
 
-
 ============================================================================
 
 - try dropout
 - try npy or hdf5 for dataset storage
 - try leaky relu
+- dojos should be in thinking time because the model predict is faster than playout
 
 ============================================================================
 

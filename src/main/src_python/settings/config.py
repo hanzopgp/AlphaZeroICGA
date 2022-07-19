@@ -17,7 +17,7 @@
 
 ######### TIME CONSUMING VARIABLES #########
 
-ONNX_INFERENCE = True
+ONNX_INFERENCE = False # ONNX inference should be False if using GPU
 
 N_EPOCHS = 100
 EARLY_STOPPING_PATIENCE = 20
@@ -40,7 +40,7 @@ MINIMUM_QUEUE_PREDICTION = MAX_ITERATION_AGENT//N_BATCH_PREDICTION + 1 # Max num
 ######### CONSTANT VARIABLES #########
 
 DEBUG_PRINT = True # Prints additional informations during the self play and scripts
-PROFILING_ACTIVATED = True # Prints additional informations such as the time per function
+PROFILING_ACTIVATED = False # Prints additional informations such as the time per function
 PLAYER1 = 1
 PLAYER2 = 2
 N_PLAYERS = 2 + 1

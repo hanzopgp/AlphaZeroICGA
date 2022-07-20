@@ -244,10 +244,10 @@ class MCTS_UCT_alphazero:
 					best_child = child
 				num_best_found += 1
 
-		# print("*"*30)
-		# print("alphazero")
-		# print(exploit, explore, value)
-		# print("*"*30)
+		print("*"*30)
+		print("alphazero", self._player_id)
+		print(exploit, explore, value)
+		print("*"*30)
 				
 		# Return the best child of the current node according to the PUCT score
 		return best_child

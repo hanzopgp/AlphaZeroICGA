@@ -262,10 +262,10 @@ def reverse_index_action(to_x, to_y, action):
 
 # Invert the state (-1 become +1 and +1 become -1)
 def invert_state(state):
-	inverted_state = state.copy()
-	inverted_state = np.where(inverted_state==1, 2, inverted_state)
-	inverted_state = np.where(inverted_state==-1, 1, inverted_state)
-	inverted_state = np.where(inverted_state==2, -1, inverted_state)
+	inverted_state = np.array(state.copy())
+	inverted_state[inverted_state==1] = 2
+	inverted_state[inverted_state==-1] = 1
+	inverted_state[inverted_state==2] = -1
 	return inverted_state
 
 # Create a numpy array from the java owned positions

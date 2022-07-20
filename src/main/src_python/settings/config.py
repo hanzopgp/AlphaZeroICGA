@@ -22,13 +22,13 @@ ONNX_INFERENCE = True # ONNX inference should be False if using GPU
 N_EPOCHS = 100
 EARLY_STOPPING_PATIENCE = 20
 
-NUM_EPISODE = 2 # Number of self play games by worker
+NUM_EPISODE = 1 # Number of self play games by worker
 VANILLA_EPISODE_MULTIPLIER = 5 # Factor by which we multiply the number of episodes when vanilla MCTS are playing
-MAX_ITERATION_AGENT = 200 # Max number of nodes discovered by the MCTS
+MAX_ITERATION_AGENT = 50 # Max number of nodes discovered by the MCTS
 THINKING_TIME_AGENT = -1 # Max number of seconds for the MCTS to run
 
 NUM_DOJO = 2
-MAX_ITERATION_AGENTS_DOJO = 200 
+MAX_ITERATION_AGENTS_DOJO = 50 
 THINKING_TIME_AGENTS_DOJO = -1
 
 MAX_GAME_DURATION = -1 # Max episode or dojo duration in seconds

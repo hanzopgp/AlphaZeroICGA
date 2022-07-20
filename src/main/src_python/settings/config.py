@@ -49,7 +49,7 @@ MODEL_PATH = "./models/"
 WINNERS_FILE="./models/save_winners.txt"
 N_MOVES_TYPICAL_POSITION_BASHNI = 15
 OUTSIDER_MIN_WINRATE = 0.55
-MAX_SIZE_FULL_DATASET = 20_000 # Maximum number of examples in the dataset
+MAX_SIZE_FULL_DATASET = 50_000 # Maximum number of examples in the dataset
 
 ######### MCTS PARAMETERS #########
 

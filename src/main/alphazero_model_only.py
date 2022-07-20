@@ -70,18 +70,12 @@ def conclude():
 	print("**************************************** AGENT READY ***************************************")
 	print("********************************************************************************************")
 	
-def run_trials(n_workers, force_vanilla):
+def run_trials(n_workers):
 	print("********************************************************************************************")
 	print("************************************** RUNNING TRIALS ***************************************")
 	print("********************************************************************************************")
-	Popen(parallelize_command("run_trials -Dforce_vanilla="+str(force_vanilla), n_workers), shell=True).wait()
+	Popen(parallelize_command("run_trials -Dforce_vanilla=False", n_workers), shell=True).wait()
 	
-	# if force_vanilla:
-	# 	print("********************************************************************************************")
-	# 	print("************************************ DELETING OLD DATASET ***********************************")
-	# 	print("********************************************************************************************")
-	# 	empty_dataset()
-
 	print("********************************************************************************************")
 	print("************************************** MERGING DATASETS ************************************")
 	print("********************************************************************************************")
@@ -98,11 +92,11 @@ def run_dojos(n_workers):
 	print("********************************************************************************************")
 	Popen("python3 src_python/scripts/merge_txts.py", shell=True).wait()
 
-def train_model(lr, force_champion):
+def train_model(lr):
 	print("********************************************************************************************")
 	print("************************************** TRAINING MODEL **************************************")
 	print("********************************************************************************************")
-	Popen("python3 src_python/brain/train_model.py "+str(lr)+" "+str(force_champion), shell=True).wait()
+	Popen("python3 src_python/brain/train_model.py "+str(lr)+" "+"False", shell=True).wait()
 
 	if ONNX_INFERENCE:
 		convert_models_onnx()
@@ -129,10 +123,10 @@ def main_loop(n_iteration, n_workers):
 			print("--> Learning rate decay from", lr_save, "to", lr)
 
 		if outsider_won: # Outsider model won
-			run_trials(n_workers, force_vanilla=False) # So we run self play trials between models
+			run_trials(n_workers) # So we run self play trials between models
 
 		# We need to re-train
-		train_model(lr, force_champion=False) 
+		train_model(lr) 
 
 		if alphazero_iteration >= 1:
 			# Run dojos to evaluate the newest model

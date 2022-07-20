@@ -13,7 +13,7 @@ from settings.config import PLAYER1, PLAYER2, NUM_DOJO, MAX_ITERATION_AGENTS_DOJ
 from optimization.precompute import precompute_all 
 from mcts.mcts_uct_alphazero import MCTS_UCT_alphazero
 from mcts.mcts_uct_vanilla import MCTS_UCT_vanilla
-from utils import write_winner, get_random_hash, check_if_first_step
+from utils import write_winner, get_random_hash, check_if_ready_for_model_dojos
 
 
 ######### Here is the class called in the java file to run dojo #########	
@@ -22,20 +22,20 @@ from utils import write_winner, get_random_hash, check_if_first_step
 class RunningDojos:
 	def run_dojo(self, game, trial, context):
 		# Init both agents
-		if not check_if_first_step():
+		if check_if_ready_for_model_dojos():
+			# The champion MCTS player gets the best model untill now
+			champion_mcts = MCTS_UCT_alphazero(dojo=True, model_type="champion")
+			champion_mcts.init_ai(game, PLAYER1)
+			# The outsider MCTS player gets the latest model which has to be evaluated
+			outsider_mcts = MCTS_UCT_alphazero(dojo=True, model_type="outsider")
+			outsider_mcts.init_ai(game, PLAYER2)
+		else:
 			print("--> Running dojo with MCTS vanilla vs MCTS AlphaZero first model")
 			# The champion MCTS player is the vanilla MCTS
 			champion_mcts = MCTS_UCT_vanilla()
 			champion_mcts.init_ai(game, PLAYER1)
 			# The outsider MCTS player gets the champion model since it's first step
 			outsider_mcts = MCTS_UCT_alphazero(dojo=True, model_type="champion")
-			outsider_mcts.init_ai(game, PLAYER2)
-		else:
-			# The champion MCTS player gets the best model untill now
-			champion_mcts = MCTS_UCT_alphazero(dojo=True, model_type="champion")
-			champion_mcts.init_ai(game, PLAYER1)
-			# The outsider MCTS player gets the latest model which has to be evaluated
-			outsider_mcts = MCTS_UCT_alphazero(dojo=True, model_type="outsider")
 			outsider_mcts.init_ai(game, PLAYER2)
 
 		# Precompute all expensive functions
@@ -90,10 +90,10 @@ class RunningDojos:
 			duration[i] = time.time() - start_time
 		
 		if DEBUG_PRINT:
-			if not check_if_first_step():
-				print("* Vanilla MCTS AI winrate:", champion_mcts_win/total)
-			else:
+			if check_if_ready_for_model_dojos():
 				print("* Champion AI winrate:", champion_mcts_win/total)
+			else:
+				print("* Vanilla MCTS AI winrate:", champion_mcts_win/total)
 			print("* Outsider AI winrate:", outsider_mcts_win/total)
 			print("* Draws:", draw/total)
 			print("* Mean game duration", duration.mean())

@@ -134,6 +134,11 @@ def check_if_first_step():
 	print("--> No model found, starting from random values")
 	return True
 
+def check_if_ready_for_model_dojos():
+	if os.path.exists(MODEL_PATH+GAME_NAME+"_"+"champion"+".h5") & os.path.exists(MODEL_PATH+GAME_NAME+"_"+"outsider"+".h5"):
+		return True
+	return False
+
 def write_winner(outsider_winrate, hash_code=""):
 	if len(hash_code) >= 1:
 		file_name = "winners" + hash_code + ".txt"

@@ -77,7 +77,7 @@ def get_random_sample(X, y_values, first_step=False):
 	else:
 		train_sample = TRAIN_SAMPLE_SIZE if TRAIN_SAMPLE_SIZE < X.shape[0] else X.shape[0]
 		# Here we take only the last 2/3 of the dataset to avoid low quality data from first iterations
-		idx = np.random.choice(np.arange(X.shape[0]//3, X.shape[0]), train_sample, replace=True)
+		idx = np.random.choice(np.arange(X.shape[0]//3, X.shape[0]), train_sample, replace=False)
 	print("--> Training on", train_sample, "examples, Chosen between index [", idx.min(), idx.max(), "]")
 	return X[idx], y_values[idx]
 

@@ -120,8 +120,9 @@ def load_nn(model_type, inference):
 def predict_with_model(model, X, output=["value_head"]):
 	if ONNX_INFERENCE:
 		res = model.run(output, {"input_1": X.astype(np.float32)})
-	res = model.predict(X, verbose=0)
-	print(res)
+	else:
+		res = model.predict(X, verbose=0)
+	# print(res)
 	return res
 	
 # This function checks if we are going to use the vanilla MCTS

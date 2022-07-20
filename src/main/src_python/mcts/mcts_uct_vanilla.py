@@ -107,6 +107,8 @@ class MCTS_UCT_vanilla:
 			# Keep track of the number of iteration in case there is a max
 			num_iterations += 1
 
+		# print("va", num_iterations)
+
 		# Return the final move thanks to the scores
 		return self.select_root_child_node(root)
 
@@ -158,6 +160,11 @@ class MCTS_UCT_vanilla:
 				if rand == 0:
 					best_child = child
 				num_best_found += 1
+
+		# print("*"*30)
+		# print("vanilla")
+		# print(exploit, explore, value)
+		# print("*"*30)
 
 		# Return the best child of the current node according to the UCB score
 		return best_child

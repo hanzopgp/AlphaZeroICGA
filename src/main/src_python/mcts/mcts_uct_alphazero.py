@@ -90,6 +90,14 @@ class MCTS_UCT_alphazero:
 		utils[:,PLAYER1] = value_preds.squeeze()
 		utils[:,PLAYER2] = value_opp_preds.squeeze()
 		return utils
+
+	# Checks if we can compute some ground truth utils
+	def check_ground_truth(self, nodes, utils):
+		for i, node in enumerate(nodes):
+			tmp_context = node.context.deepCopy()
+			if tmp_context.trial().over():
+				utils[i] = utilities(tmp_context)
+		return utils
 		
 	# Backpropagates the predicted values in the tree for a batch of nodes
 	def backpropagate_predicted_values(self, nodes, utils):
@@ -154,8 +162,13 @@ class MCTS_UCT_alphazero:
 			if len(predict_queue) >= MINIMUM_QUEUE_PREDICTION or num_iterations == max_its - 1:
 				# Predict the values of the whole queue 
 				utils = self.predict_values(predict_queue)
+
+				# Check if we can compute some ground truth utils
+				utils = self.check_ground_truth(predict_queue, utils)
+
 				# Backpropagated the utility scores
 				self.backpropagate_predicted_values(predict_queue, utils)
+
 				# Empty the predict queue
 				predict_queue = []
 			# If it's not time to estimate the values then we put all the values to 0, we don't need to 
@@ -176,6 +189,8 @@ class MCTS_UCT_alphazero:
 		# 	print(i.score_sums[PLAYER1])
 		# 	print(i.score_sums[PLAYER2])
 		# exit()
+
+		# print("al", num_iterations)
 
 		# Return the final move thanks to the scores
 		return self.select_root_child_node(root)
@@ -216,7 +231,7 @@ class MCTS_UCT_alphazero:
 			exploit = child.score_sums[mover] / child.visit_count
 			explore = math.sqrt(log / child.visit_count)
 			value = exploit + explore
-			
+
 			# Keep track of the best_child which has the best PUCT score
 			if value > best_value:
 				best_value = value
@@ -228,6 +243,11 @@ class MCTS_UCT_alphazero:
 				if rand == 0:
 					best_child = child
 				num_best_found += 1
+
+		# print("*"*30)
+		# print("alphazero")
+		# print(exploit, explore, value)
+		# print("*"*30)
 				
 		# Return the best child of the current node according to the PUCT score
 		return best_child

@@ -93,6 +93,8 @@ class RunningTrials:
 				# Keep track of the mover
 				mover = context.state().mover()
 				X_mover.append(mover)
+
+				# print("="*30)
 				
 				# Move with custom python AI and save the move distribution
 				if mover == 1:

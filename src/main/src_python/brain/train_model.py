@@ -96,7 +96,7 @@ if __name__ == '__main__':
 		verbose=VERBOSE, 
 		validation_split=VALIDATION_SPLIT)
 	
-	print("--> Quick prediction check :", model.predict(np.expand_dims(X[:10], axis=0)))		
+	print("--> Quick prediction check :", model.predict(X[:10]))		
 	#model.plot_metrics(history)
 
 	# If it is the first step, then there is no model yet and our

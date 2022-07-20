@@ -262,7 +262,7 @@ class MCTS_UCT_alphazero:
 		decision = root_node.children[counter.argmax()].move_from_parent
 				
 		# Returns the move to play in the real game and the root node state
-		return decision, root_node.state
+		return decision, np.expand_dims(format_state(root_node.context, self.pre_coords).squeeze(), axis=0)
 
 
 class Node:

@@ -15,11 +15,10 @@ from utils import load_data, get_random_sample, load_nn
 	
 ######### Training model from loaded data and saving weights #########
 
+
 if __name__ == '__main__': 
 	learning_rate = float(sys.argv[1])
-	force_champion = bool(sys.argv[2])
-
-	print(force_champion)
+	force_champion = sys.argv[2].lower() == "true"
 
 	print("* Current learning rate :", learning_rate)
 

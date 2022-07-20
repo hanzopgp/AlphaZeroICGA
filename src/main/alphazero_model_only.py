@@ -96,7 +96,7 @@ def train_model(lr):
 	print("********************************************************************************************")
 	print("************************************** TRAINING MODEL **************************************")
 	print("********************************************************************************************")
-	Popen("python3 src_python/brain/train_model.py "+str(lr)+" "+"False", shell=True).wait()
+	Popen("python3 src_python/brain/train_model.py "+str(lr)+" False", shell=True).wait()
 
 	if ONNX_INFERENCE:
 		convert_models_onnx()

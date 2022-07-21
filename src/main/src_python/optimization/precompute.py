@@ -8,7 +8,7 @@ sys.path.append(os.getcwd()+"/src_python")
 import jpy
 
 
-from utils import index_action, reverse_index_action, get_coord, get_3D_coord, format_positions, format_loc
+from utils import index_action, reverse_index_action, get_coord, get_3D_coord
 from settings.game_settings import N_ROW, N_COL, N_ACTION_STACK, N_LEVELS
 
 
@@ -70,7 +70,7 @@ def precompute_get_3D_coord():
 # 	return pre_position
 
 def precompute_all():
-	return precompute_action_index(), precompute_reverse_action_index(), precompute_get_coord(), precompute_get_3D_coord()#, precompute_format_positions(position_example)
+	return precompute_get_coord()#, precompute_action_index(), precompute_reverse_action_index(), precompute_get_3D_coord(), precompute_format_positions(position_example)
 
 
 # precompute_format_positions()

@@ -25,7 +25,9 @@ public class RunningDojosWithPython{
 
 	public static void main(String[] args){
 		initJPY();
-		final Game game = GameLoader.loadGameFromName("Bashni.lud");
+		final Settings settings = new Settings();
+		final Game game = GameLoader.loadGameFromName(settings.game);
+		System.out.println("--> Game chosen : " + settings.game);
 		final Trial trial = new Trial(game);
 		final Context context = new Context(game, trial);
 		run(game, trial, context);	

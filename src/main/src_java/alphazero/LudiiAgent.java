@@ -21,7 +21,7 @@ public class LudiiAgent extends AI{
 	private boolean initialisedJpy = false;
 	
 	public LudiiAgent(){
-		this.friendlyName = "BetaOne";
+		this.friendlyName = "BetaZero";
 	}
 	
 	@Override

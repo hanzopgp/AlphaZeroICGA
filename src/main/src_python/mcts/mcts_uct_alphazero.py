@@ -10,10 +10,9 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 sys.path.append(os.getcwd()+"/src_python")
 
 
-from settings.game_settings import N_REPRESENTATION_STACK, N_ROW, N_COL
+from settings.game_settings import GAME_NAME, N_REPRESENTATION_STACK, N_ROW, N_COL
 from settings.config import N_PLAYERS, ONNX_INFERENCE, PLAYER1, PLAYER2, CSTE_PUCT, MINIMUM_QUEUE_PREDICTION
-from utils import load_nn, format_state, invert_state, predict_with_model, utilities
-
+from utils import load_nn, invert_state, predict_with_model, utilities, format_state, format_positions_bashni, format_positions_ploy, format_positions_quoridor, format_positions_miniwars, format_positions_plakoto, format_positions_lotus
 	
 ######### Here is the main class to run the MCTS simulation with the model #########
 
@@ -23,17 +22,34 @@ class MCTS_UCT_alphazero:
 		self._player_id = -1
 		self.dojo = dojo
 		self.model = load_nn(model_type=model_type, inference=True)
+		self.wall_positions = None
+		if GAME_NAME == "Bashni":
+			self.format_positions = format_positions_bashni
+		elif GAME_NAME == "Ploy":
+			self.format_positions = format_positions_ploy
+		elif GAME_NAME == "Quoridor":
+			self.format_positions = format_positions_quoridor
+		elif GAME_NAME == "Mini Wars":
+			self.format_positions = format_positions_miniwars
+		elif GAME_NAME == "Plakoto":
+			self.format_positions = format_positions_plakoto
+		elif GAME_NAME == "Lotus":
+			self.format_positions = format_positions_lotus
 
 	# Fix the player who will play with MCTS in case we load this class with Ludii
 	def init_ai(self, game, player_id):
 		self._player_id = player_id
-		
+
+	def set_wall_positions(self, wall_positions):
+		self.wall_positions = wall_positions
+	
 	# Precomputed functions as arrays parameters -> return
-	def set_precompute(self, pre_action_index, pre_reverse_action_index, pre_coords, pre_3D_coords):
-		self.pre_action_index = pre_action_index
-		self.pre_reverse_action_index = pre_reverse_action_index
+	#def set_precompute(self, pre_action_index, pre_reverse_action_index, pre_coords, pre_3D_coords):
+	def set_precompute(self, pre_coords):
+		#self.pre_action_index = pre_action_index
+		#self.pre_reverse_action_index = pre_reverse_action_index
 		self.pre_coords = pre_coords
-		self.pre_3D_coords = pre_3D_coords
+		#self.pre_3D_coords = pre_3D_coords
 
 	# Get values of the current node one by one
 	def get_values(self, current):
@@ -41,7 +57,7 @@ class MCTS_UCT_alphazero:
 		# estimate the value thanks to the model
 		if not current.context.trial().over():
 			utils = np.zeros(N_PLAYERS)
-			current.state = np.expand_dims(format_state(current.context.deepCopy(), self.pre_coords).squeeze(), axis=0)
+			current.state = np.expand_dims(format_state(self.format_positions, current.context.deepCopy(), self.pre_coords, self.wall_positions).squeeze(), axis=0)
 			current.value_pred = predict_with_model(self.model, current.state)
 			current.value_opp_pred = predict_with_model(self.model, invert_state(current.state))				
 			utils[PLAYER1], utils[PLAYER2] = current.value_pred[0], current.value_opp_pred[0]
@@ -74,7 +90,7 @@ class MCTS_UCT_alphazero:
 		# For each node of the batch
 		for i, node in enumerate(nodes):
 			# We compute their states
-			node.state = np.expand_dims(format_state(node.context, self.pre_coords).squeeze(), axis=0)
+			node.state = np.expand_dims(format_state(self.format_positions, node.context, self.pre_coords, self.wall_positions).squeeze(), axis=0)
 			inverted_states[i] = np.expand_dims(invert_state(node.state), axis=0)
 			states[i] = node.state
 
@@ -262,7 +278,7 @@ class MCTS_UCT_alphazero:
 		decision = root_node.children[counter.argmax()].move_from_parent
 				
 		# Returns the move to play in the real game and the root node state
-		return decision, np.expand_dims(format_state(root_node.context, self.pre_coords).squeeze(), axis=0)
+		return decision, np.expand_dims(format_state(self.format_positions, root_node.context, self.pre_coords, self.wall_positions).squeeze(), axis=0)
 
 
 class Node:

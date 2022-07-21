@@ -41,12 +41,16 @@ class RunningTrials:
 		mcts2.init_ai(game, PLAYER2)
 		
 		# Precompute some functions
-		tmp_context = context.deepCopy()
-		game.start(tmp_context)
-		position_example = tmp_context.state().owned().positions(PLAYER1)
-		pre_action_index, pre_reverse_action_index, pre_coords, pre_3D_coords = precompute_all()
-		mcts1.set_precompute(pre_action_index, pre_reverse_action_index, pre_coords, pre_3D_coords)
-		mcts2.set_precompute(pre_action_index, pre_reverse_action_index, pre_coords, pre_3D_coords)
+		# tmp_context = context.deepCopy()
+		# game.start(tmp_context)
+		# position_example = tmp_context.state().owned().positions(PLAYER1)
+		# Precompute all expensive functions
+		#pre_action_index, pre_reverse_action_index, pre_coords, pre_3D_coords = precompute_all()	
+		#champion_mcts.set_precompute(pre_action_index, pre_reverse_action_index, pre_coords, pre_3D_coords)
+		#outsider_mcts.set_precompute(pre_action_index, pre_reverse_action_index, pre_coords, pre_3D_coords)
+		pre_coords = precompute_all()	
+		mcts1.set_precompute(pre_coords)
+		mcts2.set_precompute(pre_coords)
 		
 		# Declare some variables for statistics
 		ai1_win, ai2_win, draw, total = 0, 0, 0, 0
@@ -77,6 +81,8 @@ class RunningTrials:
 			
 			# Main game loop			
 			while not trial.over():
+				wall_positions = []
+
 				if time.time() - start_time  > stop_time:
 					if DEBUG_PRINT: print("--> Ended one game because it was too long")
 					break
@@ -94,7 +100,9 @@ class RunningTrials:
 				mover = context.state().mover()
 				X_mover.append(mover)
 
-				# print("="*30)
+				if GAME_NAME == "Quoridor":
+					mcts1.set_wall_positions(wall_positions)
+					mcts2.set_wall_positions(wall_positions)
 				
 				# Move with custom python AI and save the move distribution
 				if mover == 1:
@@ -112,7 +120,11 @@ class RunningTrials:
 				
 				move_check.append(move)
 				
-				#print("Move played:", move)				
+				# print("Move played:", move)
+				
+				if GAME_NAME == "Quoridor" and move.toType() == "Edge":
+					wall_positions.append(move.to())			
+
 				context.game().apply(context, move)
 		
 			# Compute ranking

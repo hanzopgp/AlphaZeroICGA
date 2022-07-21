@@ -1,3 +1,17 @@
+- bashni : OK
+- ploy : how to find orientation of the different types of pawns in the representation
+- quoridor : how to find the type of pawn (wall or pawn ?)
+
+- pass the right function instead of if else in format_state
+
+============================================================================
+
+- cold start with 50k example from MCTS vanilla
+- train the model and delete the dataset
+- self play with that model
+
+============================================================================
+
 - we have an object [location, location] with location(site, type)
 - for loc in locations:
 	arr[][] = location.site(), location.lvl()

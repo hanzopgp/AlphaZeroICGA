@@ -273,39 +273,60 @@ def invert_state(state):
 	inverted_state[inverted_state==2] = -1
 	return inverted_state
 
-# Create a numpy array from the java owned positions
-def format_positions(positions, lvl, val, pre_coords):
+# For Bashni : there is only one type of pawn so we can take positions[0]
+def format_positions_bashni(positions, lvl, val, pre_coords, wall_positions):
 	res = np.zeros((N_ROW, N_COL))
 	pos = positions[0]
-
-	# tmp_lvl = []
-	# tmp_site = []
-
 	for i in range(pos.size()):
 		p = pos.get(i)
 		if p.level() == lvl:
 			res[pre_coords[p.site()]] = val
-
-	# 	tmp_lvl.append(p.level())
-	# 	tmp_site.append(p.site())
-	# mask_lvl = np.where(tmp_lvl==lvl, True, False)
-	# res[pre_coords[tmp_site]][mask_lvl] = val
-
-	# for i in range(pos.size()):
-	# 	# Filling presence map per level
-	# 	p = pos.get(i)
-	# 	if p.level() == lvl:
-	# 		res[pre_coords[p.site()]] = val
-
 	return res
 
-def format_loc(res, loc, lvl, val):
-	# Filling presence map per level
-	if loc.level() == lvl:
-		res[loc.site()] = val
+# For Ploy : there is 1 commander, 3 shields, 6 lances, 5 probes
+# Index --> 0 : commander, 1 : shields, 2/3/4 : lances, 5/6/7 : probes
+def format_positions_ploy(positions, lvl, val, pre_coords, wall_positions):
+	res = np.zeros((N_ROW, N_COL))
+	for pawn_type, pos in enumerate(positions):
+		for i in range(pos.size()):
+			p = pos.get(i)
+			if pawn_type == lvl:
+				res[pre_coords[p.site()]] = val
+	return res
+
+# For Quoridor : there are walls or pawns, pawns are in the 81 cells, walls are 
+def format_positions_quoridor(positions, lvl, val, pre_coords, wall_positions):
+	res = np.zeros((N_ROW, N_COL))
+	for pawn_type, pos in enumerate(positions):
+		for i in range(pos.size()):
+			p = pos.get(i)
+			if lvl == 0:
+				res[pre_coords[p.site()]] = val
+	for wall in wall_positions:
+		if lvl  == 1:
+			res[pre_coords[wall]] = val
+	return res
+
+# For Mini Wars : 
+def format_positions_miniwars(positions, lvl, val, pre_coords, wall_positions):
+	res = np.zeros((N_ROW, N_COL))
+	for pawn_type, pos in enumerate(positions):
+		for i in range(pos.size()):
+			p = pos.get(i)
+	return res
+
+# For Plakoto : 
+def format_positions_plakoto(positions, lvl, val, pre_coords, wall_positions):
+	res = np.zeros((N_ROW, N_COL))
+	return res
+
+# For Lotus : 
+def format_positions_lotus(positions, lvl, val, pre_coords, wall_positions):
+	res = np.zeros((N_ROW, N_COL))
+	return res
 
 # Build the input of the NN for AlphaZero algorithm thanks to the context object
-def format_state(context, pre_coords):
+def format_state(format_positions, context, pre_coords, wall_positions):
 	res = np.zeros(((N_TIME_STEP*2), N_LEVELS, N_ROW, N_COL))
 	
 	# Here we copy the state since we are going to need to undo moves
@@ -320,8 +341,8 @@ def format_state(context, pre_coords):
 		owned = context_copy.state().owned()
 		# We fill levels positions for each time step
 		for j in range(N_LEVELS):
-			res[i][j] = format_positions(owned.positions(PLAYER1), lvl=j, val=1, pre_coords=pre_coords)
-			res[i+1][j]= format_positions(owned.positions(PLAYER2), lvl=j, val=1, pre_coords=pre_coords)
+			res[i][j] = format_positions(owned.positions(PLAYER1), lvl=j, val=1, pre_coords=pre_coords, wall_positions=wall_positions)
+			res[i+1][j]= format_positions(owned.positions(PLAYER2), lvl=j, val=1, pre_coords=pre_coords, wall_positions=wall_positions)
 		# After filling the positions for one time step we undo one game move
 		# to fill the previous time step
 		try:

@@ -4,12 +4,13 @@ import random
 import math
 import time
 import numpy as np
-from src_python.settings.config import CSTE_PUCT, N_PLAYERS, PLAYER1, PLAYER2
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 sys.path.append(os.getcwd()+"/src_python")
 
 
-from utils import utilities, format_state
+from settings.config import CSTE_PUCT, N_PLAYERS, PLAYER1, PLAYER2
+from settings.game_settings import GAME_NAME
+from utils import utilities, format_state, format_positions_bashni, format_positions_ploy, format_positions_quoridor, format_positions_miniwars, format_positions_plakoto, format_positions_lotus
 
 	
 ######### Here is the main class to run the vanilla MCTS simulation #########
@@ -17,17 +18,34 @@ from utils import utilities, format_state
 class MCTS_UCT_vanilla:
 	def __init__(self):
 		self._player_id = -1
+		self.wall_positions = None
+		if GAME_NAME == "Bashni":
+			self.format_positions = format_positions_bashni
+		elif GAME_NAME == "Ploy":
+			self.format_positions = format_positions_ploy
+		elif GAME_NAME == "Quoridor":
+			self.format_positions = format_positions_quoridor
+		elif GAME_NAME == "Mini Wars":
+			self.format_positions = format_positions_miniwars
+		elif GAME_NAME == "Plakoto":
+			self.format_positions = format_positions_plakoto
+		elif GAME_NAME == "Lotus":
+			self.format_positions = format_positions_lotus
 
 	# Fix the player who will play with MCTS in case we load this class with Ludii
 	def init_ai(self, game, player_id):
 		self._player_id = player_id
+
+	def set_wall_positions(self, wall_positions):
+		self.wall_positions = wall_positions
 		
 	# Set some precomputed functions
-	def set_precompute(self, pre_action_index, pre_reverse_action_index, pre_coords, pre_3D_coords):
-		self.pre_action_index = pre_action_index
-		self.pre_reverse_action_index = pre_reverse_action_index
+	#def set_precompute(self, pre_action_index, pre_reverse_action_index, pre_coords, pre_3D_coords):
+	def set_precompute(self, pre_coords):
+		#self.pre_action_index = pre_action_index
+		#self.pre_reverse_action_index = pre_reverse_action_index
 		self.pre_coords = pre_coords
-		self.pre_3D_coords = pre_3D_coords
+		#self.pre_3D_coords = pre_3D_coords
 
 	# Get the value of a node by doing a rollout
 	def get_values(self, context, game):
@@ -181,7 +199,7 @@ class MCTS_UCT_vanilla:
 		# Returns the move to play in the real game and the moves
 		# associated to their prob	ability distribution
 		#return best_child.move_from_parent, state
-		return decision, np.expand_dims(format_state(root_node.context, self.pre_coords).squeeze(), axis=0)
+		return decision, np.expand_dims(format_state(self.format_positions, root_node.context, self.pre_coords, self.wall_positions).squeeze(), axis=0)
 
 class Node:
 	def __init__(self, parent, move_from_parent, context):		

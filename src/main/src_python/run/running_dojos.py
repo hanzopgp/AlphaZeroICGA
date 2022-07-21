@@ -39,9 +39,13 @@ class RunningDojos:
 			outsider_mcts.init_ai(game, PLAYER2)
 
 		# Precompute all expensive functions
-		pre_action_index, pre_reverse_action_index, pre_coords, pre_3D_coords = precompute_all()		
-		champion_mcts.set_precompute(pre_action_index, pre_reverse_action_index, pre_coords, pre_3D_coords)
-		outsider_mcts.set_precompute(pre_action_index, pre_reverse_action_index, pre_coords, pre_3D_coords)
+		#pre_action_index, pre_reverse_action_index, pre_coords, pre_3D_coords = precompute_all()	
+		#champion_mcts.set_precompute(pre_action_index, pre_reverse_action_index, pre_coords, pre_3D_coords)
+		#outsider_mcts.set_precompute(pre_action_index, pre_reverse_action_index, pre_coords, pre_3D_coords)
+		pre_coords = precompute_all()	
+		champion_mcts.set_precompute(pre_coords)
+		outsider_mcts.set_precompute(pre_coords)
+		
 
 		# Declare some variables for statistics
 		champion_mcts_win, outsider_mcts_win, draw, total = 0, 0, 0, 0

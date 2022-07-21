@@ -18,8 +18,8 @@
 ######### GAME DEPENDANT VARIABLES #########
 
 MAX_GAME_DURATION = -1 # Max episode or dojo duration in seconds
-MAX_GAME_MOVES = 200 # Bashni
-# MAX_GAME_MOVES = 200 # Plot
+# MAX_GAME_MOVES = 200 # Bashni
+MAX_GAME_MOVES = 400 # Plot
 # MAX_GAME_MOVES = 200 # Quoridor
 # MAX_GAME_MOVES = 200 # Mini Wars
 # MAX_GAME_MOVES = 200 # Plakoto

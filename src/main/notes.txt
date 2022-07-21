@@ -3,6 +3,8 @@
 - quoridor : how to find the type of pawn (wall or pawn ?)
 
 - pass the right function instead of if else in format_state
+- representation is just depending levels and 2D(site)
+- focus on train ?
 
 ============================================================================
 

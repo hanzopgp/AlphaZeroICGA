@@ -117,7 +117,7 @@ def main_loop(n_iteration, n_workers):
 		print("================================== ITERATION ALPHAZERO", alphazero_iteration, "===================================")
 		print("============================================================================================")
 		
-		if alphazero_iteration+1 % LEARNING_RATE_DECAY_IT == 0:
+		if (alphazero_iteration+1) % LEARNING_RATE_DECAY_IT == 0:
 			lr_save = lr
 			lr /= LEARNING_RATE_DECAY_FACTOR
 			print("--> Learning rate decay from", lr_save, "to", lr)

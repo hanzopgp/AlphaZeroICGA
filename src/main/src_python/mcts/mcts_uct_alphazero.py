@@ -23,6 +23,7 @@ class MCTS_UCT_alphazero:
 		self.dojo = dojo
 		self.model = load_nn(model_type=model_type, inference=True)
 		self.wall_positions = None
+		self.dice_state = 0
 		if GAME_NAME == "Bashni":
 			self.format_positions = format_positions_bashni
 		elif GAME_NAME == "Ploy":

@@ -51,7 +51,7 @@
 ######### MINIWARS PARAMETERS #########
 
 # # General
-# GAME_NAME = "Mini Wars"
+# GAME_NAME = "MiniWars"
 # # State representation
 # N_ROW = 8
 # N_COL = 8
@@ -84,17 +84,34 @@
 
 ######### LOTUS PARAMETERS #########
 
+# # General
+# GAME_NAME = "Lotus"
+# # State representation
+# N_ROW = 9
+# N_COL = 9
+# N_LEVELS = 1
+# N_ADDITIONAL_FEATURES = 1
+# N_TIME_STEP = 3
+# N_REPRESENTATION_STACK = N_ADDITIONAL_FEATURES + (N_TIME_STEP * 2) * N_LEVELS 
+# # Action representation
+# N_DISTANCE = 12 
+# N_ORIENTATION = 2 
+# N_ROTATION = 1 
+# N_ACTION_STACK = N_ORIENTATION * N_DISTANCE * N_DISTANCE
+
+######### CONNECT FOUR PARAMETERS #########
+
 # General
-GAME_NAME = "Lotus"
+GAME_NAME = "ConnectFour"
 # State representation
-N_ROW = 9
-N_COL = 9
+N_ROW = 6
+N_COL = 7
 N_LEVELS = 1
 N_ADDITIONAL_FEATURES = 1
 N_TIME_STEP = 3
 N_REPRESENTATION_STACK = N_ADDITIONAL_FEATURES + (N_TIME_STEP * 2) * N_LEVELS 
 # Action representation
-N_DISTANCE = 12 # double dice roll 
-N_ORIENTATION = 2 # go forward or go in enemy lines
-N_ROTATION = 1 
-N_ACTION_STACK = N_ORIENTATION * N_DISTANCE * N_DISTANCE
+N_DISTANCE = -1 
+N_ORIENTATION = -1 
+N_ROTATION = -1 
+N_ACTION_STACK = N_ROW

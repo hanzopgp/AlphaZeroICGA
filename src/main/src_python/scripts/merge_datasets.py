@@ -23,7 +23,7 @@ if __name__ == '__main__':
 	for path in f:
 		one_file_data = []
 		# Don't merge the main dataset file
-		if not path == "Bashni.pkl":
+		if any(char.isdigit() for char in path):
 			with open(DATASET_PATH+path, 'rb') as fr:
 				try:
 					while True:

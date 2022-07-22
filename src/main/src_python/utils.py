@@ -280,7 +280,7 @@ def format_positions_bashni(positions, lvl, val, pre_coords, wall_positions, dic
 	for i in range(pos.size()):
 		p = pos.get(i)
 		if p.level() == lvl:
-			res[pre_coords[p.site()]] = val
+			res[pre_coords[p.site()][-2:]] = val
 	return res
 
 # For Ploy : there is 1 commander, 3 shields, 6 lances, 5 probes
@@ -291,7 +291,7 @@ def format_positions_ploy(positions, lvl, val, pre_coords, wall_positions, dice_
 		for i in range(pos.size()):
 			p = pos.get(i)
 			if pawn_type == lvl:
-				res[pre_coords[p.site()]] = val
+				res[pre_coords[p.site()][-2:]] = val
 	return res
 
 # For Quoridor : there are walls or pawns, pawns are in the 81 cells, walls are 
@@ -302,10 +302,10 @@ def format_positions_quoridor(positions, lvl, val, pre_coords, wall_positions, d
 		for i in range(pos.size()):
 			p = pos.get(i)
 			if lvl == 0:
-				res[pre_coords[p.site()]] = val
+				res[pre_coords[p.site()][-2:]] = val
 	for wall in wall_positions:
 		if lvl  == 1:
-			res[pre_coords[wall]] = val
+			res[pre_coords[wall][-2:]] = val
 	return res
 
 # For Mini Wars : 
@@ -315,7 +315,7 @@ def format_positions_miniwars(positions, lvl, val, pre_coords, wall_positions, d
 		for i in range(pos.size()):
 			p = pos.get(i)
 			if lvl == 0:
-				res[pre_coords[p.site()]] = val
+				res[pre_coords[p.site()][-2:]] = val
 	return res
 
 # For Plakoto : 
@@ -325,9 +325,9 @@ def format_positions_plakoto(positions, lvl, val, pre_coords, wall_positions, di
 	for i in range(pos.size()):
 		p = pos.get(i)
 		if lvl == p.level():
-			res[pre_coords[p.site()]] = val
+			res[pre_coords[p.site()][-2:]] = val
 		elif lvl == N_LEVELS-1:
-			res[pre_coords[dice_state]] = val
+			res[pre_coords[dice_state][-2:]] = val
 	return res
 
 # For Lotus : 
@@ -337,7 +337,18 @@ def format_positions_lotus(positions, lvl, val, pre_coords, wall_positions, dice
 	for i in range(pos.size()):
 		p = pos.get(i)
 		if lvl == 0:
-			res[pre_coords[p.site()]] = val
+			res[pre_coords[p.site()][-2:]] = val
+	return res
+
+# For Connect Four
+def format_positions_connectfour(positions, lvl, val, pre_coords, wall_positions, dice_state):
+	res = np.zeros((N_ROW, N_COL))
+	pos = positions[0]
+	for i in range(pos.size()):
+		p = pos.get(i)
+		col = p.site()
+		row = (N_ROW-1) - p.level()
+		res[row, col] = val
 	return res
 
 # Build the input of the NN for AlphaZero algorithm thanks to the context object

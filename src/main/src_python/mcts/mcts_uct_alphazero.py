@@ -12,7 +12,7 @@ sys.path.append(os.getcwd()+"/src_python")
 
 from settings.game_settings import GAME_NAME, N_REPRESENTATION_STACK, N_ROW, N_COL
 from settings.config import N_PLAYERS, ONNX_INFERENCE, PLAYER1, PLAYER2, CSTE_PUCT, MINIMUM_QUEUE_PREDICTION
-from utils import load_nn, invert_state, predict_with_model, utilities, format_state, format_positions_bashni, format_positions_ploy, format_positions_quoridor, format_positions_miniwars, format_positions_plakoto, format_positions_lotus
+from utils import load_nn, invert_state, predict_with_model, utilities, format_state, format_positions_bashni, format_positions_ploy, format_positions_quoridor, format_positions_miniwars, format_positions_plakoto, format_positions_connectfour, format_positions_lotus
 	
 ######### Here is the main class to run the MCTS simulation with the model #########
 
@@ -30,12 +30,14 @@ class MCTS_UCT_alphazero:
 			self.format_positions = format_positions_ploy
 		elif GAME_NAME == "Quoridor":
 			self.format_positions = format_positions_quoridor
-		elif GAME_NAME == "Mini Wars":
+		elif GAME_NAME == "MiniWars":
 			self.format_positions = format_positions_miniwars
 		elif GAME_NAME == "Plakoto":
 			self.format_positions = format_positions_plakoto
 		elif GAME_NAME == "Lotus":
 			self.format_positions = format_positions_lotus
+		elif GAME_NAME == "ConnectFour":
+			self.format_positions = format_positions_connectfour
 
 	# Fix the player who will play with MCTS in case we load this class with Ludii
 	def init_ai(self, game, player_id):

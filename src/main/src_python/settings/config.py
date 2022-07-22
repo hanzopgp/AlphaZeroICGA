@@ -19,11 +19,11 @@
 
 MAX_GAME_DURATION = -1 # Max episode or dojo duration in seconds
 # MAX_GAME_MOVES = 200 # Bashni
-MAX_GAME_MOVES = 400 # Plot
+# MAX_GAME_MOVES = 400 # Plot
 # MAX_GAME_MOVES = 200 # Quoridor
-# MAX_GAME_MOVES = 200 # Mini Wars
+# MAX_GAME_MOVES = 400 # Mini Wars
 # MAX_GAME_MOVES = 200 # Plakoto
-# MAX_GAME_MOVES = 200 # Lotus
+MAX_GAME_MOVES = 200 # Lotus
 
 ######### TIME CONSUMING VARIABLES #########
 
@@ -34,11 +34,11 @@ EARLY_STOPPING_PATIENCE = 20
 
 NUM_EPISODE = 2 # Number of self play games by worker
 VANILLA_EPISODE_MULTIPLIER = 5 # Factor by which we multiply the number of episodes when vanilla MCTS are playing
-MAX_ITERATION_AGENT = 15 # Max number of nodes discovered by the MCTS
+MAX_ITERATION_AGENT = 30 # Max number of nodes discovered by the MCTS
 THINKING_TIME_AGENT = -1 # Max number of seconds for the MCTS to run
 
 NUM_DOJO = 2
-MAX_ITERATION_AGENTS_DOJO = 15 
+MAX_ITERATION_AGENTS_DOJO = 30 
 THINKING_TIME_AGENTS_DOJO = -1
 
 N_BATCH_PREDICTION = 5 # Number of batch per MCTS simulation
@@ -81,7 +81,7 @@ NEURONS_VALUE_HEAD = 128 # Number of neurons in last dense layer
 
 OPTIMIZER = "sgd"
 LEARNING_RATE_DECAY_IT = 5 # LR decay every 5 alphazero iteration
-LEARNING_RATE_DECAY_FACTOR = 5 # Divided by 5 each time
+LEARNING_RATE_DECAY_FACTOR = 2 # Divided by 2 each time
 BASE_LEARNING_RATE = 0.1
 MOMENTUM = 0.9
 REG_CONST = 1e-5 # L2 reg

@@ -42,6 +42,9 @@ class MCTS_UCT_alphazero:
 
 	def set_wall_positions(self, wall_positions):
 		self.wall_positions = wall_positions
+
+	def set_dice_state(self, dice_state):
+		self.dice_state = dice_state
 	
 	# Precomputed functions as arrays parameters -> return
 	#def set_precompute(self, pre_action_index, pre_reverse_action_index, pre_coords, pre_3D_coords):
@@ -57,7 +60,7 @@ class MCTS_UCT_alphazero:
 		# estimate the value thanks to the model
 		if not current.context.trial().over():
 			utils = np.zeros(N_PLAYERS)
-			current.state = np.expand_dims(format_state(self.format_positions, current.context.deepCopy(), self.pre_coords, self.wall_positions).squeeze(), axis=0)
+			current.state = np.expand_dims(format_state(self.format_positions, current.context.deepCopy(), self.pre_coords, self.wall_positions, self.dice_state).squeeze(), axis=0)
 			current.value_pred = predict_with_model(self.model, current.state)
 			current.value_opp_pred = predict_with_model(self.model, invert_state(current.state))				
 			utils[PLAYER1], utils[PLAYER2] = current.value_pred[0], current.value_opp_pred[0]
@@ -90,7 +93,7 @@ class MCTS_UCT_alphazero:
 		# For each node of the batch
 		for i, node in enumerate(nodes):
 			# We compute their states
-			node.state = np.expand_dims(format_state(self.format_positions, node.context, self.pre_coords, self.wall_positions).squeeze(), axis=0)
+			node.state = np.expand_dims(format_state(self.format_positions, node.context, self.pre_coords, self.wall_positions, self.dice_state).squeeze(), axis=0)
 			inverted_states[i] = np.expand_dims(invert_state(node.state), axis=0)
 			states[i] = node.state
 
@@ -278,7 +281,7 @@ class MCTS_UCT_alphazero:
 		decision = root_node.children[counter.argmax()].move_from_parent
 				
 		# Returns the move to play in the real game and the root node state
-		return decision, np.expand_dims(format_state(self.format_positions, root_node.context, self.pre_coords, self.wall_positions).squeeze(), axis=0)
+		return decision, np.expand_dims(format_state(self.format_positions, root_node.context, self.pre_coords, self.wall_positions, self.dice_state).squeeze(), axis=0)
 
 
 class Node:

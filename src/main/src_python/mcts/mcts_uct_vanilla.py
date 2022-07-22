@@ -19,6 +19,7 @@ class MCTS_UCT_vanilla:
 	def __init__(self):
 		self._player_id = -1
 		self.wall_positions = None
+		self.dice_state = 0
 		if GAME_NAME == "Bashni":
 			self.format_positions = format_positions_bashni
 		elif GAME_NAME == "Ploy":
@@ -38,6 +39,9 @@ class MCTS_UCT_vanilla:
 
 	def set_wall_positions(self, wall_positions):
 		self.wall_positions = wall_positions
+
+	def set_dice_state(self, dice_state):
+		self.dice_state = dice_state
 		
 	# Set some precomputed functions
 	#def set_precompute(self, pre_action_index, pre_reverse_action_index, pre_coords, pre_3D_coords):
@@ -199,7 +203,7 @@ class MCTS_UCT_vanilla:
 		# Returns the move to play in the real game and the moves
 		# associated to their prob	ability distribution
 		#return best_child.move_from_parent, state
-		return decision, np.expand_dims(format_state(self.format_positions, root_node.context, self.pre_coords, self.wall_positions).squeeze(), axis=0)
+		return decision, np.expand_dims(format_state(self.format_positions, root_node.context, self.pre_coords, self.wall_positions, self.dice_state).squeeze(), axis=0)
 
 class Node:
 	def __init__(self, parent, move_from_parent, context):		

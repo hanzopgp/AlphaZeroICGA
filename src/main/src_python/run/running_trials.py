@@ -82,6 +82,7 @@ class RunningTrials:
 			# Main game loop			
 			while not trial.over():
 				wall_positions = []
+				dice_state = -1
 
 				if time.time() - start_time  > stop_time:
 					if DEBUG_PRINT: print("--> Ended one game because it was too long")
@@ -99,10 +100,6 @@ class RunningTrials:
 				# Keep track of the mover
 				mover = context.state().mover()
 				X_mover.append(mover)
-
-				if GAME_NAME == "Quoridor":
-					mcts1.set_wall_positions(wall_positions)
-					mcts2.set_wall_positions(wall_positions)
 				
 				# Move with custom python AI and save the move distribution
 				if mover == 1:
@@ -111,6 +108,8 @@ class RunningTrials:
 					move, state = mcts2.select_action(game, context, THINKING_TIME_AGENT, max_it, max_depth=-1)
 					
 				n_moves += 1
+
+				# print("--> Move :", move)
 
 				# Avoid to add useless moves when games is over
 				if not move.isForced(): 
@@ -121,10 +120,20 @@ class RunningTrials:
 				move_check.append(move)
 				
 				# print("Move played:", move)
-				
-				if GAME_NAME == "Quoridor" and move.toType() == "Edge":
-					wall_positions.append(move.to())			
 
+				# Have to compute some additional things depending the games
+				if GAME_NAME == "Quoridor" and move.toType() == "Edge":
+					wall_positions.append(move.to())		
+					mcts1.set_wall_positions(wall_positions)
+					mcts2.set_wall_positions(wall_positions)
+				elif GAME_NAME == "Plakoto":
+					dice_state = 0
+					for dice_value in context.state().sumDice():
+						dice_state += dice_value
+					mcts1.set_dice_state(dice_state)
+					mcts2.set_dice_state(dice_state)
+
+				# Apply the move to the game	
 				context.game().apply(context, move)
 		
 			# Compute ranking

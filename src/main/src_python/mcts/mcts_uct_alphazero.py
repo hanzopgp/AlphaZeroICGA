@@ -58,6 +58,9 @@ class MCTS_UCT_alphazero:
 		# self.pre_3D_coords = pre_3D_coords
 
 	def chose_move_connectfour(self, legal_moves, policy_pred, competitive_mode):
+		if len(legal_moves) == 1:
+			return legal_moves[0], 1.0
+
 		legal_moves_python = np.full((N_COL), None)
 		legal_policy = np.zeros((N_COL))
 		for move in legal_moves:
@@ -77,9 +80,10 @@ class MCTS_UCT_alphazero:
 			chosen_to = np.where(chose_array >= r)[0][0]
 			prior = legal_policy[chosen_to]
 
+
 		chosen_move = legal_moves_python[chosen_to]
 		legal_moves.remove(chosen_move)
-		
+
 		return chosen_move, prior
 
 	# Get the policy on every moves, mask out the illegal moves,

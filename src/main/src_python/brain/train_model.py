@@ -22,20 +22,25 @@ if __name__ == '__main__':
 
 	print("* Current learning rate :", learning_rate)
 
-	X, y_values = load_data()
+	X, y_values, y_distrib = load_data()
 
 	champion_path = MODEL_PATH+GAME_NAME+"_"+"champion"+".h5"
 	outsider_path = MODEL_PATH+GAME_NAME+"_"+"outsider"+".h5"
 
+	if GAME_NAME == "ConnectFour":
+		output_dim = N_COL
+	else:
+		output_dim = N_ROW * N_COL * N_ACTION_STACK
+
 	# If there is an outsider, always train it because we are in the case
 	# of re-training since there is both a champion and an outsider
 	if os.path.exists(outsider_path): 
-		X, y_values = get_random_sample(X, y_values, first_step=False)
+		X, y_values, y_distrib = get_random_sample(X, y_values, y_distrib, first_step=False)
 		model_type = "outsider"
 		print("--> Found an outsider, re-training it")
 		model = CustomModel(
 			input_dim=X[0].shape, 
-			output_dim=N_ROW*N_COL*N_ACTION_STACK, # this is the policy head output dim	 
+			output_dim=output_dim, # this is the policy head output dim	 
 			n_res_layer=N_RES_LAYER, 
 			learning_rate=learning_rate, 
 			momentum=MOMENTUM, 
@@ -45,12 +50,12 @@ if __name__ == '__main__':
 	elif os.path.exists(champion_path):
 		# We need to beat MCTS vanilla and we re-train champion until it does
 		if force_champion:
-			X, y_values = get_random_sample(X, y_values, first_step=True)
+			X, y_values, y_distrib = get_random_sample(X, y_values, y_distrib, first_step=True)
 			model_type = "champion"
 			print("--> Found a champion model, re-training it to beat MCTS vanilla")
 			model = CustomModel(
 				input_dim=X[0].shape, 
-				output_dim=N_ROW*N_COL*N_ACTION_STACK,	 
+				output_dim=output_dim,	 
 				n_res_layer=N_RES_LAYER, 
 				learning_rate=learning_rate, 
 				momentum=MOMENTUM, 
@@ -58,12 +63,12 @@ if __name__ == '__main__':
 			model.set_model(load_nn(model_type="champion", inference=False))
 		# We need to create an outsider to fight against the champion model
 		else:
-			X, y_values = get_random_sample(X, y_values, first_step=False)
+			X, y_values, y_distrib = get_random_sample(X, y_values, y_distrib, first_step=False)
 			model_type = "outsider"
 			print("--> Found a champion model, creating an outsider")
 			model = CustomModel(
 				input_dim=X[0].shape, 
-				output_dim=N_ROW*N_COL*N_ACTION_STACK,	 
+				output_dim=output_dim,	 
 				n_res_layer=N_RES_LAYER, 
 				learning_rate=learning_rate, 
 				momentum=MOMENTUM, 
@@ -72,12 +77,12 @@ if __name__ == '__main__':
 	# Else if there is no model at all, we are at first step and we create the 
 	# champion model from scratch
 	else:
-		X, y_values = get_random_sample(X, y_values, first_step=True)
+		X, y_values, y_distrib = get_random_sample(X, y_values, y_distrib, first_step=True)
 		model_type = "champion"
 		print("--> No model found, creating the champion model")
 		model = CustomModel(
 			input_dim=X[0].shape, 
-			output_dim=N_ROW*N_COL*N_ACTION_STACK,	 
+			output_dim=output_dim,	 
 			n_res_layer=N_RES_LAYER, 
 			learning_rate=learning_rate, 
 			momentum=MOMENTUM, 
@@ -85,7 +90,7 @@ if __name__ == '__main__':
 		model.build_model()
 		
 	X = X.astype("float32")
-	y = {"value_head": y_values.astype("float32")} 
+	y = {"value_head": y_values.astype("float32"), "policy_head": y_distrib.astype("float32")} 
 
 	print("\n")
 	history = model.fit(

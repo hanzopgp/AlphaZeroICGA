@@ -60,6 +60,7 @@ class RunningTrials:
 		idx_sample = 0
 		X = np.zeros((MAX_SAMPLE, N_ROW, N_COL, N_REPRESENTATION_STACK))
 		y_values = []
+		y_distrib = np.zeros((MAX_SAMPLE, N_COL))
 		
 		print("--> Running", n_episode, "episodes")
 		
@@ -74,7 +75,6 @@ class RunningTrials:
 			game.start(context)
 			
 			X_mover = []
-			move_check = []
 			
 			stop_time = math.inf if MAX_GAME_DURATION < 0 else MAX_GAME_DURATION
 			n_moves = 0
@@ -103,24 +103,19 @@ class RunningTrials:
 				
 				# Move with custom python AI and save the move distribution
 				if mover == 1:
-					move, state = mcts1.select_action(game, context, THINKING_TIME_AGENT, max_it, max_depth=-1)
+					move, state, distrib = mcts1.select_action(game, context, THINKING_TIME_AGENT, max_it, max_depth=-1)
 				else:
-					move, state = mcts2.select_action(game, context, THINKING_TIME_AGENT, max_it, max_depth=-1)
+					move, state, distrib = mcts2.select_action(game, context, THINKING_TIME_AGENT, max_it, max_depth=-1)
 					
 				n_moves += 1
-
-				# print("--> Move :", move)
-
+				
 				# Avoid to add useless moves when games is over
 				if not move.isForced(): 
 					# Save X state
 					X[idx_sample] = state
+					y_distrib[idx_sample] = distrib
 					idx_sample += 1	
 				
-				move_check.append(move)
-				
-				# print("Move played:", move)
-
 				# Have to compute some additional things depending the games
 				if GAME_NAME == "Quoridor" and move.toType() == "Edge":
 					wall_positions.append(move.to())		
@@ -167,13 +162,18 @@ class RunningTrials:
 			
 		# Keep the interesting values only
 		X = X[:idx_sample]
-		y_values = np.array(y_values)
+		y_values = np.array(y_values)			
 		y_values = y_values[:idx_sample]
+		y_distrib = y_distrib[:idx_sample]
+
+		for y in y_values:
+			print(y)
 
 		if DEBUG_PRINT:
 			# Print our generated dataset shapes
 			print("* X shape", X.shape)	
 			print("* y_values shape", y_values.shape)
+			print("* y_distrib shape", y_distrib.shape)
 			
 			# Print some trial stats
 			print("* AI1 winrate:", ai1_win/total)
@@ -183,9 +183,9 @@ class RunningTrials:
 			print("* Max game duration", duration.max())
 			
 		print("--> Episodes are over")
-			
+
 		# Save values to dataset
-		add_to_dataset(X, y_values, get_random_hash())
+		add_to_dataset(X, y_values, y_distrib, get_random_hash())
 
 		if PROFILING_ACTIVATED:
 			prof.disable()

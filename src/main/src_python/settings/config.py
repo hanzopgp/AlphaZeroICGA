@@ -19,11 +19,11 @@ EARLY_STOPPING_PATIENCE = 10
 
 NUM_EPISODE = 10 # Number of self play games by worker
 VANILLA_EPISODE_MULTIPLIER = 5 # Factor by which we multiply the number of episodes when vanilla MCTS are playing
-MAX_ITERATION_AGENT = 200 # Max number of nodes discovered by the MCTS
+MAX_ITERATION_AGENT = 30 # Max number of nodes discovered by the MCTS
 THINKING_TIME_AGENT = -1 # Max number of seconds for the MCTS to run
 
 NUM_DOJO = 4
-MAX_ITERATION_AGENTS_DOJO = 200 
+MAX_ITERATION_AGENTS_DOJO = 30 
 THINKING_TIME_AGENTS_DOJO = -1
 
 N_BATCH_PREDICTION = 5 # Number of batch per MCTS simulation
@@ -73,6 +73,8 @@ LEARNING_RATE_DECAY_FACTOR = 2 # Divided by 2 each time
 BASE_LEARNING_RATE = 0.1
 MOMENTUM = 0.9
 REG_CONST = 1e-5 # L2 reg
+
+LOSS_WEIGHTS = [0.5, 0.5]
 
 ######### OPTIMIZATION VARIABLES #########
 

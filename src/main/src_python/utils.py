@@ -43,34 +43,43 @@ def load_data():
 	# Extrat what's inside the dataset
 	X = []
 	y_values = []
+	y_distrib = []
 	for batch in data:
 		X.append(batch["X"])
 		y_values.append(batch["y_values"])
+		y_distrib.append(batch["y_distrib"])
+		
 	X = np.array(X, dtype=object)
 	y_values = np.array(y_values, dtype=object)
+	y_distrib = np.array(y_distrib, dtype=object)
 	final_X = X[0]
 	final_y_values = y_values[0]
+	final_y_distrib = y_distrib[0]
 	for i in range(1, X.shape[0]):
 		final_X = np.concatenate((final_X, X[i]), axis=0)
 		final_y_values = np.concatenate((final_y_values, y_values[i]), axis=0)
+		final_y_distrib = np.concatenate((final_y_distrib, y_distrib[i]), axis=0)
 
 	if final_X.shape[0] >= MAX_SIZE_FULL_DATASET:
 		print("--> Size of the dataset exceeded :", MAX_SIZE_FULL_DATASET, "examples")
 		print("--> Deleting some examples and re-writing pickle file")
-		final_X, final_y_values = final_X[final_X.shape[0] - MAX_SIZE_FULL_DATASET:], final_y_values[final_X.shape[0] - MAX_SIZE_FULL_DATASET:] 
+		final_X, final_y_values, final_y_distrib = final_X[final_X.shape[0] - MAX_SIZE_FULL_DATASET:], \
+												   final_y_values[final_X.shape[0] - MAX_SIZE_FULL_DATASET:], \
+												   final_y_distrib[final_X.shape[0] - MAX_SIZE_FULL_DATASET:]
 		Popen("rm "+pkl_path, shell=True).wait()
-		add_to_dataset(final_X, final_y_values)
+		add_to_dataset(final_X, final_y_values, final_y_distrib)
 		
 	# Print some stats
 	if DEBUG_PRINT:
 		print("* Number of examples in the dataset :", final_X.shape[0])
 		print("* X shape", final_X.shape)
 		print("* y_values shape", final_y_values.shape)
-	
+		print("* y_distrib shape", final_y_distrib.shape)
+
 	print("--> Done !")
-	return final_X, final_y_values
+	return final_X, final_y_values, final_y_distrib
 	
-def get_random_sample(X, y_values, first_step=False):
+def get_random_sample(X, y_values, y_distrib, first_step=False):
 	if first_step:
 		train_sample = X.shape[0]
 		idx = np.random.choice(np.arange(X.shape[0]), train_sample, replace=False)
@@ -82,17 +91,17 @@ def get_random_sample(X, y_values, first_step=False):
 		else:
 			idx = np.random.choice(np.arange(X.shape[0]), train_sample, replace=False)
 	print("--> Training on", train_sample, "examples, Chosen between index [", idx.min(), idx.max(), "]")
-	return X[idx], y_values[idx]
+	return X[idx], y_values[idx], y_distrib[idx]
 
 def get_random_hash():
 	return str(np.random.rand() * time.time()).replace(".", "")
 
-def add_to_dataset(X, y_values, hash_code=""):
+def add_to_dataset(X, y_values, y_distrib, hash_code=""):
 	print("--> Saving data to pickle for the game :", GAME_NAME)
 	if len(hash_code) >= 1:
 		print("* Hash code :", hash_code)
 	pkl_path = DATASET_PATH+GAME_NAME+hash_code+".pkl"
-	my_data = {'X': X, 'y_values': y_values}
+	my_data = {'X': X, 'y_values': y_values, 'y_distrib': y_distrib}
 	if os.path.exists(pkl_path): 
 		with open(pkl_path, 'ab+') as fp:
 			pickle.dump(my_data, fp)
@@ -120,13 +129,10 @@ def load_nn(model_type, inference):
 	return model
 	
 # Use the model to predict a value
-def predict_with_model(model, X, output=["value_head"]):
+def predict_with_model(model, X, output=["value_head", "policy_head"]):
 	if ONNX_INFERENCE:
-		res = model.run(output, {"input_1": X.astype(np.float32)})
-	else:
-		res = model.predict(X, verbose=0)
-	# print(res)
-	return res
+		return model.run(output, {"input_1": X.astype(np.float32)})
+	return model.predict(X, verbose=0)
 	
 # This function checks if we are going to use the vanilla MCTS
 # because we don't have a model yet or if we are going to use

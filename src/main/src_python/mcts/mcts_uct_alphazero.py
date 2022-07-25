@@ -12,7 +12,7 @@ sys.path.append(os.getcwd()+"/src_python")
 
 from settings.game_settings import GAME_NAME, N_REPRESENTATION_STACK, N_ROW, N_COL
 from settings.config import N_PLAYERS, ONNX_INFERENCE, PLAYER1, PLAYER2, CSTE_PUCT, MINIMUM_QUEUE_PREDICTION
-from utils import load_nn, invert_state, predict_with_model, utilities, format_state, format_positions_bashni, format_positions_ploy, format_positions_quoridor, format_positions_miniwars, format_positions_plakoto, format_positions_connectfour, format_positions_lotus
+from utils import softmax, load_nn, invert_state, predict_with_model, utilities, format_state, format_positions_bashni, format_positions_ploy, format_positions_quoridor, format_positions_miniwars, format_positions_plakoto, format_positions_connectfour, format_positions_lotus
 	
 ######### Here is the main class to run the MCTS simulation with the model #########
 
@@ -50,12 +50,91 @@ class MCTS_UCT_alphazero:
 		self.dice_state = dice_state
 	
 	# Precomputed functions as arrays parameters -> return
-	#def set_precompute(self, pre_action_index, pre_reverse_action_index, pre_coords, pre_3D_coords):
+	# def set_precompute(self, pre_action_index, pre_reverse_action_index, pre_coords, pre_3D_coords):
 	def set_precompute(self, pre_coords):
-		#self.pre_action_index = pre_action_index
-		#self.pre_reverse_action_index = pre_reverse_action_index
+		# self.pre_action_index = pre_action_index
+		# self.pre_reverse_action_index = pre_reverse_action_index
 		self.pre_coords = pre_coords
-		#self.pre_3D_coords = pre_3D_coords
+		# self.pre_3D_coords = pre_3D_coords
+
+	def chose_move_connectfour(self, legal_moves, policy_pred, competitive_mode):
+		legal_policy = np.zeros(policy_pred.shape)
+		legal_moves_python = np.zeros((N_ROW, N_COL, N_ROW, N_COL), dtype=object)
+		legal_policy = softmax(legal_policy, ignore_zero=True)
+		if competitive_mode:
+			chosen_to = legal_policy.argmax()
+			prior = legal_policy.max()
+		else:
+			r = np.random.rand()
+			chose_array = legal_policy.cumsum()
+			chosen_to = np.where(chose_array >= r)	
+			prior = legal_policy[chosen_to]
+		for move in legal_moves:
+			if move.to() == chosen_to:
+				chosen_move = move
+		legal_moves.remove(chosen_move)
+		return chosen_move, prior
+
+	# Get the policy on every moves, mask out the illegal moves,
+	# re-compute softmax and pick a move randomly according to
+	# the new policy then return the move and its prio
+	def chose_move(self, legal_moves, policy_pred, competitive_mode):
+		# New legal policy array starting as everything illegal
+		legal_policy = np.zeros(policy_pred.shape)
+		
+		# Save legal moves in python
+		legal_moves_python = np.zeros((N_ROW, N_COL, N_ROW, N_COL), dtype=object)
+		
+		# Find the legal moves in the policy
+		for i in range(len(legal_moves)):
+			# Get the N_ROW, N_COL coordinates
+			legal_move = legal_moves[i]
+			to = legal_move.to()
+			from_ = getattr(legal_move, "from")()
+			
+			# Get coords
+			prev_x, prev_y, x, y = self.pre_coords[from_][to]
+
+			# Save the move
+			legal_moves_python[prev_x][prev_y][x][y] = legal_move
+			
+			# Precomputed function	
+			# Get the action index
+			action_index = self.pre_action_index[from_][to]
+			
+			# Write the value only for the legal moves
+			legal_policy[prev_x, prev_y, action_index] = policy_pred[prev_x, prev_y, action_index]
+			
+		# Re-compute softmax after masking out illegal moves
+		legal_policy = softmax(legal_policy, ignore_zero=True)
+		
+		# If we are playing for real, we chose the best action given by the policy
+		if competitive_mode:
+			chosen_x, chosen_y, chosen_action = np.unravel_index(legal_policy.argmax(), legal_policy.shape)
+			prior = np.max(legal_policy)
+		# Else we are training and we use the policy for the MCTS
+		else:
+			# Get a random number between 0 and 1
+			r = np.random.rand()
+			chose_array = np.cumsum(legal_policy.flatten())
+			choice = np.where(chose_array >= r)
+			
+			# Precomputed function
+			chosen_x, chosen_y, chosen_action = self.pre_3D_coords[choice[0][0]]
+			
+			# The prior is the value at those index which represent the
+			# probability it was picked
+			prior = legal_policy[chosen_x][chosen_y][chosen_action]	
+
+		# Precomputed function	
+		chosen_prev_x, chosen_prev_y = self.pre_reverse_action_index[chosen_x][chosen_y][chosen_action]
+		
+		# Pop the move to play
+		move = legal_moves_python[chosen_x][chosen_y][chosen_prev_x][chosen_prev_y]
+		legal_moves.remove(move)
+		
+		# Now we need to find the move in the java object legal moves list
+		return move, prior
 
 	# Get values of the current node one by one
 	def get_values(self, current):
@@ -64,8 +143,8 @@ class MCTS_UCT_alphazero:
 		if not current.context.trial().over():
 			utils = np.zeros(N_PLAYERS)
 			current.state = np.expand_dims(format_state(self.format_positions, current.context.deepCopy(), self.pre_coords, self.wall_positions, self.dice_state).squeeze(), axis=0)
-			current.value_pred = predict_with_model(self.model, current.state)
-			current.value_opp_pred = predict_with_model(self.model, invert_state(current.state))				
+			current.value_pred, current.policy_pred = predict_with_model(self.model, current.state)
+			current.value_opp_pred, _ = predict_with_model(self.model, invert_state(current.state))				
 			utils[PLAYER1], utils[PLAYER2] = current.value_pred[0], current.value_opp_pred[0]
 		# If we are in a terminal node we can compute ground truth utilities
 		else:
@@ -102,16 +181,17 @@ class MCTS_UCT_alphazero:
 
 		# Then we predict the values for that batch of states
 		if ONNX_INFERENCE:
-			value_preds = predict_with_model(self.model, states)[0]
-			value_opp_preds = predict_with_model(self.model, inverted_states)[0]
+			value_preds, policy_preds = predict_with_model(self.model, states, output=["value_head", "policy_head"])
+			value_opp_preds = predict_with_model(self.model, inverted_states, output=["value_head"])
 		else:
-			value_preds = predict_with_model(self.model, states)
-			value_opp_preds = predict_with_model(self.model, inverted_states)
-
+			value_preds, policy_preds = predict_with_model(self.model, states)
+			value_opp_preds, _ = predict_with_model(self.model, inverted_states)
+			
 		# Then we can fill and return the utility array
-		utils[:,PLAYER1] = value_preds.squeeze()
-		utils[:,PLAYER2] = value_opp_preds.squeeze()
-		return utils
+		utils[:,PLAYER1] = np.array(value_preds).squeeze()
+		utils[:,PLAYER2] = np.array(value_opp_preds).squeeze()			
+
+		return utils, policy_preds
 
 	# Checks if we can compute some ground truth utils
 	def check_ground_truth(self, nodes, utils):
@@ -121,13 +201,15 @@ class MCTS_UCT_alphazero:
 				utils[i] = utilities(tmp_context)
 		return utils
 		
-	# Backpropagates the predicted values in the tree for a batch of nodes
-	def backpropagate_predicted_values(self, nodes, utils):
+	# Backpropagates the predicted values in the tree for a batch of nodes and
+	# set the policy for each node
+	def backpropagate_predicted_values(self, nodes, utils, policy_preds):
 		for i, node in enumerate(nodes):
+			node.current = policy_preds[i]
 			while node is not None:
 				node.score_sums[PLAYER1] += utils[i, PLAYER1]
 				node.score_sums[PLAYER2] += utils[i, PLAYER2]
-				node = node.parent
+				node = node.parent				
 
 	# Backpropagate the visit counts of a node
 	def backpropagate_visit_counts(self, node):
@@ -135,7 +217,18 @@ class MCTS_UCT_alphazero:
 				node.visit_count += 1
 				node.total_visit_count += 1
 				node = node.parent
-		
+
+	# This function formats the counter and childrens in case there is only 2 available moves for example
+	def format_counter_children(self, counter, root_node):
+		res_counter = np.zeros((N_COL))
+		res_children = np.full((N_COL), None)
+		for chi in root_node.children:
+			for i in range(N_COL):
+				if chi.move_from_parent.to() == i:
+					res_counter[i] = chi.visit_count
+					res_children[i] = chi
+		return res_counter, res_children
+
 	# Main method called to choose an action at depth 0
 	def select_action(self, game, context, max_seconds, max_iterations, max_depth):
 		# Init an empty node which will be our root
@@ -183,13 +276,13 @@ class MCTS_UCT_alphazero:
 			# last iteration in order to avoid missing values before the final decision
 			if len(predict_queue) >= MINIMUM_QUEUE_PREDICTION or num_iterations == max_its - 1:
 				# Predict the values of the whole queue 
-				utils = self.predict_values(predict_queue)
+				utils, policy_preds = self.predict_values(predict_queue)
 
 				# Check if we can compute some ground truth utils
 				utils = self.check_ground_truth(predict_queue, utils)
 
 				# Backpropagated the utility scores
-				self.backpropagate_predicted_values(predict_queue, utils)
+				self.backpropagate_predicted_values(predict_queue, utils, policy_preds)
 
 				# Empty the predict queue
 				predict_queue = []
@@ -205,15 +298,6 @@ class MCTS_UCT_alphazero:
 			# Keep track of the number of iteration in case there is a max
 			num_iterations += 1
 
-		# print("----->", full_queue)
-		# print(len(full_queue))
-		# for i in full_queue:
-		# 	print(i.score_sums[PLAYER1])
-		# 	print(i.score_sums[PLAYER2])
-		# exit()
-
-		# print("al", num_iterations)
-
 		# Return the final move thanks to the scores
 		return self.select_root_child_node(root)
 
@@ -222,7 +306,11 @@ class MCTS_UCT_alphazero:
 		# If we have some moves to expand
 		if len(current.unexpanded_moves) > 0:
 			# Choose a move randomly
-			move = current.unexpanded_moves.pop()
+			if current.policy_pred == None:
+				move = current.unexpanded_moves.pop()
+				prior = 1 / (len(current.unexpanded_moves)+1) # +1 because we pop 
+			else:
+				move, prior = self.chose_move(current.unexpanded_moves, current.policy_pred, competitive_mode=self.dojo)
 			
 			# We copy the context to play in a simulation
 			current_context = current.context.deepCopy()
@@ -265,11 +353,6 @@ class MCTS_UCT_alphazero:
 				if rand == 0:
 					best_child = child
 				num_best_found += 1
-
-		# print("*"*30)
-		# print("alphazero", self._player_id)
-		# print(exploit, explore, value)
-		# print("*"*30)
 				
 		# Return the best child of the current node according to the PUCT score
 		return best_child
@@ -279,17 +362,22 @@ class MCTS_UCT_alphazero:
 	def select_root_child_node(self, root_node):
 		# Arrays for the decision making
 		counter = np.array([root_node.children[i].visit_count/root_node.total_visit_count for i in range(len(root_node.children))])
-		
-		# Get the decision
-		decision = root_node.children[counter.argmax()].move_from_parent
+		if GAME_NAME == "ConnectFour": 
+			counter, children = self.format_counter_children(counter, root_node)
+
+		try:
+			decision = children[counter.argmax()].move_from_parent
+		except: # This is in case the move is forced
+			decision = root_node.children[0].move_from_parent
 				
 		# Returns the move to play in the real game and the root node state
-		return decision, np.expand_dims(format_state(self.format_positions, root_node.context, self.pre_coords, self.wall_positions, self.dice_state).squeeze(), axis=0)
+		return decision, np.expand_dims(format_state(self.format_positions, root_node.context, self.pre_coords, self.wall_positions, self.dice_state).squeeze(), axis=0), counter
 
 
 class Node:
 	def __init__(self, parent, move_from_parent, context):
 		self.state = None
+		self.policy_pred = None
 		self.value_pred = None
 		self.value_opp_pred = None
 

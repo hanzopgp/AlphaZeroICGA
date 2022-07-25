@@ -16,8 +16,9 @@ from tensorflow.keras.callbacks import EarlyStopping
 from keras import regularizers
 
 
-from settings.config import OPTIMIZER, MODEL_PATH, EARLY_STOPPING_PATIENCE, MAIN_ACTIVATION, FILTERS, KERNEL_SIZE, USE_BIAS, FIRST_KERNEL_SIZE, NEURONS_VALUE_HEAD, ONNX_INFERENCE
+from settings.config import OPTIMIZER, MODEL_PATH, EARLY_STOPPING_PATIENCE, MAIN_ACTIVATION, FILTERS, KERNEL_SIZE, USE_BIAS, FIRST_KERNEL_SIZE, NEURONS_VALUE_HEAD, ONNX_INFERENCE, LOSS_WEIGHTS
 from settings.game_settings import GAME_NAME
+from utils import softmax_cross_entropy_with_logits
 
 
 ######### Here is the class that contain our AlphaZero model #########
@@ -111,11 +112,15 @@ class CustomModel():
 		# Then we have several residual layers		
 		for _ in range(self.n_res_layer):
 			x = self.res_layer(x, FILTERS, KERNEL_SIZE)
-		# Then a value head
+		# Then a value head and policy head
 		val_head = self.value_head(x)
+		pol_head = self.policy_head(x)
 		# Finaly we declare our model
-		model = Model(inputs=[input_layer], outputs=[val_head])
-		model.compile(loss="mean_squared_error", optimizer=self.opt)
+		model = Model(inputs=[input_layer], outputs=[val_head, pol_head])
+		model.compile(loss={"value_head": "mean_squared_error", "policy_head": softmax_cross_entropy_with_logits},
+					  loss_weights={"value_head": LOSS_WEIGHTS[0], "policy_head": LOSS_WEIGHTS[1]},
+					  #metrics={"value_head": "mean_squared_error", "policy_head": "accuracy"},
+					  optimizer=self.opt)
 		self.model = model
 		
 	# This method returns a classical convolutional layer with batch normalization
@@ -185,6 +190,32 @@ class CustomModel():
 			kernel_initializer=tf.keras.initializers.GlorotNormal(),
 			kernel_regularizer=regularizers.l2(self.reg_const),
 			name="value_head"
+		)(x)
+		return (x)
+
+	# This one is our policy head and will predict a distribution over moves
+	# which will be our new policy
+	def policy_head(self, x):
+		x = Conv2D(
+			filters=2, # AlphaZero paper
+			kernel_size=(1,1), # AlphaZero paper 
+			kernel_initializer=tf.keras.initializers.GlorotNormal(),
+			#data_format="channels_first",
+			padding="same", 
+			use_bias=USE_BIAS, 
+			activation="linear", 
+			kernel_regularizer=regularizers.l2(self.reg_const)
+		)(x)
+		x = BatchNormalization(axis=3)(x)
+		x = LeakyReLU()(x)
+		x = Flatten()(x)
+		x = Dense(
+			self.output_dim, 
+			use_bias=USE_BIAS, 
+			activation="softmax",
+			kernel_initializer=tf.keras.initializers.GlorotNormal(),
+			kernel_regularizer=regularizers.l2(self.reg_const),
+			name="policy_head"
 		)(x)
 		return (x)
 		

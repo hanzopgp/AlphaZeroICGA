@@ -1,3 +1,4 @@
+from logging.handlers import RotatingFileHandler
 import os
 import sys
 import random
@@ -9,7 +10,7 @@ sys.path.append(os.getcwd()+"/src_python")
 
 
 from settings.config import CSTE_PUCT, N_PLAYERS, PLAYER1, PLAYER2
-from settings.game_settings import GAME_NAME
+from settings.game_settings import GAME_NAME, N_COL
 from utils import utilities, format_state, format_positions_bashni, format_positions_connectfour, format_positions_ploy, format_positions_quoridor, format_positions_miniwars, format_positions_plakoto, format_positions_lotus
 
 	
@@ -84,6 +85,17 @@ class MCTS_UCT_vanilla:
 			node.score_sums[PLAYER2] += utils[PLAYER2]
 			# We propagate the values from leaves to the root through the whole tree
 			node = node.parent
+
+	# This function formats the counter and childrens in case there is only 2 available moves for example
+	def format_counter_children(self, counter, root_node):
+		res_counter = np.zeros((N_COL))
+		res_children = np.full((N_COL), None)
+		for chi in root_node.children:
+			for i in range(N_COL):
+				if chi.move_from_parent.to() == i:
+					res_counter[i] = chi.visit_count
+					res_children[i] = chi
+		return res_counter, res_children
 		
 	# Main method called to choose an action at depth 0
 	def select_action(self, game, context, max_seconds, max_iterations, max_depth):
@@ -130,8 +142,6 @@ class MCTS_UCT_vanilla:
 
 			# Keep track of the number of iteration in case there is a max
 			num_iterations += 1
-
-		# print("va", num_iterations)
 
 		# Return the final move thanks to the scores
 		return self.select_root_child_node(root)
@@ -185,11 +195,6 @@ class MCTS_UCT_vanilla:
 					best_child = child
 				num_best_found += 1
 
-		# print("*"*30)
-		# print("vanilla")
-		# print(exploit, explore, value)
-		# print("*"*30)
-
 		# Return the best child of the current node according to the UCB score
 		return best_child
 
@@ -197,15 +202,18 @@ class MCTS_UCT_vanilla:
 	# depending the number of visits of each depth 0 actions
 	def select_root_child_node(self, root_node):
 		# Arrays for the decision making
-		counter = np.array([root_node.children[i].visit_count/root_node.total_visit_count for i in range(len(root_node.children))])
-		
-		# Get the decision
-		decision = root_node.children[counter.argmax()].move_from_parent
+		counter = np.array([root_node.children[i].visit_count for i in range(len(root_node.children))])
+		if GAME_NAME == "ConnectFour": 
+			counter, children = self.format_counter_children(counter, root_node)
+
+		try:
+			decision = children[counter.argmax()].move_from_parent
+		except: # This is in case the move is forced
+			decision = root_node.children[0].move_from_parent
 				
 		# Returns the move to play in the real game and the moves
 		# associated to their prob	ability distribution
-		#return best_child.move_from_parent, state
-		return decision, np.expand_dims(format_state(self.format_positions, root_node.context, self.pre_coords, self.wall_positions, self.dice_state).squeeze(), axis=0)
+		return decision, np.expand_dims(format_state(self.format_positions, root_node.context, self.pre_coords, self.wall_positions, self.dice_state).squeeze(), axis=0), counter/root_node.total_visit_count
 
 class Node:
 	def __init__(self, parent, move_from_parent, context):		

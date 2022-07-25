@@ -70,7 +70,7 @@ def precompute_get_3D_coord():
 # 	return pre_position
 
 def precompute_all():
-	return precompute_get_coord()#, precompute_action_index(), precompute_reverse_action_index(), precompute_get_3D_coord(), precompute_format_positions(position_example)
+	return precompute_get_coord()#, precompute_action_index(), precompute_reverse_action_index(), precompute_get_3D_coord()#, precompute_format_positions(position_example)
 
 
 # precompute_format_positions()

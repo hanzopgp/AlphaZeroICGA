@@ -17,13 +17,13 @@ ONNX_INFERENCE = True # ONNX inference should be False if using GPU
 N_EPOCHS = 100
 EARLY_STOPPING_PATIENCE = 10
 
-NUM_EPISODE = 100 # Number of self play games by worker
+NUM_EPISODE = 10 # Number of self play games by worker
 VANILLA_EPISODE_MULTIPLIER = 5 # Factor by which we multiply the number of episodes when vanilla MCTS are playing
-MAX_ITERATION_AGENT = 30 # Max number of nodes discovered by the MCTS
+MAX_ITERATION_AGENT = 100 # Max number of nodes discovered by the MCTS
 THINKING_TIME_AGENT = -1 # Max number of seconds for the MCTS to run
 
 NUM_DOJO = 4
-MAX_ITERATION_AGENTS_DOJO = 30 
+MAX_ITERATION_AGENTS_DOJO = 100 
 THINKING_TIME_AGENTS_DOJO = -1
 
 N_BATCH_PREDICTION = 5 # Number of batch per MCTS simulation
@@ -50,6 +50,9 @@ N_MOVES_TYPICAL_POSITION_CONNECTFOUR = 6
 
 CSTE_PUCT = 2 # Exploration constant 
 MAX_SAMPLE = 10_000 # Can decide the max size of the dataset per iteration 
+WEIGHTED_SUM_DIR = 0.75 # this value comes from the paper
+DIRICHLET_ALPHA = 10/N_MOVES_TYPICAL_POSITION_CONNECTFOUR # noise in the estimated policy -> more exploration
+TEMPERATURE = 1 # 1 -> no change, 0 -> argmax 
 
 ######### NN parameters #########
 

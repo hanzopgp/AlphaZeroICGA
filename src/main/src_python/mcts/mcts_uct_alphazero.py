@@ -11,8 +11,8 @@ sys.path.append(os.getcwd()+"/src_python")
 
 
 from settings.game_settings import GAME_NAME, N_REPRESENTATION_STACK, N_ROW, N_COL
-from settings.config import N_PLAYERS, ONNX_INFERENCE, PLAYER1, PLAYER2, CSTE_PUCT, MINIMUM_QUEUE_PREDICTION
-from utils import softmax, load_nn, invert_state, predict_with_model, utilities, format_state, format_positions_bashni, format_positions_ploy, format_positions_quoridor, format_positions_miniwars, format_positions_plakoto, format_positions_connectfour, format_positions_lotus
+from settings.config import N_PLAYERS, ONNX_INFERENCE, PLAYER1, PLAYER2, CSTE_PUCT, MINIMUM_QUEUE_PREDICTION, TEMPERATURE
+from utils import softmax, load_nn, apply_dirichlet, invert_state, predict_with_model, utilities, format_state, format_positions_bashni, format_positions_ploy, format_positions_quoridor, format_positions_miniwars, format_positions_plakoto, format_positions_connectfour, format_positions_lotus
 	
 ######### Here is the main class to run the MCTS simulation with the model #########
 
@@ -47,7 +47,7 @@ class MCTS_UCT_alphazero:
 		self.wall_positions = wall_positions
 
 	def set_dice_state(self, dice_state):
-		self.dice_state = dice_state
+		self.dice_state = dice_state	
 	
 	# Precomputed functions as arrays parameters -> return
 	# def set_precompute(self, pre_action_index, pre_reverse_action_index, pre_coords, pre_3D_coords):
@@ -201,6 +201,10 @@ class MCTS_UCT_alphazero:
 		# Then we can fill and return the utility array
 		utils[:,PLAYER1] = np.array(value_preds).squeeze()
 		utils[:,PLAYER2] = np.array(value_opp_preds).squeeze()			
+
+		## MAYBE I SHOULD NUMPY THAT
+		# policy_preds =  np.array([apply_dirichlet(policy_preds[i]) for i in range(len(policy_preds))]).squeeze()
+		# policy_preds = apply_dirichlet(policy_preds)
 
 		return utils, policy_preds
 
@@ -380,6 +384,11 @@ class MCTS_UCT_alphazero:
 			decision = children[counter.argmax()].move_from_parent
 		except: # This is in case the move is forced
 			decision = root_node.children[0].move_from_parent
+
+		# Start as 1 so it doesn't matter at the beginning,
+		# goes to 0 while the game goes on in order to reduce
+		# exploration in the end game
+		# soft = np.power(soft, 1/TEMPERATURE)
 				
 		# Returns the move to play in the real game and the root node state
 		return decision, np.expand_dims(format_state(self.format_positions, root_node.context, self.pre_coords, self.wall_positions, self.dice_state).squeeze(), axis=0), counter

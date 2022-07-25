@@ -16,7 +16,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 from tensorflow.keras.models import load_model
 
 
-from settings.config import MODEL_PATH, DATASET_PATH, DEBUG_PRINT, RATIO_TRAIN, MAX_SIZE_FULL_DATASET, TRAIN_SAMPLE_SIZE, ONNX_INFERENCE, INDEX_ACTION_TAB_SIGN, PLAYER1, PLAYER2
+from settings.config import MODEL_PATH, DATASET_PATH, DEBUG_PRINT, RATIO_TRAIN, MAX_SIZE_FULL_DATASET, TRAIN_SAMPLE_SIZE, ONNX_INFERENCE, INDEX_ACTION_TAB_SIGN, PLAYER1, PLAYER2, WEIGHTED_SUM_DIR, DIRICHLET_ALPHA
 from settings.game_settings import GAME_NAME, N_ROW, N_COL, N_REPRESENTATION_STACK, N_ACTION_STACK, N_DISTANCE, N_ORIENTATION, N_LEVELS, N_TIME_STEP
 
 
@@ -182,6 +182,12 @@ def softmax(x, ignore_zero=False):
 		return x
 	else:
 		return np.exp(x)/np.sum(np.exp(x))
+
+# Apply Dirichlet with the alpha parameters to the policy in order
+# to add some noise in the policy and ensure exploration
+def apply_dirichlet(policy):
+	dira = np.random.dirichlet(np.full(policy.shape, DIRICHLET_ALPHA), size=1)
+	return (WEIGHTED_SUM_DIR * policy) + (1 - WEIGHTED_SUM_DIR) * dira
 
 ######### Here are the utility function used for the game #########
 	

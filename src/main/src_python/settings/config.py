@@ -1,45 +1,29 @@
-######### ALPHAZERO PAPER VARIABLES #########
-
-# thinking_time 40ms
-# total number of games 44M
-# number of trials 25 000
-# sample 2048 positions from the last 500 000 games
-# evaluate network after 1 000 training loops
-# play 400 games to evaluate new network
-# need more than 55% winrate to pass
-# 7 time step for each player
-
-# learning rate 0.2, 0.02, 0.002, 0.0002
-# kernel size (3,3)
-# n residual layers 40
-# n filters 256
-# mlp neurons 256
-
 ######### GAME DEPENDANT VARIABLES #########
 
 MAX_GAME_DURATION = -1 # Max episode or dojo duration in seconds
+
 # MAX_GAME_MOVES = 200 # Bashni
 # MAX_GAME_MOVES = 400 # Plot
 # MAX_GAME_MOVES = 200 # Quoridor
 # MAX_GAME_MOVES = 400 # Mini Wars
 # MAX_GAME_MOVES = 200 # Plakoto
 # MAX_GAME_MOVES = 200 # Lotus
-MAX_GAME_MOVES = 200 # Connect Four
+MAX_GAME_MOVES = 50 # Connect Four
 
 ######### TIME CONSUMING VARIABLES #########
 
 ONNX_INFERENCE = True # ONNX inference should be False if using GPU
 
 N_EPOCHS = 100
-EARLY_STOPPING_PATIENCE = 20
+EARLY_STOPPING_PATIENCE = 10
 
 NUM_EPISODE = 10 # Number of self play games by worker
 VANILLA_EPISODE_MULTIPLIER = 5 # Factor by which we multiply the number of episodes when vanilla MCTS are playing
-MAX_ITERATION_AGENT = 100 # Max number of nodes discovered by the MCTS
+MAX_ITERATION_AGENT = 200 # Max number of nodes discovered by the MCTS
 THINKING_TIME_AGENT = -1 # Max number of seconds for the MCTS to run
 
-NUM_DOJO = 4 
-MAX_ITERATION_AGENTS_DOJO = 100 
+NUM_DOJO = 4
+MAX_ITERATION_AGENTS_DOJO = 200 
 THINKING_TIME_AGENTS_DOJO = -1
 
 N_BATCH_PREDICTION = 5 # Number of batch per MCTS simulation
@@ -55,20 +39,23 @@ N_PLAYERS = 2 + 1
 DATASET_PATH = "./datasets/"
 MODEL_PATH = "./models/"
 WINNERS_FILE="./models/save_winners.txt"
-N_MOVES_TYPICAL_POSITION_BASHNI = 15
-OUTSIDER_MIN_WINRATE = 0.55
+OUTSIDER_MIN_WINRATE = 0.6
 MAX_SIZE_FULL_DATASET = 50_000 # Maximum number of examples in the dataset
+RATIO_TRAIN = 1/2 # If 2/3 --> always train on the last third of the dataset
+
+# N_MOVES_TYPICAL_POSITION_BASHNI = 15
+N_MOVES_TYPICAL_POSITION_CONNECTFOUR = 6
 
 ######### MCTS PARAMETERS #########
 
 CSTE_PUCT = 2 # Exploration constant 
-MAX_SAMPLE = 10_000 # Can decide the max size of the dataset 
+MAX_SAMPLE = 10_000 # Can decide the max size of the dataset per iteration 
 
 ######### NN parameters #########
 
 TRAIN_SAMPLE_SIZE = 4096
 RANDOM_SEED = 42
-BATCH_SIZE = 512
+BATCH_SIZE = 512	
 VERBOSE = 1
 VALIDATION_SPLIT = 0.25
 

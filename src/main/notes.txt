@@ -1,3 +1,15 @@
+- test sending multiple self play on multiple nodes CPU clusters, and train model on GPU clusters
+- re-add policy for connect-four
+- optimize parameters, fight between models 	
+
+============================================================================
+
+- focus on tic tac toe 
+- maybe reduce model complexity
+- check everything
+
+============================================================================
+
 - bashni : OK
 - ploy : how to find orientation of the different types of pawns in the representation
 - quoridor : how to find the type of pawn (wall or pawn ?)

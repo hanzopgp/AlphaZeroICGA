@@ -16,7 +16,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 from tensorflow.keras.models import load_model
 
 
-from settings.config import MODEL_PATH, DATASET_PATH, DEBUG_PRINT, MAX_SIZE_FULL_DATASET, TRAIN_SAMPLE_SIZE, ONNX_INFERENCE, INDEX_ACTION_TAB_SIGN, PLAYER1, PLAYER2
+from settings.config import MODEL_PATH, DATASET_PATH, DEBUG_PRINT, RATIO_TRAIN, MAX_SIZE_FULL_DATASET, TRAIN_SAMPLE_SIZE, ONNX_INFERENCE, INDEX_ACTION_TAB_SIGN, PLAYER1, PLAYER2
 from settings.game_settings import GAME_NAME, N_ROW, N_COL, N_REPRESENTATION_STACK, N_ACTION_STACK, N_DISTANCE, N_ORIENTATION, N_LEVELS, N_TIME_STEP
 
 
@@ -77,7 +77,10 @@ def get_random_sample(X, y_values, first_step=False):
 	else:
 		train_sample = TRAIN_SAMPLE_SIZE if TRAIN_SAMPLE_SIZE < X.shape[0] else X.shape[0]
 		# Here we take only the last 2/3 of the dataset to avoid low quality data from first iterations
-		idx = np.random.choice(np.arange(X.shape[0]//3, X.shape[0]), train_sample, replace=False)
+		if X.shape[0] - int(X.shape[0] * RATIO_TRAIN) >= train_sample:
+			idx = np.random.choice(np.arange(int(RATIO_TRAIN * X.shape[0]), X.shape[0]), train_sample, replace=False)
+		else:
+			idx = np.random.choice(np.arange(X.shape[0]), train_sample, replace=False)
 	print("--> Training on", train_sample, "examples, Chosen between index [", idx.min(), idx.max(), "]")
 	return X[idx], y_values[idx]
 

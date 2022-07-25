@@ -58,21 +58,28 @@ class MCTS_UCT_alphazero:
 		# self.pre_3D_coords = pre_3D_coords
 
 	def chose_move_connectfour(self, legal_moves, policy_pred, competitive_mode):
-		legal_policy = np.zeros(policy_pred.shape)
-		legal_moves_python = np.zeros((N_ROW, N_COL, N_ROW, N_COL), dtype=object)
+		legal_moves_python = np.full((N_COL), None)
+		legal_policy = np.zeros((N_COL))
+		for move in legal_moves:
+			for i in range(N_COL):
+				if move.to() == i:
+					legal_moves_python[i] = move
+					legal_policy[i] = policy_pred[i]
+
 		legal_policy = softmax(legal_policy, ignore_zero=True)
+
 		if competitive_mode:
 			chosen_to = legal_policy.argmax()
 			prior = legal_policy.max()
 		else:
 			r = np.random.rand()
 			chose_array = legal_policy.cumsum()
-			chosen_to = np.where(chose_array >= r)	
+			chosen_to = np.where(chose_array >= r)[0][0]
 			prior = legal_policy[chosen_to]
-		for move in legal_moves:
-			if move.to() == chosen_to:
-				chosen_move = move
+
+		chosen_move = legal_moves_python[chosen_to]
 		legal_moves.remove(chosen_move)
+		
 		return chosen_move, prior
 
 	# Get the policy on every moves, mask out the illegal moves,
@@ -205,7 +212,7 @@ class MCTS_UCT_alphazero:
 	# set the policy for each node
 	def backpropagate_predicted_values(self, nodes, utils, policy_preds):
 		for i, node in enumerate(nodes):
-			node.current = policy_preds[i]
+			node.policy_pred = policy_preds[i]
 			while node is not None:
 				node.score_sums[PLAYER1] += utils[i, PLAYER1]
 				node.score_sums[PLAYER2] += utils[i, PLAYER2]
@@ -306,11 +313,11 @@ class MCTS_UCT_alphazero:
 		# If we have some moves to expand
 		if len(current.unexpanded_moves) > 0:
 			# Choose a move randomly
-			if current.policy_pred == None:
+			if current.policy_pred is None:
 				move = current.unexpanded_moves.pop()
 				prior = 1 / (len(current.unexpanded_moves)+1) # +1 because we pop 
 			else:
-				move, prior = self.chose_move(current.unexpanded_moves, current.policy_pred, competitive_mode=self.dojo)
+				move, prior = self.chose_move_connectfour(current.unexpanded_moves, current.policy_pred, competitive_mode=self.dojo)
 			
 			# We copy the context to play in a simulation
 			current_context = current.context.deepCopy()

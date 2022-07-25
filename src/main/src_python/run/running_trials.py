@@ -164,10 +164,7 @@ class RunningTrials:
 		X = X[:idx_sample]
 		y_values = np.array(y_values)			
 		y_values = y_values[:idx_sample]
-		y_distrib = y_distrib[:idx_sample]
-
-		for y in y_values:
-			print(y)
+		y_distrib = y_distrib[:idx_sample]		
 
 		if DEBUG_PRINT:
 			# Print our generated dataset shapes

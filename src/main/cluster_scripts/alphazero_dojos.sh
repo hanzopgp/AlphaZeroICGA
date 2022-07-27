@@ -2,11 +2,11 @@ export PATH=$PATH:/data/vittaut/apache-ant-1.10.12/bin
 conda init bash
 conda activate alphazero
 
-command = ""
-for i in $(($1))
+command=""
+for i in  {0. .$(($1))}
 do
-	add = "ant run_dojos & "
-	command = "$command$add"
+	command+="ant run_dojos & "
 done
-command = "$command wait"
+command+=" wait"
+echo $command
 eval $command

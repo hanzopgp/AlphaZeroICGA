@@ -2,14 +2,13 @@ export PATH=$PATH:/data/vittaut/apache-ant-1.10.12/bin
 conda init bash
 conda activate alphazero
 
-command = ""
-for i in ((i=0 ; $(($1)); i++))
+#!/bin/bash
+
+command=""
+for i in  {0. .$(($1))}
 do
-	echo $i
-	$add = "ant run_trials -Dforce_vanilla=False & "
-	command += "$add"
-	echo $add
+	command+="ant run_trials -Dforce_vanilla=False & "
 done
-command += " wait"
+command+=" wait"
 echo $command
 eval $command

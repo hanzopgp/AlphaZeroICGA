@@ -19,6 +19,7 @@
 		<mkdir dir="models/"/>
 		<mkdir dir="agents"/>
 		<mkdir dir="datasets/"/>
+		<mkdir dir="cluster_logs/"/>
 		<touch file="models/save_winners.txt"/>
 		<copy includeemptydirs="false" todir="bin">
 			<fileset dir="src_java">

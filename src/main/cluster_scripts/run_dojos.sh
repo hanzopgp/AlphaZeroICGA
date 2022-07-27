@@ -17,7 +17,7 @@
 command=""
 for i in  {0. .$(($1))}
 do
-	command+="srun --gpus-per-node=0 bash cluster_scripts/alphazero_dojos.sh {$2} &"
+	command+="srun --gpus-per-node=0 bash cluster_scripts/alphazero_dojos.sh ${2} &"
 done
 command+=" wait"
 eval $command

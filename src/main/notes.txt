@@ -1,3 +1,6 @@
+
+============================================================================
+
 - test sending multiple self play on multiple nodes CPU clusters, and train model on GPU clusters
 - re-add policy for connect-four
 - optimize parameters, fight between models 

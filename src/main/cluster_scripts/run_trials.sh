@@ -14,4 +14,4 @@
 
 #SBATCH --error=%x-%j.err
 
-srun --gpus-per-node=1 bash cluster_scripts/alphazero_trials.sh
+srun --gpus-per-node=0 bash cluster_scripts/alphazero_trials.sh

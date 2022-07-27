@@ -12,7 +12,7 @@
 
 #SBATCH --error=cluster_logs/%x-%j.err
 
-srun --nodes=${1} bash cluster_scripts/alphazero_trials.sh "${2}"
+srun --nodes=$1 bash cluster_scripts/alphazero_trials.sh $2
 
 # command=""
 # for i in  {0. .$(($1))}

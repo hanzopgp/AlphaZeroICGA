@@ -22,28 +22,31 @@ Implementing deep reinforcement learning algorithms for the ICGA competition. Th
 <pre><code>AlphaZeroICGA/
       ├── src/
       |       ├── main/
-      |       |      ├── agents/                 (Contains the jar files of the final agents)
-      |       |      ├── bin/                    (Contains the binary files compiled from src_java)
-      |       |      ├── datasets/               (Contains the (state,distrib,value) datasets)
-      |       |      ├── final_model/            (Contains the final weights of the best models)
-      |       |      ├── libs/                   (Contains the librairies such as JPY/Ludii...)
-      |       |      ├── models/                 (Contains the current models)
-      |       |      ├── src_java/               (Contains all the source code in java)
-      |       |      ├── src_python/             (Contains all the source code in python)
-      |       |      |      ├── brain/           (Contains the deep learning part)
-      |       |      |      ├── mcts/            (Contains the vanilla MCTS and AlphaZero MCTS)
-      |       |      |      ├── optimization/    (Contains the optimization part such as precomputations)
-      |       |      |      ├── other/           (Contains utility files)
-      |       |      |      ├── run/             (Contains files runned by java files such as dojo, trials...)
-      |       |      |      ├── scripts/         (Contains all the scripts such as merge_datasets.py)
-      |       |      |      ├── settings/        (Contains the hyperparameters and games settings)
-      |       |      |      └── utils.py         (File containing the utility functions)
-      |       |      ├── alphazero.py            (Script running the whole AlphaZero algorithm)
-      |       |      ├── alphazero_model_only.py (Same but only playing model vs model)
-      |       |      ├── build.xml               (Build file helping us run java commands, clean...)
-      |       |      └── notes.txt               (Some notes I left while doing that project)
-      |       └── test/                          (Some Ludii tutorials and tests)
-      ├── alphazero_env.yml                      (Conda environment save)
+      |       |      ├── agents/              (Contains the jar files of the final agents)
+      |       |      ├── bin/                 (Contains the binary files compiled from src_java)
+      |       |      ├── datasets/            (Contains the (state,distrib,value) datasets)
+      |       |      ├── final_model/         (Contains the final weights of the best models)
+      |       |      ├── libs/                (Contains the librairies such as JPY/Ludii...)
+      |       |      ├── models/              (Contains the current models)
+      |       |      ├── src_java/            (Contains all the source code in java)
+      |       |      ├── src_python/          (Contains all the source code in python)
+      |       |      |      ├── brain/        (Contains the deep learning part)
+      |       |      |      ├── mcts/         (Contains the vanilla MCTS and AlphaZero MCTS)
+      |       |      |      ├── optimization/ (Contains the optimization part such as precomputations)
+      |       |      |      ├── other/        (Contains utility files)
+      |       |      |      ├── run/          (Contains files runned by java files such as dojo, trials...)
+      |       |      |      ├── scripts/      (Contains all the scripts such as merge_datasets.py)
+      |       |      |      ├── settings/     (Contains the hyperparameters and games settings)
+      |       |      |      └── utils.py      (File containing the utility functions)
+      |       |      ├── cluster_scripts/     (Contains the script to run alphazero on multiple nodes)
+      |       |      ├── cluster_logs/        (Contains all the logs output from the cluster scripts)
+      |       |      ├── alphazero.py         (Script running the whole AlphaZero algorithm)
+      |       |      ├── alphazero_m.py       (Same but only playing model vs model)
+      |       |      ├── alphazero_mm.py      (Same but running on multiple nodes if on cluster)
+      |       |      ├── build.xml            (Build file helping us run java commands, clean...)
+      |       |      └── notes.txt            (Some notes I left while doing that project)
+      |       └── test/                       (Some Ludii tutorials and tests)
+      ├── alphazero_env.yml                   (Conda environment save)
       ├── README.md
       └── LICENSE
 </pre></code>
@@ -132,6 +135,10 @@ Go to the src/main/ directory and run the next commands in a terminal :
 `nano src_python/settings/game_settings.py` : set the settings for the different games AlphaZero can play such as number of rows, columns...
 
 `python3 alphazero.py <n_loop> <n_workers>` : runs the whole loop (MCTS simulation with random moves -> dataset -> train model -> save model -> MCTS simulation with model predicting moves -> dataset -> ...). **n_loop** is the number of loop it will achieve. **n_workers** is the number of processes which will be executed in parallel.
+
+`python3 alphazero_m.py <n_loop> <n_workers>` : runs the whole loop but not playing against MCTS vanilla, only playing model vs model.
+
+`python3 alphazero_mm.py <n_loop> <n_workers>` : same as alphazero_m.py but able to run on SCAI GPU clusters.
 
 The python alphazero script does everything, the following commands are for debugging purposes :
 

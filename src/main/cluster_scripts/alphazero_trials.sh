@@ -3,7 +3,7 @@ conda init bash
 conda activate alphazero
 
 command = ""
-for i in $1
+for i in $(($1))
 do
 	add = "ant run_trials -Dforce_vanilla=False & "
 	command = "$command$add"

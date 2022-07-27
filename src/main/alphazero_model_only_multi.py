@@ -76,7 +76,7 @@ def run_trials(n_workers, n_nodes):
 	print("********************************************************************************************")
 	print("************************************** RUNNING TRIALS ***************************************")
 	print("********************************************************************************************")
-	Popen("sbatch cluster_scripts/alphazero_trials.sh", shell=True).wait()
+	Popen("sbatch cluster_scripts/run_trials.sh", shell=True).wait()
 	# Popen(parallelize_command("run_trials -Dforce_vanilla=False", n_workers), shell=True).wait()
 	
 	while True:
@@ -93,7 +93,7 @@ def run_dojos(n_workers, n_nodes):
 	print("********************************************************************************************")
 	print("*************************************** RUNNING DOJO ****************************************")
 	print("********************************************************************************************")
-	Popen("sbatch cluster_scripts/alphazero_dojos.sh", shell=True).wait()
+	Popen("sbatch cluster_scripts/run_dojos.sh", shell=True).wait()
 	# Popen(parallelize_command("run_dojos", n_workers), shell=True).wait()
 
 	while True:

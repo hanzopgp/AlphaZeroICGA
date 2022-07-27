@@ -6,7 +6,8 @@ command = ""
 for i in $(($1))
 do
 	add = "ant run_trials -Dforce_vanilla=False & "
-	command = "$command$add"
+	command = "${command}{$add}"
 done
-command = "$command wait"
+command = "${command} wait"
+echo $command
 eval $command

@@ -176,9 +176,12 @@ When the project will be over, the model will be available in the folder **model
 - MCTS with UCB/PUCT scores
 - State and action representation, reward system
 - Temperature, dirichlet in policy for exploration etc...
+- Using batch prediction to avoid wasting too much time in inference
 
 **- Time and memory optimization :**
-- Multithreading/Multiprocessing and GPU clusters (for the self-play games and the model training)
+- Multithreading/Multiprocessing for the self play games
+- Parallel execution of self-play games and dojos on different nodes of the cluster
+- Usage of GPU clusters to train the models
 - Code optimization because the algorithm is very time consuming (use of profilers)
 - Precomputing functions which are called huge amount of time (in MCTS algorithm)
 - ONNX format for faster inference with models

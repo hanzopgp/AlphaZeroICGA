@@ -77,7 +77,6 @@ def run_trials(n_workers, n_nodes):
 	print("************************************** RUNNING TRIALS ***************************************")
 	print("********************************************************************************************")
 	Popen("sbatch cluster_scripts/run_trials.sh", shell=True).wait()
-	# Popen(parallelize_command("run_trials -Dforce_vanilla=False", n_workers), shell=True).wait()
 	
 	while True:
 		n_files = len([f for f in listdir(DATASET_PATH) \
@@ -88,13 +87,13 @@ def run_trials(n_workers, n_nodes):
 			print("************************************** MERGING DATASETS ************************************")
 			print("********************************************************************************************")
 			Popen("python3 src_python/scripts/merge_datasets.py", shell=True).wait()
+			break
 
 def run_dojos(n_workers, n_nodes):
 	print("********************************************************************************************")
 	print("*************************************** RUNNING DOJO ****************************************")
 	print("********************************************************************************************")
 	Popen("sbatch cluster_scripts/run_dojos.sh", shell=True).wait()
-	# Popen(parallelize_command("run_dojos", n_workers), shell=True).wait()
 
 	while True:
 		n_files = len([f for f in listdir(MODEL_PATH) \
@@ -105,6 +104,7 @@ def run_dojos(n_workers, n_nodes):
 			print("*************************************** MERGING TXTS ***************************************")
 			print("********************************************************************************************")
 			Popen("python3 src_python/scripts/merge_txts.py", shell=True).wait()
+			break
 
 def train_model(lr):
 	print("********************************************************************************************")

@@ -4,7 +4,7 @@
 
 #SBATCH --job-name=alphazero
 
-#SBATCH --nodes=2
+#SBATCH --nodes=1
 
 #SBATCH --gpus-per-node=1
 
@@ -14,6 +14,4 @@
 
 #SBATCH --error=%x-%j.err
 
-srun --gpus-per-node=1 bash cluster_scripts/alphazero_trials.sh &
-
-srun --gpus-per-node=1 bash cluster_scripts/alphazero_trials.sh 
+srun --gpus-per-node=1 bash cluster_scripts/alphazero_trials.sh

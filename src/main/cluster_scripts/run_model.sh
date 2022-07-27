@@ -2,7 +2,7 @@
 
 #SBATCH --partition=funky
 
-#SBATCH --job-name=alphazero
+#SBATCH --job-name=alphazero_model
 
 #SBATCH --nodes=1
 
@@ -14,4 +14,4 @@
 
 #SBATCH --error=cluster_logs/%x-%j.err
 
-srun --gpus-per-node=1 bash cluster_scripts/alphazero_train.sh
+srun --gpus-per-node=1 bash cluster_scripts/alphazero_train.sh $1 $2

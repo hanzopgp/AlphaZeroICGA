@@ -112,7 +112,7 @@ def train_model(lr):
 	print("************************************** TRAINING MODEL **************************************")
 	print("********************************************************************************************")
 	# Popen("srun python3 src_python/brain/train_model.py "+str(lr)+" False", shell=True).wait()
-	Popen("sbatch cluster_scripts/run_model.sh", shell=True).wait()
+	Popen("sbatch cluster_scripts/run_model.sh " + str(lr) + " False", shell=True).wait()
 
 	while True:
 		n_folder = len([f for f in listdir(MODEL_PATH) \

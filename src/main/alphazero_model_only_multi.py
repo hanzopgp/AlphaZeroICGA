@@ -98,6 +98,7 @@ def run_dojos(n_workers, n_nodes):
 	while True:
 		n_files = len([f for f in listdir(MODEL_PATH) \
 						 if isfile(join(MODEL_PATH, f)) \
+						 and "winners" in f \
 						 and any(char.isdigit() for char in join(MODEL_PATH, f))])
 		if n_files >= n_nodes * n_workers:
 			print("********************************************************************************************")

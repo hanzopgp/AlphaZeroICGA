@@ -1,4 +1,6 @@
 import os
+from os import listdir
+from os.path import isfile, join
 import sys
 import re
 import pickle
@@ -23,7 +25,7 @@ def decide_if_switch_model():
 		# If the champion won we need to train the model again without executing run_trials
 		return False
 
-def parallelize_command(command, n_workers, n_nodes):
+def parallelize_command(command, n_workers):
 	if not DEBUG_PRINT:
 		string = "ant -q " + command + " &"
 		for _ in range(n_workers-1):
@@ -74,23 +76,35 @@ def run_trials(n_workers, n_nodes):
 	print("********************************************************************************************")
 	print("************************************** RUNNING TRIALS ***************************************")
 	print("********************************************************************************************")
-	Popen(parallelize_command("run_trials -Dforce_vanilla=False", n_workers, n_nodes), shell=True).wait()
+	Popen(parallelize_command("run_trials -Dforce_vanilla=False", n_workers), shell=True).wait()
 	
-	print("********************************************************************************************")
-	print("************************************** MERGING DATASETS ************************************")
-	print("********************************************************************************************")
-	Popen("python3 src_python/scripts/merge_datasets.py", shell=True).wait()
+	while True:
+		n_files = len([f for f in listdir(DATASET_PATH) \
+						 if isfile(join(DATASET_PATH, f)) \
+						 and any(char.isdigit() for char in join(DATASET_PATH, f))])
+		print("NFILES", n_files)
+		if n_files == n_nodes * n_workers:
+			print("********************************************************************************************")
+			print("************************************** MERGING DATASETS ************************************")
+			print("********************************************************************************************")
+			Popen("python3 src_python/scripts/merge_datasets.py", shell=True).wait()
 
 def run_dojos(n_workers, n_nodes):
 	print("********************************************************************************************")
 	print("*************************************** RUNNING DOJO ****************************************")
 	print("********************************************************************************************")
-	Popen(parallelize_command("run_dojos", n_workers, n_nodes), shell=True).wait()
+	Popen(parallelize_command("run_dojos", n_workers), shell=True).wait()
 	
-	print("********************************************************************************************")
-	print("*************************************** MERGING TXTS ***************************************")
-	print("********************************************************************************************")
-	Popen("python3 src_python/scripts/merge_txts.py", shell=True).wait()
+	while True:
+		n_files = len([f for f in listdir(MODEL_PATH) \
+						 if isfile(join(MODEL_PATH, f)) \
+						 and any(char.isdigit() for char in join(MODEL_PATH, f))])
+		print("NFILES", n_files)
+		if n_files == n_nodes * n_workers:
+			print("********************************************************************************************")
+			print("*************************************** MERGING TXTS ***************************************")
+			print("********************************************************************************************")
+			Popen("python3 src_python/scripts/merge_txts.py", shell=True).wait()
 
 def train_model(lr):
 	print("********************************************************************************************")
@@ -111,9 +125,6 @@ def main_loop(n_iteration, n_workers, n_nodes):
 	alphazero_iteration=0
 	outsider_won=True
 	lr = BASE_LEARNING_RATE
-
-	# Allocate some nodes
-	Popen("salloc --nodes="+str(n_nodes)+" --gpus-per-node=1 --time=60", shell=True).wait()
 
 	while(alphazero_iteration < n_iteration):
 		print("============================================================================================")

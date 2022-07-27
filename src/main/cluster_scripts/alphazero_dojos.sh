@@ -3,7 +3,7 @@ conda init bash
 conda activate alphazero
 
 command=""
-for i in  {0. .$(($1))}
+for i in $(seq 0 1 $(($1)))
 do
 	command+="ant run_dojos & "
 done

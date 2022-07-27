@@ -1,6 +1,6 @@
 import os
 from os import listdir
-from os.path import isfile, join
+from os.path import isfile, join, isdir
 import sys
 import re
 import pickle
@@ -113,8 +113,14 @@ def train_model(lr):
 	# Popen("srun python3 src_python/brain/train_model.py "+str(lr)+" False", shell=True).wait()
 	Popen("sbatch cluster_scripts/run_model.sh", shell=True).wait()
 
-	if ONNX_INFERENCE:
-		convert_models_onnx()
+	while True:
+		n_folder = len([f for f in listdir(MODEL_PATH) \
+			   			  if isdir(join(MODEL_PATH, f)) \
+			   			  and GAME_NAME in f])
+		if n_folder >= 1:
+			if ONNX_INFERENCE:
+				convert_models_onnx()
+			break
 
 def switch_model():
 	print("********************************************************************************************")

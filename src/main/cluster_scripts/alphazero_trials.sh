@@ -3,11 +3,11 @@ conda init bash
 conda activate alphazero
 
 command = ""
-for i in  0 .. $(($1))
+for i in ((i=0 ; $(($1)); i++))
 do
 	echo $i
 	$add = "ant run_trials -Dforce_vanilla=False & "
-	command += $add
+	command += "$add"
 	echo $add
 done
 command += " wait"

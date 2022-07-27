@@ -5,8 +5,12 @@ conda activate alphazero
 #!/bin/bash
 
 command=""
+echo "ok"
+echo $1
+echo "ok"
 for i in  {0..$(($1))}
 do
+	echo "$i"
 	command+="ant run_trials -Dforce_vanilla=False & "
 done
 command+=" wait"

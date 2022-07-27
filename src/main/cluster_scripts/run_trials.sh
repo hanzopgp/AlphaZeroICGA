@@ -10,8 +10,8 @@
 
 #SBATCH --time=60
 
-#SBATCH --output=%x-%j.out
+#SBATCH --output=cluster_logs/%x-%j.out
 
-#SBATCH --error=%x-%j.err
+#SBATCH --error=cluster_logs/%x-%j.err
 
 srun --gpus-per-node=0 bash cluster_scripts/alphazero_trials.sh

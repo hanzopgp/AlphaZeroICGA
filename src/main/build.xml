@@ -33,6 +33,7 @@
 	 	<delete dir="agents"/>
 		<delete dir="datasets"/>
 		<delete dir="models"/>
+		<delete dir="cluster_logs"/>
 	</target>
 	
 	<target name="build" depends="init">

@@ -110,7 +110,8 @@ def train_model(lr):
 	print("********************************************************************************************")
 	print("************************************** TRAINING MODEL **************************************")
 	print("********************************************************************************************")
-	Popen("srun python3 src_python/brain/train_model.py "+str(lr)+" False", shell=True).wait()
+	# Popen("srun python3 src_python/brain/train_model.py "+str(lr)+" False", shell=True).wait()
+	Popen("sbatch cluster_scripts/train_model.sh", shell=True).wait()
 
 	if ONNX_INFERENCE:
 		convert_models_onnx()

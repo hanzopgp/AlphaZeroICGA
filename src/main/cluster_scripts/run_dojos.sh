@@ -14,4 +14,10 @@
 
 #SBATCH --error=cluster_logs/%x-%j.err
 
-srun --gpus-per-node=0 bash cluster_scripts/alphazero_dojos.sh $1 & srun --gpus-per-node=0 bash cluster_scripts/alphazero_dojos.sh $1 & wait
+command=""
+for i in  {0. .$(($1))}
+do
+	command+="srun --gpus-per-node=0 bash cluster_scripts/alphazero_dojos.sh {$2} &"
+done
+command+=" wait"
+eval $command

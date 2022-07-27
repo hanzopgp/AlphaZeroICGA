@@ -14,6 +14,6 @@
 
 #SBATCH --error=%x-%j.err
 
-srun --gpus-per-node=1 bash alphazero.sh &
+srun --gpus-per-node=1 bash gpu_scripts/alphazero.sh &
 
-srun --gpus-per-node=1 bash alphazero.sh 
+srun --gpus-per-node=1 bash gpu_scripts/alphazero.sh 

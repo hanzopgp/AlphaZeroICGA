@@ -4,8 +4,6 @@
 
 #SBATCH --job-name=alphazero_dojos
 
-#SBATCH --nodes=2
-
 #SBATCH --gpus-per-node=0
 
 #SBATCH --time=120
@@ -13,6 +11,8 @@
 #SBATCH --output=cluster_logs/%x-%j.out
 
 #SBATCH --error=cluster_logs/%x-%j.err
+
+export $SLURM_NNODES="${1}"
 
 srun --gpus-per-node=0 bash cluster_scripts/alphazero_dojos.sh "${2}"
 

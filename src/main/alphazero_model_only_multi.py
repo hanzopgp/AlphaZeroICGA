@@ -76,13 +76,14 @@ def run_trials(n_workers, n_nodes):
 	print("********************************************************************************************")
 	print("************************************** RUNNING TRIALS ***************************************")
 	print("********************************************************************************************")
-	Popen(parallelize_command("run_trials -Dforce_vanilla=False", n_workers), shell=True).wait()
+	Popen("sbatch cluster_scripts/alphazero_trials.sh", shell=True).wait()
+	# Popen(parallelize_command("run_trials -Dforce_vanilla=False", n_workers), shell=True).wait()
 	
 	while True:
 		n_files = len([f for f in listdir(DATASET_PATH) \
 						 if isfile(join(DATASET_PATH, f)) \
 						 and any(char.isdigit() for char in join(DATASET_PATH, f))])		
-		if n_files == n_nodes * n_workers:
+		if n_files >= n_nodes * n_workers:
 			print("********************************************************************************************")
 			print("************************************** MERGING DATASETS ************************************")
 			print("********************************************************************************************")
@@ -92,13 +93,14 @@ def run_dojos(n_workers, n_nodes):
 	print("********************************************************************************************")
 	print("*************************************** RUNNING DOJO ****************************************")
 	print("********************************************************************************************")
-	Popen(parallelize_command("run_dojos", n_workers), shell=True).wait()
-	
+	Popen("sbatch cluster_scripts/alphazero_dojos.sh", shell=True).wait()
+	# Popen(parallelize_command("run_dojos", n_workers), shell=True).wait()
+
 	while True:
 		n_files = len([f for f in listdir(MODEL_PATH) \
 						 if isfile(join(MODEL_PATH, f)) \
 						 and any(char.isdigit() for char in join(MODEL_PATH, f))])
-		if n_files == n_nodes * n_workers:
+		if n_files >= n_nodes * n_workers:
 			print("********************************************************************************************")
 			print("*************************************** MERGING TXTS ***************************************")
 			print("********************************************************************************************")

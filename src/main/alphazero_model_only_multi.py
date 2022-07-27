@@ -81,8 +81,7 @@ def run_trials(n_workers, n_nodes):
 	while True:
 		n_files = len([f for f in listdir(DATASET_PATH) \
 						 if isfile(join(DATASET_PATH, f)) \
-						 and any(char.isdigit() for char in join(DATASET_PATH, f))])
-		print("NFILES", n_files)
+						 and any(char.isdigit() for char in join(DATASET_PATH, f))])		
 		if n_files == n_nodes * n_workers:
 			print("********************************************************************************************")
 			print("************************************** MERGING DATASETS ************************************")
@@ -99,7 +98,6 @@ def run_dojos(n_workers, n_nodes):
 		n_files = len([f for f in listdir(MODEL_PATH) \
 						 if isfile(join(MODEL_PATH, f)) \
 						 and any(char.isdigit() for char in join(MODEL_PATH, f))])
-		print("NFILES", n_files)
 		if n_files == n_nodes * n_workers:
 			print("********************************************************************************************")
 			print("*************************************** MERGING TXTS ***************************************")

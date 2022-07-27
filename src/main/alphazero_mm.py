@@ -76,7 +76,7 @@ def run_trials(n_workers, n_nodes):
 	print("********************************************************************************************")
 	print("************************************** RUNNING TRIALS ***************************************")
 	print("********************************************************************************************")
-	Popen("sbatch cluster_scripts/run_trials.sh " + str(n_workers), shell=True).wait()
+	Popen("sbatch cluster_scripts/run_trials.sh "+ str(n_nodes) + " " + str(n_workers), shell=True).wait()
 	
 	while True:
 		n_files = len([f for f in listdir(DATASET_PATH) \
@@ -93,7 +93,7 @@ def run_dojos(n_workers, n_nodes):
 	print("********************************************************************************************")
 	print("*************************************** RUNNING DOJO ****************************************")
 	print("********************************************************************************************")
-	Popen("sbatch cluster_scripts/run_dojos.sh" + str(n_workers), shell=True).wait()
+	Popen("sbatch cluster_scripts/run_dojos.sh " + str(n_nodes) + " " + str(n_workers), shell=True).wait()
 
 	while True:
 		n_files = len([f for f in listdir(MODEL_PATH) \

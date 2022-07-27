@@ -111,7 +111,6 @@ def train_model(lr):
 	print("********************************************************************************************")
 	print("************************************** TRAINING MODEL **************************************")
 	print("********************************************************************************************")
-	# Popen("srun python3 src_python/brain/train_model.py "+str(lr)+" False", shell=True).wait()
 	Popen("sbatch cluster_scripts/run_model.sh " + str(lr) + " False", shell=True).wait()
 
 	while True:

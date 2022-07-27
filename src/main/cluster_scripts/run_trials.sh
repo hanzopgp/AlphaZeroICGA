@@ -4,8 +4,6 @@
 
 #SBATCH --job-name=alphazero_trials
 
-#SBATCH --nodes=2
-
 #SBATCH --gpus-per-node=0
 
 #SBATCH --time=120

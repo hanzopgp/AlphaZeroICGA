@@ -5,7 +5,7 @@ conda activate alphazero
 #!/bin/bash
 
 command=""
-for i in  {0. .$(($1))}
+for i in  {0..$(($1))}
 do
 	command+="ant run_trials -Dforce_vanilla=False & "
 done

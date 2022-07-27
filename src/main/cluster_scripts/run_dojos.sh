@@ -12,9 +12,7 @@
 
 #SBATCH --error=cluster_logs/%x-%j.err
 
-export $SLURM_NNODES=${1}
-
-srun --gpus-per-node=0 bash cluster_scripts/alphazero_dojos.sh "${2}"
+srun --nodes="${1}" bash cluster_scripts/alphazero_dojos.sh "${2}"
 
 # command=""
 # for i in  {0. .$(($1))}

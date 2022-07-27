@@ -10,5 +10,4 @@ do
 	command+="ant run_trials -Dforce_vanilla=False & "
 done
 command+=" wait"
-echo $command
 eval $command

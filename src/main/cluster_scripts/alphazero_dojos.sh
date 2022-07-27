@@ -8,5 +8,4 @@ do
 	command+="ant run_dojos & "
 done
 command+=" wait"
-echo $command
 eval $command

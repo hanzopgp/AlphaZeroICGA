@@ -4,7 +4,7 @@
 
 #SBATCH --job-name=alphazero_dojos
 
-#SBATCH --nodes=1
+#SBATCH --nodes=2
 
 #SBATCH --gpus-per-node=0
 

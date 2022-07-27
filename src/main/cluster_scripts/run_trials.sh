@@ -4,7 +4,7 @@
 
 #SBATCH --job-name=alphazero_trials
 
-#SBATCH --nodes=1
+#SBATCH --nodes=2
 
 #SBATCH --gpus-per-node=0
 

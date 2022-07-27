@@ -14,10 +14,12 @@
 
 #SBATCH --error=cluster_logs/%x-%j.err
 
-command=""
-for i in  {0. .$(($1))}
-do
-	command+="srun --gpus-per-node=0 bash cluster_scripts/alphazero_trials.sh ${2} &"
-done
-command+=" wait"
-eval $command
+srun --gpus-per-node=0 bash cluster_scripts/alphazero_trials.sh & srun --gpus-per-node=0 bash cluster_scripts/alphazero_trials.sh & wait
+
+# command=""
+# for i in  {0. .$(($1))}
+# do
+# 	command+="srun --gpus-per-node=0 bash cluster_scripts/alphazero_trials.sh ${2} &"
+# done
+# command+=" wait"
+# eval $command

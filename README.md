@@ -138,7 +138,7 @@ Go to the src/main/ directory and run the next commands in a terminal :
 
 `python3 alphazero_m.py <n_loop> <n_workers>` : runs the whole loop but not playing against MCTS vanilla, only playing model vs model.
 
-`python3 alphazero_mm.py <n_loop> <n_workers>` : same as alphazero_m.py but able to run on SCAI GPU clusters.
+`python3 alphazero_mm.py <n_loop> <n_nodes> <n_workers>` : same as alphazero_m.py but able to run on multiple SCAI GPU clusters nodes.
 
 The python alphazero script does everything, the following commands are for debugging purposes :
 

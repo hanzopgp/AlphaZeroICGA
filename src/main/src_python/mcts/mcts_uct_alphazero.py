@@ -263,7 +263,6 @@ class MCTS_UCT_alphazero:
 
 		# Queue to predict in batch
 		predict_queue = []
-		full_queue = []
 
 		# Loop making sure we respect the max values
 		while num_iterations < max_its and time.time() < stop_time:
@@ -286,7 +285,6 @@ class MCTS_UCT_alphazero:
 
 			# Adding the current node to the predict queue list in order to estimate the values later
 			predict_queue.append(current)
-			full_queue.append(current)
 			# Here we predict values if the queue length is higher than a minimum value or if it's the
 			# last iteration in order to avoid missing values before the final decision
 			if len(predict_queue) >= MINIMUM_QUEUE_PREDICTION or num_iterations == max_its - 1:
